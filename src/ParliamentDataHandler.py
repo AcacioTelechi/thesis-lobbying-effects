@@ -23,13 +23,14 @@ class ParliamentDataHandler:
     The `EpTalker` class provides methods for interacting with the European Parliament's API and scraping meeting data
     from the European Parliament's website.
     """
-    BASE_URL = "https://data.europarl.europa.eu/api/v2/"
+
+    BASE_URL = "https://data.europarl.europa.eu/api/v2"
     WEB_URL = "https://www.europarl.europa.eu"
 
     def __init__(self) -> None:
         pass
 
-    def request(self, url) -> list[dict]:
+    def request(self, url) -> list[dict] | None:
         try:
             resp = requests.get(url)
             return resp.json()
@@ -43,7 +44,7 @@ class ParliamentDataHandler:
             print(f"Timeout error occurred: {timeout_err}")
             return None
         except requests.exceptions.RequestException as req_err:
-            print(f"An error occurred: {req_err}")
+            print(f"An error occurred: URL - {url} ERROR: {req_err}")
             return None
         except ValueError as json_err:
             print(f"JSON decode error occurred: {json_err}")
@@ -54,7 +55,60 @@ class ParliamentDataHandler:
         resp = self.request(url)
         return resp["data"]
 
-    def get_mep_details(self, mep_id: int | str) -> dict:
+    def get_questions(self, limit: int = 1000, offset: int = 0) -> list[dict]:
+        url = f"{self.BASE_URL}/parliamentary-questions?format=application%2Fld%2Bjson&offset={offset}&limit={limit}"
+        resp = self.request(url)
+        if not resp or "data" not in resp:
+            return []
+
+        data = resp["data"]
+        if len(data) < limit:
+            return data
+        else:
+            return data + self.get_procedures(limit=limit, offset=offset + limit)
+        
+    def get_questions_details(self, question_id) -> list[dict]:
+        url = f"{self.BASE_URL}/parliamentary-questions/{question_id}?format=application%2Fld%2Bjson&language=en"
+        resp = self.request(url)
+        if not resp or "data" not in resp:
+            return []
+        return resp["data"]
+        
+    def get_procedures(self, limit: int = 1000, offset: int = 0) -> list[dict]:
+        url = f"{self.BASE_URL}/procedures?format=application%2Fld%2Bjson&offset={offset}&limit={limit}"
+        resp = self.request(url)
+        if not resp or "data" not in resp:
+            return []
+
+        data = resp["data"]
+        if len(data) < limit:
+            return data
+        else:
+            return data + self.get_procedures(limit=limit, offset=offset + limit)
+
+    def get_procedure_details(self, procedure_id: str) -> list[dict]:
+        url = (
+            f"{self.BASE_URL}/procedures/{procedure_id}?format=application%2Fld%2Bjson"
+        )
+        resp = self.request(url)
+        if not resp or "data" not in resp:
+            return []
+
+        return resp["data"]
+
+    def get_documents(self, limit: int = 1000, offset: int = 0) -> list[dict]:
+        url = f"{self.BASE_URL}/documents?format=application%2Fld%2Bjson&offset={offset}&limit={limit}"
+        resp = self.request(url)
+        if not resp or "data" not in resp:
+            return []
+
+        data = resp["data"]
+        if len(data) < limit:
+            return data
+        else:
+            return data + self.get_procedures(limit=limit, offset=offset + limit)
+
+    def get_mep_details(self, mep_id: int | str) -> dict | None:
         """
         Fetches detailed information about a specific MEP using their ID, with enhanced error handling.
 
@@ -66,17 +120,19 @@ class ParliamentDataHandler:
         """
         url = f"{self.BASE_URL}/meps/{mep_id}?format=application%2Fld%2Bjson"
         response = self.request(url)
-        
+
         if response is None:
             print(f"Failed to retrieve details for MEP ID {mep_id}. URL: {url}")
             return None
-        
+
         return response.get("data", {})
-    
-    def get_mep_details_in_parallel(self, mep_ids: None | list[int | str] = None, max_workers: int = 10) -> list[dict]:
+
+    def get_mep_details_in_parallel(
+        self, mep_ids: None | list[int | str] = None, max_workers: int = 10
+    ) -> list[dict]:
         """
         Fetches details for multiple MEPs in parallel using ThreadPoolExecutor.
-        
+
         Args:
             mep_ids (list[int | str]): A list of MEP IDs for which details are to be fetched.
             max_workers (int, optional): Maximum number of threads to use for parallel processing. Defaults to 10.
@@ -86,16 +142,21 @@ class ParliamentDataHandler:
         """
         if not mep_ids:
             meps = self.get_meps()
-            mep_ids = [m['identifier'] for m in meps]
-            
+            mep_ids = [m["identifier"] for m in meps]
+
         results = []
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_to_mep_id = {
-                executor.submit(self.get_mep_details, mep_id): mep_id for mep_id in mep_ids
+                executor.submit(self.get_mep_details, mep_id): mep_id
+                for mep_id in mep_ids
             }
 
-            for future in tqdm(as_completed(future_to_mep_id), total=len(mep_ids), desc="Fetching MEP details"):
+            for future in tqdm(
+                as_completed(future_to_mep_id),
+                total=len(mep_ids),
+                desc="Fetching MEP details",
+            ):
                 mep_id = future_to_mep_id[future]
                 try:
                     data = future.result()
