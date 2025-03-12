@@ -65,7 +65,7 @@ class ParliamentDataHandler:
         if len(data) < limit:
             return data
         else:
-            return data + self.get_procedures(limit=limit, offset=offset + limit)
+            return data + self.get_questions(limit=limit, offset=offset + limit)
         
     def get_questions_details(self, question_id) -> list[dict]:
         url = f"{self.BASE_URL}/parliamentary-questions/{question_id}?format=application%2Fld%2Bjson&language=en"
@@ -106,7 +106,7 @@ class ParliamentDataHandler:
         if len(data) < limit:
             return data
         else:
-            return data + self.get_procedures(limit=limit, offset=offset + limit)
+            return data + self.get_documents(limit=limit, offset=offset + limit)
 
     def get_mep_details(self, mep_id: int | str) -> dict | None:
         """
