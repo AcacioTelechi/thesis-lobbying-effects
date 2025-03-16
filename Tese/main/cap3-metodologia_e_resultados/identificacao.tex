@@ -1,0 +1,125 @@
+\section{Estratégia de identificação e de operacionalização}
+
+Muitos trabalhos sobre os efeitos lobby preocupam-se em medi-los resultados de políticas (como impacto em tarifas comerciais), de volume de contratos com o poder público, benefícios fiscais, entre outras variáveis dependentes amplas. Ora, os determinantes desses resultados são complexos. Ao focarmos no comportamento parlamentar conseguimos controlar melhorar os seus determinantes.
+
+O comportamento parlamentar pode se dar de diferentes formas. Os trabalhos que buscam estudar os efeitos sobre os votos dos parlamentares, caem no problema de que o voto possui, também, determinantes complexos, tais como o partido, relação com os pares, entre outros. Buscando minimizar esse desafio, este trabalho analisa a \acrfull{al}, isto é, o quão ativo determinado parlamentar é em determinado tema. A atividade, portanto, envolve a proposição de projetos, requisições, emendas e discursos. a \acrshort{al}, então, é majoritariamente determinada pelos interesses dos parlamentares. Não quero dizer que as variáveis como partido e relação entre os pares não influenciam, apenas defendo que a \acrshort{al} está mais fortemente correlacionada com os objetivos de um parlamentar, como visto no \textit{framework} de análise do comportamento parlamentar (\ref{fig:framework}). Assim buscamos minimizar os impactos do problema das variáveis omitidas. De tal forma que esperamos que o \acrshort{al} seja uma função de características individuais dos parlamentares, dos países pelos quais os eurodeputados são eleitos e dos partidos dos quais fazem parte. 
+
+Consideremos então que:
+\begin{center}
+$AL_{1,icpdt}$ = o ativismo legislativo do parlamentar $i$, eleito pelo país $c$ e pertencente ao grupo político $p$, caso tenha recebido esforço de lobby significativo no domínio temático $d$ no tempo $t$; e
+
+$AL_{0,icpdt}$ = o ativismo legislativo do parlamentar $i$, eleito pelo país $c$ e pertencente ao grupo político $p$, caso \emph{não} tenha recebido esforço de lobby significativo no domínio temático $d$ no tempo $t$.
+\end{center}
+
+Esses resultados são, contudo, potenciais, isto é, não observamos $AL_{1idt}$ e $AL_{0idt}$ ao mesmo tempo, apenas um ou outro. Partindo do \textit{framework} de análise do comportamento parlamentares, esperamos que:
+
+% VERSÃO 3
+\begin{equation}
+    \label{eq:esperanca}
+    E(AL_{0,icpdt} \vert c,p,d,t,X) = \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{cpt} \delta
+\end{equation}
+
+A equação \ref{eq:esperanca} denota que, na ausência de pressão significativa de lobby, a \acrshort{al} é determinada pela soma dos efeitos:
+\begin{itemize}
+    \item $\gamma_{ct}$: captura o efeito específico do país no tempo $t$. Ele leva em conta fatores que podem influenciar o ativismo legislativo em todos os partidos dentro de um determinado país em um momento específico (por exemplo, sistema eleitoral, características do eleitorado, condições econômicas, etc.);
+    \item $\lambda_{pt}$: representa o efeito específico do partido no tempo $t$. Ele leva em conta fatores que podem influenciar o ativismo legislativo em todos os países para um determinado partido em um momento específico (por exemplo, ideologia do partido, mudanças de liderança, etc.);
+    \item $\theta_{dt}$: captura o efeito do domínio temático no tempo $t$, tais como a competitividade, saliência, etc.
+    \item $X'_{cpt} \delta$: este termo leva em conta os efeitos de outros fatores relevantes (variáveis de controle) capturados no vetor $X$ específicos de cada parlamentar, como expertise, experiência, gênero, etc.
+\end{itemize}
+
+Esperamos que os efeitos de interação entre país e partido seja zero, uma vez que os grupos políticos se organizam transnacionalmente. Por conta disso, não incluí um termo que capturasse um efeito do partido no ativismo legislativo que variasse em diferentes países. 
+
+Considerando que o esforço de lobby varia de acordo com o domínio temático, podemos utilizar o método da \acrfull{ddd}, cuja especificação se daria por:
+
+\begin{equation}
+    \begin{split}
+        AL_{icpdt} &= \gamma_{ct} + \lambda_{pt} + \theta_{dt}\\
+        &+ \beta_1 L_{idt}\\
+        &+ \beta_2 (L_{idt} * T_{dt})\\
+        &+ \beta_3 (L_{idt} * D_d)\\
+        &+ \beta_4 (L_{idt} * T_{dt} * D_d)\\
+        &+ X'_{icpdt} \delta
+    \end{split}
+\end{equation}
+
+Onde:
+\begin{itemize}
+    \item $AL_{icpdt}$: denota o ativismo legislativo esperado do parlamentar $i$, dado que foi eleito pelo país $c$, pertence grupo político $p$, no domínio $d$ no tempo $t$;
+    \item $L_{idt}$: o esforço de lobby sobre o parlamentar $i$ no domínio $d$ no tempo $t$;
+    \item $T_{dt}$: variável \textit{dummy} que recebe o valor 1 a partir do momento em que o esforço do lobby é realizado no domínio $d$; e
+    \item $D_d$: variável \textit{dummy} que recebe o valor 1 nos temas em que houve esforço significativo de lobby.
+\end{itemize}
+
+De tal forma que $\beta_1$ representa o efeito médio do lobby no ativismo legislativo em todos os domínios e períodos, independente do tratamento (receber ou não lobby); $\beta_2$ captura o efeito do lobby após o tratamento; $\beta_3$ mensura a diferença no efeito do lobby entre tratados e grupo de controle antes do tratamento; e $\beta_4$ é estimador principal do \acrshort{ddd}, pois captura o efeito médio do tratamento sobre os tratados.
+
+Para operacionalização, irei mensurar o $AL$ por meio de um indicador de ativismo legislativo, o qual levará em consideração a autoria de requisições, discursos e emendas realizadas pelo parlamentar por domínio temático. Para a captação de dados, utilizarei a API disponibilizada pelo próprio Parlamento e, adicionalmente, lançarei mão de \textit{scraper} em Python a fim de pegar os dados mais detalhados dos trâmites que não estão disponíveis na API, porém estão no site da \acrshort{pe}.
+
+Os esforços de lobby ($L$) será mensurado pela quantidade de reuniões que determinado parlamentar realizou com representantes de grupos de pressão. Os eurodeputados são obrigados a publicizá-las, quando forem relatores. Esses dados também são possíveis de serem extraídos por meio de \textit{scraper}. Com isso, teremos o registro de quem se reuniu com quem e a data do encontro, o que permitirá calcular as variáveis \textit{dummy} ($T$ e $D$).
+
+Para encontrar o domínio em que o lobby foi realizado, faremos uma inferência a partir do representante de interesse lobista. Ou seja, partiremos do pressuposto que as organizações tem interesses específicos em temas específicos, que tem relação com a sua natureza, de tal modo que, por exemplo, uma associação comercial tem interesses em temas comerciais e econômicos, já uma organização da sociedade civil de defesa do meio ambiente tem interesses no domínio de meio ambiente. O Registro de Transparência da \acrshort{ue} nos permite saber quem são os atores registrados, bem como suas áreas de interesse. Assim, ao cruzarmos com os dados dos encontros publicados, poderemos saber em qual área determinado parlamentar recebeu pressão de lobby. Demais dados podem ser obtidos pela API, tais como grupo político, gênero, ocupação, país eleito de um eurodeputado. 
+
+
+
+
+
+% % VERSÃO 2
+% \begin{equation}
+%     \label{eq:esperanca}
+%     E(AL_{0idt} \vert d,t, X_{dt}) = \gamma_d + \lambda_t + X'_{dt} \delta
+% \end{equation}
+
+% A equação \ref{eq:esperanca} denota que, na ausência de pressão significativa de lobby, a \acrshort{al} é determinada pela soma dos efeitos invariantes no tempo do domínio temático ($d$), do tempo ($t$) e das co-variadas dos parlamentares em cada tema e período ($X'_{dt}$)  que são comuns entre os parlamentares e independentes do domínio temático, tais como características individuais dos parlamentares, do país pelos quais foram eleitos e de seus grupos político (seguindo o \textit{framework} de análise do comportamento parlamentar da \ref{fig:framework}).
+
+
+% Agora consideremos $L_{dt}$ como uma variável \textit{dummy} para o esforço de lobby em determinado tema ($d$) e período ($t$). Se assumirmos que $E(AL_{1idt} - AL_{0idt} \vert d, t)$ é constante, isto é, os efeitos do tema e do tempo são iguais para todos os parlamentares, descrito por $\beta$, temos:
+
+% \begin{equation}
+%     AL_{idt} = \gamma_d + \lambda_t + \beta L_{dt} + \epsilon_{idt}
+% \end{equation}
+% Onde $E(\epsilon_{idt} \vert d,t) = 0$, de forma que podemos chegar na seguinte especificação:
+
+% \begin{equation}
+%     AL_{idt} = \alpha + \gamma D_d + \lambda d_t + \beta(D_d * d_t) + \epsilon_{idt}
+% \end{equation}
+% Onde $D_d$ seja uma variável \textit{dummy} para representar o tema $d$; e $d_t$ outra variável \textit{dummy} que recebe o valor 1 caso no período $t$ o parlamentar tenha recebido pressão significativa de lobby.
+
+
+
+% VERSÃO 1
+
+% \begin{equation}
+%     \label{eq:country}
+%     C_{it} = \gamma_0 SE_{i} + \gamma_1 E_{i} + \epsilon_{i}
+% \end{equation}
+
+% Onde $C_{it}$ são os efeitos da dimensão país sobre o parlamentar $i$ no tempo $t$; $SE_i$, a variável que capta o tipo de sistema eleitoral do país do parlamentar $i$; $E_i$, que capta os efeitos do eleitorado do país de $i$; e $\epsilon_i$, que considera as características não observáveis do país de $i$. Essas características são, aqui, como constantes no tempo, uma vez que apresentam poucas variações ao longo dos anos. A equação \ref{eq:party}, abaixo, descreve os efeitos da dimensão partidária:
+
+% \begin{equation}
+%     \label{eq:party}
+%     P_{it} = \rho_0 Gov_{it} + \rho_1 Dis_{it} + \epsilon_{i}
+% \end{equation}
+
+% Onde $P_{it}$ refere-se aos efeitos da dimensão partidária do parlamentar $i$ no tempo $t$; $Gov_{it}$, à situação do partido do parlamentar $i$ em relação ao governo no tempo $t$; $Dis_{it}$, à disciplina partidária do parlamentar $i$ no tempo $t$; e $\epsilon_i$ os efeitos não observáveis que são invariáveis no tempo em relação ao parlamentar $i$. A equação \ref{eq:mep}, a seguir, descreve os efeitos da dimensão individual do parlamentar:
+
+% \begin{equation}
+%     \label{eq:mep}
+%     MEP_{it} = \mu_0 Ets_{it} + \mu_1 Exp_{it} + \epsilon_{i}
+% \end{equation}
+
+% Onde $MEP_{it}$ refere-se aos efeitos das características individuais do parlamentar $i$ no tempo $t$; $Ets_{it}$, à expertise do parlamentar $i$ no tempo $t$; e $Exp_{it}$, à experiência do parlamentar $i$ no tempo $t$. Note que aqui também consideramos as características individuais fixas no tempo do parlamentar $i$ ($\epsilon_i$). Assim, a \acrshort{al} pode ser descrita como:
+
+% \begin{equation}
+%     \label{eq:al}
+%     AL_{it} = \beta_0 L_{it} + \beta_1 C_{it} + \beta_2 P_{it} + \beta_3 MEP_{it} + \epsilon_{it}
+% \end{equation}
+
+% O ativismo legislativo do parlamentar $i$ no tempo $t$ ($AL_{it}$) pode ser descrito então como a somatória dos efeitos do país, partido, características individuais. Adicionamos mais um componente, $L_{it}$, que representa os efeitos do lobby no ativismo legislativo, a nossa variável de interesse.
+
+%  Considerando que as variáveis não observadas são fixas em relação ao tempo, podemos reescrever \ref{eq:al} da seguinte maneira:
+ 
+% \begin{equation}
+%     \label{eq:aldiff}
+%     \Delta_t AL_{i} = \beta_0 \Delta_t L_{i} + \beta_1 \Delta_t C_{i} + \beta_2 \Delta_t P_{i} + \beta_3 \Delta_t  MEP_{i} + \Delta_t \epsilon_{i}
+% \end{equation}
+
+% Onde $\Delta_t$ representa a variação entre dois períodos. 

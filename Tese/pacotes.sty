@@ -1,0 +1,126 @@
+%_______________________________________________________________________________________________________
+%
+%                           PACOTES usados com frequência e o que fazem
+%_______________________________________________________________________________________________________
+
+% ----------------- Básico, texto, caractéries e configurações afins -------------------------------
+\RequirePackage{indentfirst} % comandos básicos do LaTeX
+%% https://texblog.org/2013/02/13/latex-documentclass-options-illustrated/
+%% https://ctan.org/topic/class?lang=en
+
+\RequirePackage[utf8]{inputenc} % complemento de várias funções básicas do LaTeX
+%% https://ctan.org/pkg/inputenc
+%% se eu não me engano, configura o uso de caractéries especiais como ç https://www.fileformat.info/info/charset/UTF-8/list.htm
+
+\RequirePackage[brazil]{babel} % Hifenização, correções, coisas relacionadas a português e outras línguas. 
+%% https://ctan.org/pkg/babel
+
+\RequirePackage[T1]{fontenc} % alguma coisa voltada a fontes, permite a hifenização com caractéreis especiais. Não sei a diferença entre esse e a hifenização do Babel
+%% https://ctan.org/pkg/fontenc
+
+\RequirePackage{multicol} % permite o uso de mais de uma coluna de texto (é bem bugado, então é melhor evitar usar)
+%% https://ctan.org/pkg/multicol
+
+\RequirePackage{microtype} % para melhorias de justificação
+%% https://ctan.org/pkg/microtype
+
+\RequirePackage{geometry} % permite a configuração da página: margens, cabeçalho, roda-pé...
+%% https://ctan.org/pkg/geometry
+
+\RequirePackage{setspace} % define o espaçamento entre as palavras, não sei por que usaria isso, mas tá aqui
+%% https://ctan.org/pkg/setspace
+
+\RequirePackage{hyperref, xurl} % usado para configurar links e referências, não sei para que serve a xurl
+%% https://ctan.org/pkg/hyperref 
+% \RequirePackage[shortlabels]{enumitem}
+%% https://ctan.org/pkg/enumitem?lang=en
+
+
+% ----------------- Matemática ---------------------------------------
+\RequirePackage{amsmath} % fazer equações 
+%% https://ctan.org/pkg/amsmath
+
+\RequirePackage{amsfonts} % símbolos matemáticos, negrito e afins
+%% https://ctan.org/pkg/amsfonts
+
+\RequirePackage{nccmath} % comandos matemáticos
+%% https://ctan.org/pkg/nccmath
+
+\RequirePackage{siunitx} % pacote de notação em si
+\sisetup{   
+    output-decimal-marker = {,},
+    detect-all = true, 
+    per-mode = symbol, % esse defini qual o tipo de notação de divisão como m/s ser um em cima do outro ms^-1 ou m/s. Nesse caso está m/s
+    color = black,
+    group-separator = \text{~},
+}
+%% https://ctan.org/pkg/siunitx
+
+\RequirePackage{amssymb} % vários simolos
+%% http://milde.users.sourceforge.net/LUCR/Math/mathpackages/amssymb-symbols.pdf
+
+\RequirePackage{icomma} % vírgulas inteligente permite que usemos vírgula no documento ao invés de ponto e não vai confundir com pontuação e sim reconhecer que faz parte de um número
+%% https://ctan.org/pkg/icomma
+
+
+% ----------------- Figuras e tabelas ---------------------------------
+\RequirePackage{graphicx} % feito para adicionar figuras
+%% https://ctan.org/pkg/graphicx
+
+\RequirePackage{float} % feito para configurar figuras
+%% https://ctan.org/pkg/float
+
+\RequirePackage{caption} % configurar as legendas de imagens e tabelas
+%% https://ctan.org/pkg/caption
+
+\RequirePackage{multirow, bigstrut, bigdelim} % são usadas juntas sempre. Servem para adicionar funções nas tabelas, por exemplo unir duas linhas - como o nome já sugere 
+%% https://ctan.org/pkg/multirow
+
+\RequirePackage{tikz, tkz-euclide} % desenhar imagens no LaTeX ao invés de colocar print. tkz-euclide são formas 3D.
+\usetikzlibrary{quotes, angles, scopes} 
+%% https://www.ctan.org/pkg/pgf
+%% https://ctan.org/pkg/tkz-euclide
+%----
+
+\RequirePackage{graphicx}
+%% https://www.ctan.org/pkg/graphicx
+
+
+% ----------------- citações --------------------------------------
+% \RequirePackage[alf,abnt-repeated-title-omit=yes,abnt-emphasize=bf,abnt-etal-list=0]{abntex2cite} % configuração para citações
+% \citebrackets() % qual símbolo usar para destacar as citações, neste caso é o parênteses
+% \newenvironment{citelong}
+% {\singlespacing \hfill \begin{minipage}{12cm}}
+% {\end{minipage}\vspace{12pt} \onehalfspacing}
+
+% \RequirePackage{pgfplots} % plota gráficos complexos e com os quais pode-se interagir (teoricamente)
+% \pgfplotsset{compat=1.17} 
+%% http://linorg.usp.br/CTAN/graphics/pgf/contrib/pgfplots/doc/pgfplots.
+
+\RequirePackage{xcolor} % adiciona cores diferentonas para fonte e para background
+%% https://en.wikibooks.org/wiki/LaTeX/Colors
+
+% Adicionando fundo na capa
+\makeatletter
+\renewcommand{\imprimircapa}{%
+    \begin{capa}%
+        \center
+        \begin{tikzpicture}
+            \centering
+            \node[remember picture, overlay] (UFPR) at (1,-10)
+                {\includegraphics{imgs/UFPR.pdf}};
+        \end{tikzpicture}\\
+        \ABNTEXchapterfont\Large UNIVERSIDADE FEDERAL DO PARANÁ \\
+        \vspace*{1cm}
+        {\ABNTEXchapterfont\large\imprimirautor}
+        \vfill
+        \begin{center}
+            \ABNTEXchapterfont\bfseries\LARGE\imprimirtitulo
+        \end{center}
+        \vfill
+        \large\imprimirlocal \\
+        \large\imprimirdata
+        \vspace*{1cm}
+    \end{capa}
+}
+\makeatother

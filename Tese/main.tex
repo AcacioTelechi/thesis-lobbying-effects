@@ -1,0 +1,88 @@
+\documentclass[12pt, a4paper, twoside, chapter=TITLE, subsection=TITLE, section=TITLE, subsubsection=TITLE, subsubsubsection=TITLE, english, german, brazil]{abntex2}
+\usepackage{glossaries}
+\usepackage[utf8]{inputenc}
+\usepackage[brazilian,hyperpageref]{backref}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[alf]{abntex2cite}	% Citações padrão ABNT,
+\usepackage{pacotes}
+
+
+% envs
+\providecommand{\varitem}{} % to keep LaTeX quiet
+\makeatletter
+\newenvironment{statements}[1]
+ {\renewcommand\varitem[1]{\item[\textbf{#1\arabic{enumi}\rlap{$##1$}.}]%
+    \edef\@currentlabel{#1\arabic{enumi}{$##1$}}}%
+  \enumerate[label=\textbf{#1\arabic*:}, ref=#1\arabic*]}
+ {\endenumerate}
+\makeatother
+
+\newenvironment{hypotheses}{\statements{H}}{\endstatements}
+\newenvironment{objectives}{\statements{O}}{\endstatements}
+ 
+\titulo{Mensurando os Efeitos do Lobby no Comportamento Parlamentar: uma abordagem utilizando Tripla Diferença no Parlamento Europeu}
+\tituloestrangeiro{--texto do título estrangeiro--}
+\autor{Acácio Vasconcelos Telechi}
+\orientador{Prof. Dr. Alexsandro Eugênio Pereira}
+% \coorientador{--Monitor--}
+\data{2024}
+\instituicao{
+    Universidade Federal do Paraná (UFPR) \par
+    Departamento de Ciência Política \par
+    Programa de Pós-Graduação em Ciência Política
+}
+\tipotrabalho{Tese}
+\local{Curitiba, PR}
+\preambulo{Texto para qualificação de tese de doutoramento em Ciência Política}
+
+\setlength{\absparsep}{18pt} % ajusta o espaçamento dos parágrafos do resumo
+
+
+\input{acr}
+\makeglossaries
+
+\begin{document}
+    \pretextual
+    \imprimircapa
+    \imprimirfolhaderosto[]* % talvez dê merda na numeração das páginas
+    \makeatother\cleardoublepage
+    
+    
+    \begin{resumo}[Resumo] 
+        A influência de grupos de interesse, incluindo lobistas, na tomada de decisões
+        políticas tem sido objeto de intenso debate e escrutínio nos últimos anos. A \acrfull{ue} não é exceção, pois se tornou um alvo altamente atrativo para esforços de lobby devido a sua natureza supranacional única e processos complexos de tomada de decisão, especialmente o \acrfull{pe}, que, após o Tratado de Lisboa, vem crescendo em relevância para a tomada de decisão da \acrshort{ue}. Esta tese buscará investigar os efeitos do lobby no comportamento parlamentar. Para isso, proponho a utilização do método da \acrfull{ddd} que combina a análise da atividade legislativa com dados sobre as interações dos parlamentares com lobistas controladas pelos domínios temáticos. A pesquisa se destaca por sua contribuição à literatura sobre lobby, oferecendo uma nova perspectiva sobre a influência desses grupos em um contexto institucional complexo como o \acrshort{pe}. Além disso, proponho, também, um \textit{framework} de análise do comportamento parlamentar, incorporando o papel do lobby como um fator determinante e enriquecendo a teoria sobre a atuação dos representantes eleitos. \\
+        \vspace{\onelineskip}
+        \noindent
+        \textbf{Palavras-chave}: lobby, comportamento parlamentar, tripla-diferença, Parlamento Europeu, União Europeia.
+    \end{resumo}
+    
+    \begin{resumo}[Abstract]
+        \begin{otherlanguage*}{english}
+            The influence of interest groups, including lobbyists, on political decision-making has been the subject of intense debate and scrutiny in recent years. The EU is no exception, as it has become a highly attractive target for lobbying efforts due to its unique supranational nature and complex decision-making processes, especially the EP, which, after the Treaty of Lisbon, has been growing in relevance for EU decision-making. This thesis will seek to investigate the effects of lobbying on parliamentary behavior. To do so, I propose the use of the Triple-Difference method, which combines the analysis of legislative activity with data on the interactions of parliamentarians with lobbyists, controlled by thematic domains. The research stands out for its contribution to the literature on lobbying, offering a new perspective on the influence of these groups in a complex institutional context such as the EP. In addition, I also propose a framework for analyzing parliamentary behavior, incorporating the role of lobbying as a determining factor and enriching the theory on the performance of elected representatives. \\
+            \vspace{\onelineskip}
+            \noindent
+            \textbf{Keywords}: lobbying, parliamentary behavior, triple-difference, European Parliament, European Union.
+        \end{otherlanguage*}
+    \end{resumo}
+    
+    \pdfbookmark[0]{\contentsname}{toc}
+
+    
+    \tableofcontents*
+    \cleardoublepage
+    
+    \printglossaries
+    \listoffigures
+    
+    \textual % a partir daqui são os elementos textuais.
+    \setlength{\parskip}{6pt}
+        \input{main/intro/index}
+        \input{main/cap1-teoria/index}
+        \input{main/cap2-ue/index}
+        \input{main/cap3-metodologia_e_resultados/index}
+        \input{main/consid_final/index}
+    
+    \postextual % a partir daqui são os elementos pós-textuais.
+    \bibliography{refs}
+
+\end{document}
