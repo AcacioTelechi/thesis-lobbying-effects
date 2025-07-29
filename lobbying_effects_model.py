@@ -712,7 +712,6 @@ class LobbyingEffectsModel:
         Model 5: Instrumental Variables (Addressing endogeneity)
 
         First Stage: ln(Lobbying_it) = π_0 + π_1*Z_it + X_it'π_2 + ν_it
-        # Second Stage: ln(Questions_it) = α_i + γ_t + β*ln(Lobbying_hat_it) + X_it'δ + ε_it
         Second Stage: ln(Questions_it) = α_i + γ_t + β*ln(Lobbying_hat_it) + ε_it
 
         Based on: Angrist and Pischke (2008) - instrumental variables approach
@@ -739,9 +738,7 @@ class LobbyingEffectsModel:
             # Second stage: Questions = f(Predicted_Lobbying, Controls)
             second_stage = PanelOLS(
                 dependent=df_iv[log_question_col],
-                exog=df_iv[
-                    ["lobbying_hat"] + [c for c in self.control_vars if "log" in c]
-                ],
+                exog=df_iv[["lobbying_hat"]],
                 entity_effects=True,
                 time_effects=True,
             ).fit()
@@ -749,6 +746,8 @@ class LobbyingEffectsModel:
             elasticity = second_stage.params["lobbying_hat"]
             p_value = second_stage.pvalues["lobbying_hat"]
 
+            print(f"First Stage R-squared: {first_stage.rsquared:.4f}")
+            print(f"Second Stage R-squared: {second_stage.rsquared:.4f}")
             print(f"\nIV Elasticity: {elasticity:.4f}")
             print(f"IV P-value: {p_value:.4f}")
 
@@ -766,27 +765,208 @@ class LobbyingEffectsModel:
             print(f"Error in Model 5: {e}")
             return None
 
-    def model_diff_in_diffs(self):
+    def model_staggered_diff_in_diffs(
+        self, treatment_threshold=1, min_treatment_periods=3
+    ):
         """
-        Model 6: Diff-in-Diff
+        Model 6: Staggered Diff-in-Diff (Event Study)
 
-        ln(Questions_it) = 
+        ln(Questions_it) = α_i + γ_t + Σ_k β_k*Treatment_i × Post_k,t + X_it'δ + ε_it
+
+        Where Treatment_i indicates when each MEP first receives high lobbying intensity,
+        and Post_k,t indicates k periods after treatment.
+
+        Based on: Callaway and Sant'Anna (2021), Sun and Abraham (2021) - staggered DiD
         """
-        print(f"\n=== Model 6: Diff-in-Diff ({self.topic}) ===")
+        print(f"\n=== Model 6b: Staggered Diff-in-Diff ({self.topic}) ===")
 
         try:
             _, _, log_question_col, log_lobbying_col = self.get_topic_variables()
 
-            # Create interaction terms
-            df_did = self.df.copy()
+            # Create staggered diff-in-diffs dataset
+            df_staggered = self.df.copy()
+
+            # Determine treatment threshold
+            if treatment_threshold == "median":
+                threshold = df_staggered[log_lobbying_col].median()
+            elif treatment_threshold == "mean":
+                threshold = df_staggered[log_lobbying_col].mean()
+            elif treatment_threshold == "75th_percentile":
+                threshold = df_staggered[log_lobbying_col].quantile(0.75)
+            else:
+                threshold = float(treatment_threshold)
+
+            print(f"Treatment threshold ({treatment_threshold}): {threshold:.4f}")
+
+            # Find first treatment period for each MEP
+            df_staggered["high_lobbying"] = (
+                df_staggered[log_lobbying_col] > threshold
+            ).astype(int)
+
+            # Group by MEP and find first period with high lobbying
+            mep_treatment_dates = {}
+            for mep_id in df_staggered.index.get_level_values(0).unique():
+                mep_data = df_staggered.loc[mep_id]
+                high_lobbying_periods = mep_data[mep_data["high_lobbying"] == 1].index
+
+                if len(high_lobbying_periods) >= min_treatment_periods:
+                    first_treatment = high_lobbying_periods[0]
+                    mep_treatment_dates[mep_id] = first_treatment
+                else:
+                    mep_treatment_dates[mep_id] = None
+
+            # Create treatment indicators
+            df_staggered["treatment_date"] = df_staggered.index.get_level_values(0).map(
+                mep_treatment_dates
+            )
+            df_staggered["ever_treated"] = (
+                df_staggered["treatment_date"].notna().astype(int)
+            )
+
+            # Calculate relative time to treatment
+            df_staggered["relative_time"] = (
+                df_staggered.index.get_level_values(1) - df_staggered["treatment_date"]
+            ).dt.days / 30  # Convert to months
+
+            # Create event study indicators (pre-treatment: -3 to -1, post-treatment: 0 to 3)
+            event_periods = list(range(-3, 4))  # -3, -2, -1, 0, 1, 2, 3
+
+            for period in event_periods:
+                if period < 0:
+                    # Pre-treatment periods
+                    df_staggered[f"pre_{abs(period)}"] = (
+                        (df_staggered["ever_treated"] == 1)
+                        & (df_staggered["relative_time"] == period)
+                    ).astype(int)
+                else:
+                    # Post-treatment periods
+                    df_staggered[f"post_{period}"] = (
+                        (df_staggered["ever_treated"] == 1)
+                        & (df_staggered["relative_time"] == period)
+                    ).astype(int)
+
+            # Create treatment × post interaction (standard DiD)
+            df_staggered["post_treatment"] = (
+                df_staggered["relative_time"] >= 0
+            ).astype(int)
+            df_staggered["treatment_x_post"] = (
+                df_staggered["ever_treated"] * df_staggered["post_treatment"]
+            )
+
+            # Summary statistics
+            treated_meps = len(
+                df_staggered[df_staggered["ever_treated"] == 1]
+                .index.get_level_values(0)
+                .unique()
+            )
+            total_meps = len(df_staggered.index.get_level_values(0).unique())
+
+            print(
+                f"Treated MEPs: {treated_meps} out of {total_meps} ({treated_meps/total_meps*100:.1f}%)"
+            )
+
+            # Run staggered DiD regression
+            event_vars = [f"pre_{abs(p)}" for p in range(1, 4)] + [
+                f"post_{p}" for p in range(4)
+            ]
+
+            model = PanelOLS(
+                dependent=df_staggered[log_question_col],
+                exog=df_staggered[
+                    ["treatment_x_post"] + event_vars + self.control_vars
+                ],
+                entity_effects=True,
+                time_effects=True,
+            )
+
+            results = model.fit()
+
+            # Extract results
+            did_coefficient = results.params["treatment_x_post"]
+            did_p_value = results.pvalues["treatment_x_post"]
+
+            print(f"Staggered DiD coefficient: {did_coefficient:.4f}")
+            print(f"DiD P-value: {did_p_value:.4f}")
+            print(f"R-squared: {results.rsquared:.4f}")
+            print(f"N observations: {results.nobs}")
+
+            # Event study coefficients
+            event_coefficients = {}
+            for var in event_vars:
+                if var in results.params:
+                    event_coefficients[var] = {
+                        "coefficient": results.params[var],
+                        "p_value": results.pvalues[var],
+                    }
+
+            print("\nEvent Study Coefficients:")
+            for period in range(-3, 4):
+                if period < 0:
+                    var = f"pre_{abs(period)}"
+                else:
+                    var = f"post_{period}"
+
+                if var in event_coefficients:
+                    coef = event_coefficients[var]["coefficient"]
+                    p_val = event_coefficients[var]["p_value"]
+                    sig = (
+                        "***"
+                        if p_val < 0.01
+                        else "**" if p_val < 0.05 else "*" if p_val < 0.1 else ""
+                    )
+                    print(f"  Period {period:2d}: {coef:8.4f} {sig}")
+
+            # Parallel trends test (pre-treatment coefficients should be zero)
+            pre_coefficients = [
+                event_coefficients.get(f"pre_{abs(p)}", {}).get("coefficient", 0)
+                for p in range(1, 4)
+            ]
+            pre_p_values = [
+                event_coefficients.get(f"pre_{abs(p)}", {}).get("p_value", 1)
+                for p in range(1, 4)
+            ]
+
+            # Test if pre-treatment coefficients are jointly zero
+            pre_significant = any(p < 0.05 for p in pre_p_values)
+
+            print(f"\nParallel Trends Test:")
+            if pre_significant:
+                print(
+                    "⚠ Some pre-treatment coefficients are significant - parallel trends may be violated"
+                )
+            else:
+                print(
+                    "✓ Pre-treatment coefficients are not significant - parallel trends assumption holds"
+                )
+
+            return {
+                "model": f"Staggered Diff-in-Diff ({self.topic})",
+                "elasticity": did_coefficient,
+                "p_value": did_p_value,
+                "r_squared": results.rsquared,
+                "n_obs": results.nobs,
+                "treated_meps": treated_meps,
+                "total_meps": total_meps,
+                "treatment_threshold": threshold,
+                "event_coefficients": event_coefficients,
+                "parallel_trends_violated": pre_significant,
+                "results": results,
+            }
 
         except Exception as e:
-            print(f"Error in Model 6: {e}")
+            print(f"Error in Staggered DiD: {e}")
+            import traceback
+
+            traceback.print_exc()
             return None
 
-    def run_all_models(self):
+    def run_all_models(self, treatment_threshold=1, min_treatment_periods=2):
         """
         Run all available models for the current topic.
+
+        Args:
+            treatment_threshold (int): Treatment threshold for staggered diff-in-diffs
+            min_treatment_periods (int): Minimum treatment periods for staggered diff-in-diffs
 
         Returns:
             dict: Dictionary containing results from all models
@@ -810,6 +990,10 @@ class LobbyingEffectsModel:
             self.model_propensity_score_matching()
         )
         all_results["instrumental_variables"] = self.model_instrumental_variables()
+        all_results["staggered_diff_in_diffs"] = self.model_staggered_diff_in_diffs(
+            treatment_threshold=treatment_threshold,
+            min_treatment_periods=min_treatment_periods,
+        )
 
         return all_results
 
@@ -889,7 +1073,9 @@ class LobbyingEffectsModel:
             print(summary_df)
 
 
-def run_cross_topic_analysis(topics, time_frequency="monthly"):
+def run_cross_topic_analysis(
+    topics, time_frequency="monthly", treatment_threshold=1, min_treatment_periods=2
+):
     """
     Run analysis across multiple topics.
 
@@ -917,7 +1103,10 @@ def run_cross_topic_analysis(topics, time_frequency="monthly"):
         print(f"{'='*50}")
 
         model.set_topic(topic)
-        results = model.run_all_models()
+        results = model.run_all_models(
+            treatment_threshold=treatment_threshold,
+            min_treatment_periods=min_treatment_periods,
+        )
         summary_df = model.create_summary_table(results)
 
         all_topic_results[topic] = {"results": results, "summary": summary_df}
