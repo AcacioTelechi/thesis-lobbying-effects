@@ -66,6 +66,9 @@ class DataBase:
         df_questions = pd.read_csv(
             f"{self.data_path}/panel_data_questions_{suffix}_v020703.csv"
         )
+        df_graph = pd.read_csv(
+            f"{self.data_path}/panel_data_graph_{suffix}_v020704.csv"
+        )
 
         # Clean data
         del df_meetings["Y-w"]
@@ -77,22 +80,29 @@ class DataBase:
         df_meetings[time_col] = pd.to_datetime(df_meetings[time_col], format="%Y-%m")
         df_meps[time_col] = pd.to_datetime(df_meps[time_col], format="%Y-%m")
         df_questions[time_col] = pd.to_datetime(df_questions[time_col], format="%Y-%m")
+        df_graph[time_col] = pd.to_datetime(df_graph[time_col], format="%Y-%m")
 
         # Set indices
         df_meetings.set_index(["member_id", time_col], inplace=True)
         df_meps.set_index(["member_id", time_col], inplace=True)
         df_questions.rename(columns={"creator": "member_id"}, inplace=True)
         df_questions.set_index(["member_id", time_col], inplace=True)
+        df_graph.set_index(["member_id", time_col], inplace=True)
 
         # Add prefixes
         df_questions_prefixed = df_questions.add_prefix("questions_")
         df_meps_prefixed = df_meps.add_prefix("meps_")
         df_meetings_prefixed = df_meetings.add_prefix("meetings_")
+        df_graph_prefixed = df_graph.add_prefix("graph_")
 
         # Join all dataframes
-        self.df = df_meps_prefixed.join(
-            df_questions_prefixed, on=["member_id", time_col], how="left"
-        ).join(df_meetings_prefixed, on=["member_id", time_col], how="left")
+        self.df = (
+            df_meps_prefixed.join(
+                df_questions_prefixed, on=["member_id", time_col], how="left"
+            )
+            .join(df_meetings_prefixed, on=["member_id", time_col], how="left")
+            .join(df_graph_prefixed, on=["member_id", time_col], how="left")
+        )
 
         # Fill missing values
         self.df.fillna(0, inplace=True)
@@ -303,6 +313,32 @@ class DataBase:
             # "meps_WORKING_GROUP - PRESIDENT_PARLIAMENT_STOA",
         ]
 
+        # Graph
+        column_sets["GRAPH_AUTHORITY_COLUMNS"] = [
+            "graph_authority",
+            "graph_l_agriculture_authority_percentage",
+            "graph_l_economics_and_trade_authority_percentage",
+            "graph_l_education_authority_percentage",
+            "graph_l_environment_and_climate_authority_percentage",
+            "graph_l_foreign_and_security_affairs_authority_percentage",
+            "graph_l_health_authority_percentage",
+            "graph_l_human_rights_authority_percentage",
+            "graph_l_infrastructure_and_industry_authority_percentage",
+            "graph_l_technology_authority_percentage",
+        ]
+
+        column_sets["GRAPH_PERCENTAGE_COLUMNS"] = [
+            "graph_l_agriculture_percentage",
+            "graph_l_economics_and_trade_percentage",
+            "graph_l_education_percentage",
+            "graph_l_environment_and_climate_percentage",
+            "graph_l_foreign_and_security_affairs_percentage",
+            "graph_l_health_percentage",
+            "graph_l_human_rights_percentage",
+            "graph_l_infrastructure_and_industry_percentage",
+            "graph_l_technology_percentage",
+        ]
+
         return column_sets
 
     def get_data(self):
@@ -432,6 +468,22 @@ class LobbyingEffectsModel:
         for topic_col in self.column_sets["MEETINGS_TOPICS_COLUMNS"]:
             if self.topic not in topic_col:
                 control_vars.append(topic_col)
+
+        # Graph
+        control_vars.extend(
+            [
+                c
+                for c in self.column_sets["GRAPH_AUTHORITY_COLUMNS"]
+                if self.topic not in c and c != "graph_authority"
+            ]
+        )
+        control_vars.extend(
+            [
+                c
+                for c in self.column_sets["GRAPH_PERCENTAGE_COLUMNS"]
+                if self.topic not in c
+            ]
+        )
 
         return control_vars
 
