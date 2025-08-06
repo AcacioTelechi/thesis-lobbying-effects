@@ -23,6 +23,7 @@ pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", 100)
 plt.style.use("seaborn-v0_8")
 
+
 class LobbyingEffectsModel:
     """
     Class responsible for running econometric models with different topics.
@@ -451,7 +452,7 @@ class LobbyingEffectsModel:
             return None
 
     def model_staggered_diff_in_diffs(
-        self, treatment_threshold=1, min_treatment_periods=3
+        self, treatment_threshold: float = 1, min_treatment_periods: int = 3
     ):
         """
         Model 6: Staggered Diff-in-Diff (Event Study)
@@ -471,21 +472,9 @@ class LobbyingEffectsModel:
             # Create staggered diff-in-diffs dataset
             df_staggered = self.df.copy()
 
-            # Determine treatment threshold
-            if treatment_threshold == "median":
-                threshold = df_staggered[log_lobbying_col].median()
-            elif treatment_threshold == "mean":
-                threshold = df_staggered[log_lobbying_col].mean()
-            elif treatment_threshold == "75th_percentile":
-                threshold = df_staggered[log_lobbying_col].quantile(0.75)
-            else:
-                threshold = float(treatment_threshold)
-
-            print(f"Treatment threshold ({treatment_threshold}): {threshold:.4f}")
-
             # Find first treatment period for each MEP
             df_staggered["high_lobbying"] = (
-                df_staggered[log_lobbying_col] > threshold
+                df_staggered[log_lobbying_col] > treatment_threshold
             ).astype(int)
 
             # Group by MEP and find first period with high lobbying
@@ -514,20 +503,22 @@ class LobbyingEffectsModel:
             ).dt.days / 30  # Convert to months
 
             # Create event study indicators (pre-treatment: -3 to -1, post-treatment: 0 to 3)
-            event_periods = list(range(-3, 4))  # -3, -2, -1, 0, 1, 2, 3
+            event_periods = list(
+                range(-min_treatment_periods, min_treatment_periods + 1)
+            )
 
             for period in event_periods:
                 if period < 0:
                     # Pre-treatment periods
                     df_staggered[f"pre_{abs(period)}"] = (
                         (df_staggered["ever_treated"] == 1)
-                        & (df_staggered["relative_time"] == period)
+                        & (df_staggered["relative_time"].round(0) == period)
                     ).astype(int)
                 else:
                     # Post-treatment periods
                     df_staggered[f"post_{period}"] = (
                         (df_staggered["ever_treated"] == 1)
-                        & (df_staggered["relative_time"] == period)
+                        & (df_staggered["relative_time"].round(0) == period)
                     ).astype(int)
 
             # Create treatment × post interaction (standard DiD)
@@ -551,8 +542,8 @@ class LobbyingEffectsModel:
             )
 
             # Run staggered DiD regression
-            event_vars = [f"pre_{abs(p)}" for p in range(1, 4)] + [
-                f"post_{p}" for p in range(4)
+            event_vars = [f"pre_{abs(p)}" for p in range(1, min_treatment_periods + 1)] + [
+                f"post_{p}" for p in range(min_treatment_periods)
             ]
 
             model = PanelOLS(
@@ -585,7 +576,7 @@ class LobbyingEffectsModel:
                     }
 
             print("\nEvent Study Coefficients:")
-            for period in range(-3, 4):
+            for period in range(-min_treatment_periods, min_treatment_periods + 1):
                 if period < 0:
                     var = f"pre_{abs(period)}"
                 else:
@@ -604,11 +595,11 @@ class LobbyingEffectsModel:
             # Parallel trends test (pre-treatment coefficients should be zero)
             pre_coefficients = [
                 event_coefficients.get(f"pre_{abs(p)}", {}).get("coefficient", 0)
-                for p in range(1, 4)
+                for p in range(1, min_treatment_periods + 1)
             ]
             pre_p_values = [
                 event_coefficients.get(f"pre_{abs(p)}", {}).get("p_value", 1)
-                for p in range(1, 4)
+                for p in range(1, min_treatment_periods + 1)
             ]
 
             # Test if pre-treatment coefficients are jointly zero
@@ -632,7 +623,7 @@ class LobbyingEffectsModel:
                 "n_obs": results.nobs,
                 "treated_meps": treated_meps,
                 "total_meps": total_meps,
-                "treatment_threshold": threshold,
+                "treatment_threshold": treatment_threshold,
                 "event_coefficients": event_coefficients,
                 "parallel_trends_violated": pre_significant,
                 "results": results,
@@ -680,6 +671,7 @@ class LobbyingEffectsModel:
             min_treatment_periods=min_treatment_periods,
         )
 
+        self.results = all_results
         return all_results
 
     def create_summary_table(self, results):
