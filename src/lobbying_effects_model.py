@@ -14,6 +14,12 @@ import warnings
 from linearmodels import PanelOLS
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import NearestNeighbors
+import statsmodels.api as sm
+import numpy as np
+import subprocess
+import json
+import os
+import tempfile
 
 
 warnings.filterwarnings("ignore")
@@ -26,7 +32,7 @@ plt.style.use("seaborn-v0_8")
 
 class LobbyingEffectsModel:
     """
-    Class responsible for running econometric models with different topics.
+    Class responsible for running econometric models with different Ltopics.
     """
 
     def __init__(self, df_filtered, column_sets):
@@ -53,6 +59,390 @@ class LobbyingEffectsModel:
         self.control_vars = self._create_control_variables()
         print(f"Topic set to: {topic}")
         print(f"Number of control variables: {len(self.control_vars)}")
+
+    # =============================
+    # Continuous-treatment DDD (long panel) utilities
+    # =============================
+    def prepare_long_panel(self) -> pd.DataFrame:
+        """
+        Reshape the current wide panel (member_id × time) into a long panel over domains:
+        (member_id × domain × time), with outcome (questions) and treatment (meetings).
+
+        Returns:
+            pd.DataFrame with columns: [member_id, domain, time, questions, meetings]
+            and a MultiIndex set to (member_id_domain, time) for FE estimation convenience.
+        """
+        # Detect index names
+        if not isinstance(self.df.index, pd.MultiIndex) or len(self.df.index.names) < 2:
+            raise ValueError("Expected MultiIndex with ['member_id', time].")
+
+        entity_col = self.df.index.names[0]
+        time_col = self.df.index.names[1]
+
+        # Infer available domains by intersecting questions and meetings columns
+        questions_prefix = "questions_infered_topic_"
+        meetings_prefix = "meetings_l_"
+
+        question_cols = [c for c in self.df.columns if c.startswith(questions_prefix)]
+        meeting_cols = [c for c in self.df.columns if c.startswith(meetings_prefix)]
+
+        # Handle renamed columns (spaces replaced by underscores already)
+        # Domains are the suffixes after the prefixes
+        domains_q = {c.replace(questions_prefix, "") for c in question_cols}
+        domains_m = {c.replace(meetings_prefix, "") for c in meeting_cols}
+        domains = sorted(list(domains_q.intersection(domains_m)))
+
+        if len(domains) == 0:
+            raise ValueError(
+                "Could not infer domains. Ensure columns like 'questions_infered_topic_<domain>' and 'meetings_l_<domain>' exist."
+            )
+
+        # Build long dataframe by vertical concatenation per domain
+        long_frames: list[pd.DataFrame] = []
+        base_df = self.df.reset_index()
+        for d in domains:
+            q_col = f"{questions_prefix}{d}"
+            m_col = f"{meetings_prefix}{d}"
+            if q_col in base_df.columns and m_col in base_df.columns:
+                tmp = base_df[[entity_col, time_col, q_col, m_col]].copy()
+                tmp.rename(columns={q_col: "questions", m_col: "meetings"}, inplace=True)
+                tmp["domain"] = d
+                long_frames.append(tmp)
+
+        if not long_frames:
+            raise ValueError("No domain frames could be created. Check input columns.")
+
+        df_long = pd.concat(long_frames, ignore_index=True)
+
+        # Sort and create a combined entity key for member_id × domain
+        df_long.sort_values([entity_col, "domain", time_col], inplace=True)
+        df_long["member_domain"] = (
+            df_long[entity_col].astype(str) + "__" + df_long["domain"].astype(str)
+        )
+
+        # Set index for PanelOLS compatibility (entity, time)
+        df_long.set_index(["member_domain", time_col], inplace=True)
+
+        return df_long
+
+    def model_continuous_ddd_linear(self, include_domain_time_fe: bool = False):
+        """
+        Continuous-treatment FE model in long panel (pure Python, linear FE fallback).
+
+        Specification (default, memory-friendly):
+            y_{i,d,t} = alpha_{i×d} + tau_t + beta * meetings_{i,d,t} + e_{i,d,t}
+        where alpha_{i×d} are entity effects using member_id×domain as the entity;
+        tau_t are month FE (PanelOLS time_effects=True).
+
+        Optionally (include_domain_time_fe=True), add domain×time dummies as controls
+        to better absorb domain-specific monthly shocks. This increases memory usage.
+
+        Returns:
+            dict with model summary, coefficient on meetings, p-value, R-squared, N.
+        """
+        try:
+            df_long = self.prepare_long_panel()
+
+            # Build exogenous matrix
+            exog_parts = [df_long[["meetings"]]]
+
+            if include_domain_time_fe:
+                # Add domain×time dummy variables (can be memory heavy)
+                # Recover time level name from index
+                time_level = df_long.index.names[1]
+                # Retrieve as columns for dummies
+                tmp = df_long.reset_index()
+                tmp["domain_time"] = tmp["domain"].astype(str) + "__" + tmp[time_level].astype(str)
+                dummies = pd.get_dummies(tmp["domain_time"], prefix="dt", drop_first=True)
+                # Align back to df_long index
+                dummies.index = df_long.index
+                exog_parts.append(dummies)
+
+            exog = pd.concat(exog_parts, axis=1)
+
+            # PanelOLS requires aligned dependent/independent with same index
+            dependent = df_long["questions"]
+
+            model = PanelOLS(
+                dependent=dependent,
+                exog=exog,
+                entity_effects=True,  # absorbs member_id×domain FE via entity index
+                time_effects=True,    # month FE
+            )
+
+            results = model.fit()
+
+            beta = results.params.get("meetings", float("nan"))
+            p_value = results.pvalues.get("meetings", float("nan"))
+            r2 = results.rsquared
+
+            print("\n=== Continuous-Treatment FE (Linear) ===")
+            print(f"Coefficient on meetings: {beta:.6f}")
+            print(f"P-value: {p_value:.6f}")
+            print(f"R-squared: {r2:.4f}")
+            print(f"N observations: {results.nobs}")
+
+            return {
+                "model": "Continuous FE (Linear)",
+                "coefficient": beta,
+                "p_value": p_value,
+                "r_squared": r2,
+                "n_obs": results.nobs,
+                "results": results,
+                "include_domain_time_fe": include_domain_time_fe,
+            }
+        except Exception as e:
+            print(f"Error in continuous-treatment FE model: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def model_continuous_ddd_ppml(
+        self,
+        include_domain_time_fe: bool = True,
+        include_member_fe: bool = True,
+        max_fe_columns: int = 8000,
+        maxiter: int = 100,
+    ):
+        """
+        PPML estimator (Poisson GLM with log link) for the long panel, using dummy FEs.
+
+        Practical, pure-Python implementation:
+          - Always includes a constant and the continuous treatment 'meetings'.
+          - By default includes domain×time fixed effects via dummies (manageable size).
+          - Optionally includes member fixed effects (member_id) via dummies.
+
+        Notes:
+          - We avoid member×domain FEs here due to memory constraints when using dummies.
+          - Use the linear FE variant for saturated FEs; this PPML is a strong robustness.
+
+        Returns:
+          dict with coefficient on 'meetings', p-value (clustered by member), and fit info.
+        """
+        try:
+            df_long = self.prepare_long_panel()
+            time_col = self.df.index.names[1]
+
+            work = df_long.reset_index()  # columns: member_domain, time, questions, meetings, domain
+
+            # Reconstruct member_id from member_domain composite key
+            work["member_id"] = work["member_domain"].astype(str).str.split("__").str[0]
+
+            # Ensure core numeric columns
+            work["meetings"] = pd.to_numeric(work["meetings"], errors="coerce").astype(float)
+            work["questions"] = pd.to_numeric(work["questions"], errors="coerce").astype(float)
+
+            X_parts = [work[["meetings"]]]
+
+            # Domain × time FEs (default)
+            if include_domain_time_fe:
+                work["domain_time"] = work["domain"].astype(str) + "__" + work[time_col].astype(str)
+                dt_dum = pd.get_dummies(
+                    work["domain_time"], prefix="dt", drop_first=True, dtype=float
+                )
+                X_parts.append(dt_dum)
+
+            # Member FE (optional)
+            if include_member_fe:
+                mem_dum = pd.get_dummies(
+                    work["member_id"], prefix="m", drop_first=True, dtype=float
+                )
+                X_parts.append(mem_dum)
+
+            # Concatenate design matrix
+            X = pd.concat(X_parts, axis=1)
+            # Enforce float dtype
+            X = X.apply(pd.to_numeric, errors="coerce").astype(float)
+
+            # Guardrail for memory: cap number of columns
+            if X.shape[1] > max_fe_columns:
+                print(
+                    f"Warning: Too many FE columns ({X.shape[1]} > {max_fe_columns}). "
+                    "Dropping member FE to reduce dimensionality."
+                )
+                # Rebuild without member FE
+                X_parts = [work[["meetings"]]]
+                if include_domain_time_fe:
+                    X_parts.append(dt_dum)
+                X = pd.concat(X_parts, axis=1)
+                X = X.apply(pd.to_numeric, errors="coerce").astype(float)
+                include_member_fe_final = False
+            else:
+                include_member_fe_final = include_member_fe
+
+            y = pd.to_numeric(work["questions"], errors="coerce").astype(float)
+
+            # Add constant
+            X_const = pd.concat(
+                [pd.Series(1.0, index=X.index, name="const"), X], axis=1
+            )
+            X_const = X_const.apply(pd.to_numeric, errors="coerce").astype(float)
+
+            # Drop rows with NaN or inf in y or X
+            mask_y = np.isfinite(y.to_numpy())
+            mask_X = np.isfinite(X_const.to_numpy()).all(axis=1)
+            is_finite = mask_y & mask_X
+
+            y_clean = y.loc[is_finite]
+            X_clean = X_const.loc[is_finite]
+            groups_series = work["member_id"].astype("category").cat.codes
+            groups = groups_series.loc[is_finite].to_numpy()
+
+            # Fit Poisson GLM (PPML)
+            glm_mod = sm.GLM(y_clean, X_clean, family=sm.families.Poisson())
+            glm_res = glm_mod.fit(maxiter=maxiter, cov_type="cluster", cov_kwds={"groups": groups})
+
+            beta = glm_res.params.get("meetings", float("nan"))
+            p_value = glm_res.pvalues.get("meetings", float("nan"))
+
+            print("\n=== Continuous-Treatment PPML (GLM Poisson) ===")
+            print(f"Coefficient on meetings (semi-elasticity): {beta:.6f}")
+            print(f"P-value (clustered by member): {p_value:.6f}")
+            print(f"N observations: {int(glm_res.nobs)}")
+            print(f"K parameters: {len(glm_res.params)}")
+
+            return {
+                "model": "Continuous PPML (Poisson GLM)",
+                "coefficient": beta,
+                "p_value": p_value,
+                "n_obs": int(glm_res.nobs),
+                "k_params": len(glm_res.params),
+                "include_domain_time_fe": include_domain_time_fe,
+                "include_member_fe": include_member_fe_final,
+                "results": glm_res,
+            }
+        except Exception as e:
+            print(f"Error in PPML model: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    
+
+    def model_continuous_ddd_ppml_fixest_rscript(
+        self,
+        Rscript_path: str | None = None,
+        include_member_time_fe: bool = True,
+        cluster_by: str = "member_id",
+    ):
+        """
+        PPML using R fixest::fepois by calling Rscript (no rpy2 needed).
+
+        Args:
+          Rscript_path: Optional full path to Rscript.exe (Windows), e.g., 'D:\\R-4.4.1\\bin\\x64\\Rscript.exe'.
+          include_member_time_fe: include member×time fixed effects.
+          cluster_by: column to cluster SEs by (default: member_id).
+
+        Returns:
+          dict with coefficient, p-value, n_obs; or None on error.
+        """
+        try:
+            df_long = self.prepare_long_panel().reset_index()
+            time_col = self.df.index.names[1]
+
+            # Reconstruct member_id from member_domain
+            df_long["member_id"] = df_long["member_domain"].astype(str).str.split("__").str[0]
+            df_long["domain_time"] = df_long["domain"].astype(str) + "__" + df_long[time_col].astype(str)
+            df_long["member_time"] = df_long["member_id"].astype(str) + "__" + df_long[time_col].astype(str)
+
+            # Ensure numeric outcome and treatment
+            df_long["questions"] = pd.to_numeric(df_long["questions"], errors="coerce")
+            df_long["meetings"] = pd.to_numeric(df_long["meetings"], errors="coerce")
+            df_long = df_long.dropna(subset=["questions", "meetings"])  # drop rows with missing core vars
+
+            # Verify cluster column exists
+            if cluster_by not in df_long.columns:
+                print(f"Warning: cluster_by='{cluster_by}' not found. Falling back to 'member_id'.")
+                cluster_by = "member_id"
+
+            # Write temp CSV and R script
+            with tempfile.TemporaryDirectory() as td:
+                input_csv = os.path.join(td, "ppml_input.csv")
+                df_long.to_csv(input_csv, index=False)
+
+                r_script_path = os.path.join(td, "ppml_fixest.R")
+                fe_rhs = "member_domain + domain_time + member_time" if include_member_time_fe else "member_domain + domain_time"
+                r_code = (
+                    """
+options(warn=1)
+if (!requireNamespace('fixest', quietly=TRUE)) install.packages('fixest', repos='https://cloud.r-project.org')
+if (!requireNamespace('jsonlite', quietly=TRUE)) install.packages('jsonlite', repos='https://cloud.r-project.org')
+suppressPackageStartupMessages({library(fixest); library(jsonlite)})
+df <- read.csv('"""
+                    + input_csv.replace("\\", "/")
+                    + """', stringsAsFactors=FALSE)
+# Ensure proper types
+df$questions <- as.numeric(df$questions)
+df$meetings <- as.numeric(df$meetings)
+
+fml <- as.formula(paste0('questions ~ meetings | """
+                    + ("member_domain + domain_time + member_time" if include_member_time_fe else "member_domain + domain_time")
+                    + """'))
+cl  <- as.formula('~ """
+                    + cluster_by
+                    + """')
+fit <- tryCatch(fepois(fml, data=df, cluster=cl), error=function(e) e)
+if (inherits(fit, 'error')) {{
+  cat(toJSON(list(error=fit$message), auto_unbox=TRUE)); quit(status=0)
+}}
+sm <- summary(fit)
+ct <- sm$coeftable
+rn <- rownames(ct)
+idx <- which(rn == 'meetings')
+if (length(idx) == 0) {{ beta <- NA; p <- NA }} else {{ beta <- unname(ct[idx, 1]); p <- unname(ct[idx, ncol(ct)]) }}
+out <- list(beta=beta, p_value=p, n_obs = as.integer(nobs(fit)))
+cat(toJSON(out, auto_unbox=TRUE))
+"""
+                )
+                with open(r_script_path, "w", encoding="utf-8") as f:
+                    f.write(r_code)
+
+                # Determine Rscript command
+                cmd = [Rscript_path] if Rscript_path else ["Rscript"]
+                cmd += ["--vanilla", r_script_path]
+
+                proc = subprocess.run(cmd, capture_output=True, text=True)
+                if proc.returncode != 0:
+                    print("Rscript failed:")
+                    print(proc.stderr)
+                    return None
+
+                # Parse JSON from stdout
+                stdout = proc.stdout.strip()
+                try:
+                    res = json.loads(stdout)
+                except json.JSONDecodeError:
+                    print("Failed to parse R output:")
+                    print(stdout)
+                    return None
+
+                if "error" in res:
+                    print(f"R fixest error: {res['error']}")
+                    return None
+
+                beta = res.get("beta", None)
+                p_value = res.get("p_value", None)
+                n_obs = res.get("n_obs", None)
+
+                print("\n=== Continuous-Treatment PPML (Rscript fixest::fepois) ===")
+                print(f"Coefficient on meetings (semi-elasticity): {beta}")
+                print(f"P-value (clustered by {cluster_by}): {p_value}")
+                print(f"N observations: {n_obs}")
+
+                return {
+                    "model": "Continuous PPML (fixest via Rscript)",
+                    "coefficient": beta,
+                    "p_value": p_value,
+                    "n_obs": n_obs,
+                    "include_member_time_fe": include_member_time_fe,
+                    "cluster_by": cluster_by,
+                }
+
+        except Exception as e:
+            print(f"Error in Rscript-backed PPML: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
 
     def _create_control_variables(self):
         """
