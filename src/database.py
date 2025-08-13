@@ -391,7 +391,7 @@ class DataBase:
         try:
             self._compute_salience_columns()
         except Exception as e:
-            print(f"Warning computing salience columns: {e}")
+            print(f"[WARNING]: computing salience columns: {e}")
         return self.get_data(), self.column_sets
 
     def _compute_salience_columns(self) -> None:
@@ -400,22 +400,28 @@ class DataBase:
         - salience_breadth_<domain>: number of MEPs with any meeting in that domain in that month
         - high_salience_<domain>: indicator for top-tercile salience within that domain across months
         """
+        print("=== Computing Salience Columns ===")
         if self.df_filtered.empty:
+            print("[WARNING]: no data to compute salience columns")
             return
         if "MEETINGS_TOPICS_COLUMNS" not in self.column_sets:
+            print("[WARNING]: no meetings topics columns to compute salience columns")
             return
         time_level = self.df_filtered.index.names[1]
         salience_cols: list[str] = []
         high_cols: list[str] = []
+        # Store per-domain monthly breadth to compute within-month relative salience
+        breadth_dict: dict[str, pd.Series] = {}
         for c in list(self.column_sets["MEETINGS_TOPICS_COLUMNS"]):
-            if not c.startswith("meetings_l_"):
+            if not c.startswith("log_meetings_l_"):
                 continue
-            domain = c.replace("meetings_l_", "")
+            domain = c.replace("log_meetings_l_", "")
             breadth_by_time = (
-                self.df_filtered[c]
+                self.df_filtered[f"meetings_l_{domain}"]
                 .groupby(level=1)
                 .apply(lambda s: (pd.to_numeric(s, errors="coerce") > 0).sum())
             )
+            breadth_dict[domain] = breadth_by_time
             sal_col = f"salience_breadth_{domain}"
             # Broadcast by time over all members
             self.df_filtered[sal_col] = (
@@ -427,6 +433,20 @@ class DataBase:
             high_col = f"high_salience_{domain}"
             self.df_filtered[high_col] = (self.df_filtered[sal_col] >= th).astype(int)
             high_cols.append(high_col)
+        # Within-month relative salience: top-tercile across domains in the same month
+        if breadth_dict:
+            breadth_df = pd.DataFrame(breadth_dict)  # index: time, columns: domains
+            # thresholds per time across domains
+            th_row = breadth_df.quantile(2.0 / 3.0, axis=1)
+            rel_flags = breadth_df.ge(th_row, axis=0).astype(int)
+            # Broadcast flags to the member-time wide panel
+            for domain in breadth_dict.keys():
+                rel_col = f"high_salience_rel_{domain}"
+                self.df_filtered[rel_col] = (
+                    self.df_filtered.index.get_level_values(1).map(rel_flags[domain]).astype(int)
+                )
+            self.column_sets["HIGH_SALIENCE_REL_COLUMNS"] = [f"high_salience_rel_{d}" for d in breadth_dict.keys()]
+
         if salience_cols:
             self.column_sets["SALIENCE_BREADTH_COLUMNS"] = salience_cols
         if high_cols:
