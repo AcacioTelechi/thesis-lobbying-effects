@@ -536,6 +536,21 @@ class LobbyingEffectsModel:
                 present_cols = set(df_long.columns) | set(safe_name_map.values())
                 required_cols.extend([safe_name_map.get(c, c) for c in control_cols if (safe_name_map.get(c, c) in present_cols)])
 
+            # Ensure alt_treatment_var column exists before slicing
+            if alt_treatment_var is not None:
+                orig = self.df.reset_index()
+                if alt_treatment_var in df_long.columns:
+                    if alt_treatment_var not in required_cols:
+                        required_cols.append(alt_treatment_var)
+                elif alt_treatment_var in orig.columns:
+                    # Merge in the alternate treatment
+                    entity_col = self.df.index.names[0]
+                    if entity_col not in df_long.columns:
+                        df_long[entity_col] = df_long["member_domain"].astype(str).str.split("__").str[0]
+                    join_cols = [entity_col, time_col]
+                    df_long = df_long.merge(orig[join_cols + [alt_treatment_var]], on=join_cols, how="left")
+                    required_cols.append(alt_treatment_var)
+
             df_long = df_long[required_cols].copy()
 
             # Write temp CSV and R script

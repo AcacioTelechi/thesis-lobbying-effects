@@ -131,27 +131,46 @@ def run_h2(df: pd.DataFrame, column_sets: Dict[str, List[str]], rscript: str) ->
 
 
 def run_h3(df: pd.DataFrame, column_sets: Dict[str, List[str]], rscript: str) -> List[Dict[str, Any]]:
-    # Salience proxy: high_salience_<domain> from DataBase
+    # Salience proxy: high_salience_rel_<domain> (within-month top-tercile across domains)
     rows: List[Dict[str, Any]] = []
     for d in DOMAINS:
-        high_col = f"high_salience_{d}"
+        high_col = f"high_salience_rel_{d}"
         if high_col not in df.columns:
             continue
-        parts = split_sample(df, df[high_col] == 1)
+        flag = df[high_col].astype(int)
+        # Require variation and minimal sample in each group; else skip domain
+        min_n = 1000
+        if (flag.eq(1).sum() < min_n) or (flag.eq(0).sum() < min_n):
+            continue
+        parts = split_sample(df, flag == 1)
         for grp_name, part_df in parts.items():
             model = make_model(part_df, column_sets)
-            res = model.model_continuous_ddd_ppml_fixest_rscript(
+            # Compare NGO vs non-NGO lobbying by setting alternate treatment variables
+            # Expect columns: meetings_l_category_NGOs and total meetings by domain
+            res_ngo = model.model_continuous_ddd_ppml_fixest_rscript(
                 Rscript_path=rscript,
                 fe_pattern="member+time",
                 domain_varying_slopes=True,
                 include_controls=True,
                 cluster_by=TW_CLUSTER,
                 domain_filter=d,
+                alt_treatment_var="meetings_l_category_NGOs",
             )
             tag = f"H3_{d}_{'highSal' if grp_name=='high' else 'lowSal'}"
-            if res is None:
-                raise ValueError("res is None")
-            rows += summarize_domain_slopes(res, tag=tag)
+            if res_ngo is not None:
+                rows += summarize_domain_slopes(res_ngo, tag=tag + "_NGO")
+
+            res_non_ngo = model.model_continuous_ddd_ppml_fixest_rscript(
+                Rscript_path=rscript,
+                fe_pattern="member+time",
+                domain_varying_slopes=True,
+                include_controls=True,
+                cluster_by=TW_CLUSTER,
+                domain_filter=d,
+                alt_treatment_var="meetings_l_category_Business",
+            )
+            if res_non_ngo is not None:
+                rows += summarize_domain_slopes(res_non_ngo, tag=tag + "_Business")
     return rows
 
 
@@ -163,8 +182,8 @@ def main() -> None:
     )
 
     all_rows: List[Dict[str, Any]] = []
-    all_rows += run_h1(df_filtered, column_sets, rscript)
-    all_rows += run_h2(df_filtered, column_sets, rscript)
+    # all_rows += run_h1(df_filtered, column_sets, rscript)
+    # all_rows += run_h2(df_filtered, column_sets, rscript)
     all_rows += run_h3(df_filtered, column_sets, rscript)
 
     out_df = pd.DataFrame(all_rows)
