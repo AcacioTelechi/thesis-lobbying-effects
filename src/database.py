@@ -365,6 +365,12 @@ class DataBase:
                 self.df_filtered.rename(columns={c: new_col}, inplace=True)
                 self.column_sets[set_name][i] = new_col
 
+        # Rename questions columns
+        for c in self.df_filtered.columns:
+            if 'questions' in c:
+                new_col = c.replace(" ", "_")
+                self.df_filtered.rename(columns={c: new_col}, inplace=True)
+
     def prepare_data(
         self, time_frequency="monthly", start_date="2019-07", end_date="2024-11"
     ):
@@ -381,4 +387,116 @@ class DataBase:
         self.filter_columns()
         self.create_log_transformations()
         self.rename_columns()
+        # Compute salience breadth and high-salience flags per domain-month
+        try:
+            self._compute_salience_columns()
+        except Exception as e:
+            print(f"Warning computing salience columns: {e}")
         return self.get_data(), self.column_sets
+
+    def _compute_salience_columns(self) -> None:
+        """
+        Add salience proxies per domain-month to the wide panel:
+        - salience_breadth_<domain>: number of MEPs with any meeting in that domain in that month
+        - high_salience_<domain>: indicator for top-tercile salience within that domain across months
+        """
+        if self.df_filtered.empty:
+            return
+        if "MEETINGS_TOPICS_COLUMNS" not in self.column_sets:
+            return
+        time_level = self.df_filtered.index.names[1]
+        salience_cols: list[str] = []
+        high_cols: list[str] = []
+        for c in list(self.column_sets["MEETINGS_TOPICS_COLUMNS"]):
+            if not c.startswith("meetings_l_"):
+                continue
+            domain = c.replace("meetings_l_", "")
+            breadth_by_time = (
+                self.df_filtered[c]
+                .groupby(level=1)
+                .apply(lambda s: (pd.to_numeric(s, errors="coerce") > 0).sum())
+            )
+            sal_col = f"salience_breadth_{domain}"
+            # Broadcast by time over all members
+            self.df_filtered[sal_col] = (
+                self.df_filtered.index.get_level_values(1).map(breadth_by_time).astype(float)
+            )
+            salience_cols.append(sal_col)
+            # High-salience = top tercile threshold per domain
+            th = breadth_by_time.quantile(2.0 / 3.0)
+            high_col = f"high_salience_{domain}"
+            self.df_filtered[high_col] = (self.df_filtered[sal_col] >= th).astype(int)
+            high_cols.append(high_col)
+        if salience_cols:
+            self.column_sets["SALIENCE_BREADTH_COLUMNS"] = salience_cols
+        if high_cols:
+            self.column_sets["HIGH_SALIENCE_COLUMNS"] = high_cols
+
+    def prepare_long_panel(self) -> pd.DataFrame:
+        """
+        Reshape the current wide panel (member_id × time) into a long panel over domains:
+        (member_id × domain × time), with outcome (questions) and treatment (meetings).
+
+        Returns:
+            pd.DataFrame with columns: [member_id, domain, time, questions, meetings]
+            and a MultiIndex set to (member_id_domain, time) for FE estimation convenience.
+        """
+        # Detect index names
+        if not isinstance(self.df.index, pd.MultiIndex) or len(self.df.index.names) < 2:
+            raise ValueError("Expected MultiIndex with ['member_id', time].")
+
+        entity_col = self.df.index.names[0]
+        time_col = self.df.index.names[1]
+
+        # Infer available domains by intersecting questions and meetings columns
+        questions_prefix = "questions_infered_topic_"
+        meetings_prefix = "meetings_l_"
+
+        question_cols = [c for c in self.df.columns if c.startswith(questions_prefix)]
+        meeting_cols = [c for c in self.df.columns if c.startswith(meetings_prefix)
+                        and  'category' not in c
+                        and 'budget' not in c
+                        and 'days_since' not in c]
+
+        # Handle renamed columns (spaces replaced by underscores already)
+        # Domains are the suffixes after the prefixes
+        domains_q = {c.replace(questions_prefix, "").replace(" ", "_") for c in question_cols}
+        domains_m = {c.replace(meetings_prefix, "").replace(" ", "_") for c in meeting_cols}
+        domains = sorted(list(domains_q.intersection(domains_m)))
+
+        print(f"Number of domains: {len(domains)}")
+
+        print(f"Domains: {domains}")
+
+        if len(domains) == 0:
+            raise ValueError(
+                "Could not infer domains. Ensure columns like 'questions_infered_topic_<domain>' and 'meetings_l_<domain>' exist."
+            )
+
+        # Build long dataframe by vertical concatenation per domain
+        long_frames: list[pd.DataFrame] = []
+        base_df = self.df.reset_index()
+        for d in domains:
+            q_col = f"{questions_prefix}{d}"
+            m_col = f"{meetings_prefix}{d}"
+            if q_col in base_df.columns and m_col in base_df.columns:
+                tmp = base_df[[entity_col, time_col, q_col, m_col]].copy()
+                tmp.rename(columns={q_col: "questions", m_col: "meetings"}, inplace=True)
+                tmp["domain"] = d
+                long_frames.append(tmp)
+
+        if not long_frames:
+            raise ValueError("No domain frames could be created. Check input columns.")
+
+        df_long = pd.concat(long_frames, ignore_index=True)
+
+        # Sort and create a combined entity key for member_id × domain
+        df_long.sort_values([entity_col, "domain", time_col], inplace=True)
+        df_long["member_domain"] = (
+            df_long[entity_col].astype(str) + "__" + df_long["domain"].astype(str)
+        )
+
+        # Set index for PanelOLS compatibility (entity, time)
+        df_long.set_index(["member_domain", time_col], inplace=True)
+
+        return df_long
