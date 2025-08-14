@@ -63,19 +63,7 @@ def model_continuous_ddd_linear(
         df_long = db.get_df().copy()
         time_col = db.get_time_col()
 
-        # Ensure identifiers exist
-        if "member_domain" not in df_long.columns:
-            # Fallback construct if needed
-            if "member_id" in df_long.columns and "domain" in df_long.columns:
-                df_long["member_domain"] = (
-                    df_long["member_id"].astype(str) + "__" + df_long["domain"].astype(str)
-                )
-            else:
-                raise ValueError("Expected 'member_domain' in long panel.")
-
-        # Coerce target vars to numeric and drop NAs
-        df_long["questions"] = pd.to_numeric(df_long["questions"], errors="coerce")
-        df_long["meetings"] = pd.to_numeric(df_long["meetings"], errors="coerce")
+        # Drop NAs
         df_long = df_long.dropna(subset=["questions", "meetings"])
 
         # Controls (if available from LongDatabase)
@@ -108,6 +96,7 @@ def model_continuous_ddd_linear(
             X,
             entity_effects=True,   # member×domain fixed effects
             time_effects=True,     # time fixed effects
+            drop_absorbed=True,
         )
 
         # Robust SEs (switch to clustered if desired)

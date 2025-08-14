@@ -535,6 +535,7 @@ class LongDatabase(DataBase):
 
         self._use_log_treatment = False
         self._use_log_questions = False
+        self._use_quadratic_treatment = False
 
     def get_df(self) -> pd.DataFrame:
         return self._df_long
@@ -543,7 +544,17 @@ class LongDatabase(DataBase):
         return self._column_sets
 
     def get_control_cols(self) -> list[str]:
-        return self._control_cols
+        basic_cols = []
+        if self._use_quadratic_treatment:
+            basic_cols.append("meetings_squared")
+        if self._lags > 0:
+            for k in range(1, self._lags + 1):
+                basic_cols.append(f"lag{k}_meetings")
+
+        if self._leads > 0:
+            for k in range(1, self._leads + 1):
+                basic_cols.append(f"lead{k}_meetings")
+        return basic_cols + self._control_cols
 
     def get_time_col(self) -> str:
         return self._df_regular_filtered.index.names[1]
@@ -568,6 +579,12 @@ class LongDatabase(DataBase):
             return
         self._df_long['questions'] = np.log(self._df_long['questions'] + 1)
         self._use_log_questions = True
+
+    def use_quadratic_treatment(self):
+        if self._use_quadratic_treatment:
+            return
+        self._df_long['meetings_squared'] = self._df_long['meetings'] ** 2
+        self._use_quadratic_treatment = True
 
     def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
         """
@@ -791,8 +808,9 @@ class LongDatabase(DataBase):
             "MEPS_POLITICAL_GROUP_COLUMNS",
             "MEPS_COUNTRY_COLUMNS",
             "MEPS_POSITIONS_COLUMNS",
-            # "MEETINGS_CATEGORY_COLUMNS",
+            "MEETINGS_CATEGORY_COLUMNS",
             "MEETINGS_MEMBER_CAPACITY_COLUMNS",
+            # "SALIENCE_BREADTH_COLUMNS",
         ]
         for set_name in potential_sets:
             if set_name in self._column_sets:
@@ -871,3 +889,9 @@ class LongDatabase(DataBase):
 
     def filter_by_domain(self, domain: str) -> pd.DataFrame:
         return self._df_long[self._df_long["domain"] == domain]
+
+    def filter_df(self, mask: list[bool]) -> pd.DataFrame:
+        if len(mask) != len(self._df_long):
+            raise ValueError("Mask length does not match dataframe length")
+        self._df_long = self._df_long[mask]
+        return self._df_long
