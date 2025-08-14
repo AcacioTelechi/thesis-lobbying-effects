@@ -94,6 +94,8 @@ def model_continuous_ddd_ppml_fixest_rscript(
     db: LongDatabase,
     Rscript_path: str | None = None,
     include_member_time_fe: bool = False,
+    include_country_time_fe: bool = False,
+    include_party_time_fe: bool = False,
     fe_pattern: str | None = None,
     domain_filter: str | None = None,
     cluster_by: str = "member_id",
@@ -153,25 +155,49 @@ def model_continuous_ddd_ppml_fixest_rscript(
                 + ", ".join(missing_terms)
             )
 
-        # Ensure FE variables referenced in fe_pattern are present in the CSV
-        if isinstance(fe_pattern, str) and fe_pattern:
-            fp = fe_pattern.strip().lower()
-            fe_needed: list[str] = []
-            if fp == "member+time":
-                fe_needed = ["member_id", "time_fe"]
-            elif fp == "member_domain+domain_time":
-                fe_needed = ["member_domain", "domain_time"]
-            elif fp == "member_domain+time":
-                fe_needed = ["member_domain", "time_fe"]
-            elif fp == "member+domain_time":
-                fe_needed = ["member_id", "domain_time"]
-            elif fp == "member_time+domain":
-                fe_needed = ["member_time", "domain"]
-            elif fp == "member_time":
-                fe_needed = ["member_time"]
-            for term in fe_needed:
-                if term in df_long.columns and term not in required_cols:
-                    required_cols.append(term)
+        # # Ensure FE variables referenced in fe_pattern are present in the CSV
+        # if isinstance(fe_pattern, str) and fe_pattern:
+        #     fp = fe_pattern.strip().lower()
+        #     fe_needed: list[str] = []
+        #     if fp == "member+time":
+        #         fe_needed = ["member_id", "time_fe"]
+        #     elif fp == "member_domain+domain_time":
+        #         fe_needed = ["member_domain", "domain_time"]
+        #     elif fp == "member_domain+time":
+        #         fe_needed = ["member_domain", "time_fe"]
+        #     elif fp == "member+domain_time":
+        #         fe_needed = ["member_id", "domain_time"]
+        #     elif fp == "member_time+domain":
+        #         fe_needed = ["member_time", "domain"]
+        #     elif fp == "member_time":
+        #         fe_needed = ["member_time"]
+        #     for term in fe_needed:
+        #         if term in df_long.columns and term not in required_cols:
+        #             required_cols.append(term)
+        
+        # Optionally construct country_time and party_time FE variables
+        if include_country_time_fe or include_party_time_fe:
+            try:
+                # Create country/party columns if missing
+                if include_country_time_fe and "country" not in df_long.columns:
+                    df_long = db.add_country_fe(df_long.copy())
+                if include_party_time_fe and "party" not in df_long.columns:
+                    df_long = db.add_party_fe(df_long.copy())
+            except Exception as e:
+                print(f"Warning creating country/party FE: {e}")
+            time_col = db.get_time_col()
+            if include_country_time_fe and "country" in df_long.columns:
+                df_long["country_time"] = (
+                    df_long["country"].astype(str) + "__" + df_long[time_col].astype(str)
+                )
+                if "country_time" not in required_cols:
+                    required_cols.append("country_time")
+            if include_party_time_fe and "party" in df_long.columns:
+                df_long["party_time"] = (
+                    df_long["party"].astype(str) + "__" + df_long[time_col].astype(str)
+                )
+                if "party_time" not in required_cols:
+                    required_cols.append("party_time")
         # Add controls if any, and sanitize names for R
         control_cols = db.get_control_cols()
         
@@ -192,26 +218,12 @@ def model_continuous_ddd_ppml_fixest_rscript(
             )
             # Determine FE RHS according to requested pattern
             if fe_pattern is not None:
-                # Supported patterns: 'member_domain+domain_time', 'member+time', 'member_domain+time', 'member+domain_time'
-                pattern = fe_pattern.strip().lower()
-                if pattern == "member+time":
-                    fe_rhs = "member_id + time_fe"
-                elif pattern == "member_domain+time":
-                    fe_rhs = "member_domain + time_fe"
-                elif pattern == "member+domain_time":
-                    fe_rhs = "member_id + domain_time"
-                elif pattern == "member_time+domain":
-                    fe_rhs = "member_time + domain"
-                elif pattern == "member_time":
-                    fe_rhs = "member_time"
-                else:
-                    fe_rhs = "member_domain + domain_time"
-            else:
-                fe_rhs = (
-                    "member_domain + domain_time + member_time"
-                    if include_member_time_fe
-                    else "member_domain + domain_time"
-                )
+                fe_rhs = fe_pattern
+            # Append country_time and party_time FE if requested
+            if include_country_time_fe and "country_time" not in fe_rhs:
+                fe_rhs = fe_rhs + " + country_time"
+            if include_party_time_fe and "party_time" not in fe_rhs:
+                fe_rhs = fe_rhs + " + party_time"
 
             # Treatment term: pooled or domain-varying slopes
             if domain_varying_slopes:
