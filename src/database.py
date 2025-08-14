@@ -540,6 +540,68 @@ class LongDatabase(DataBase):
     def get_df(self) -> pd.DataFrame:
         return self._df_long
 
+    def prepare_long_panel(
+        self,
+        include_controls: bool = True,
+        include_time_fe: bool = True,
+        lags: int = 0,
+        leads: int = 0,
+        trim_top_fraction: float | None = None,
+    ) -> pd.DataFrame:
+        df_long = self._prepare_long_panel()
+
+        df_long = df_long.reset_index()
+
+        if include_controls:
+            df_long = self.add_controls(df_long)
+
+        # Lags and leads
+        if lags > 0:
+            df_long = self.add_lags(df_long, lags)
+
+        if leads > 0:
+            df_long = self.add_leads(df_long, leads)
+
+        # Trim top fraction
+        if trim_top_fraction is not None:
+            df_long = self.trim_top_fraction(df_long, trim_top_fraction)
+
+        # Fill missing values
+        df_long.fillna(0, inplace=True)
+
+        # Ensure numeric outcome and treatment
+        df_long["questions"] = pd.to_numeric(df_long["questions"], errors="coerce")
+        df_long["meetings"] = pd.to_numeric(df_long["meetings"], errors="coerce")
+
+        # Reconstruct member_id from member_domain
+        time_col = self.get_time_col()
+
+        # FEs
+        if include_time_fe:
+            df_long = self.add_time_fe(df_long)
+
+        df_long = self.add_country_fe(df_long)
+        df_long = self.add_party_fe(df_long)
+
+        # Reconstruct member_id from member_domain
+        df_long["member_id"] = (
+            df_long["member_domain"].astype(str).str.split("__").str[0]
+        )
+        df_long["domain_time"] = (
+            df_long["domain"].astype(str) + "__" + df_long[time_col].astype(str)
+        )
+        df_long["member_time"] = (
+            df_long["member_id"].astype(str) + "__" + df_long[time_col].astype(str)
+        )
+        df_long["country_time"] = (
+            df_long["country"].astype(str) + "__" + df_long[time_col].astype(str)
+        )
+        df_long["party_time"] = (
+            df_long["party"].astype(str) + "__" + df_long[time_col].astype(str)
+        )
+
+        return df_long
+
     def get_column_sets(self) -> dict:
         return self._column_sets
 
@@ -558,32 +620,32 @@ class LongDatabase(DataBase):
 
     def get_time_col(self) -> str:
         return self._df_regular_filtered.index.names[1]
-    
+
     def get_entity_col(self) -> str:
         return self._df_regular_filtered.index.names[0]
-    
+
     def use_log_treatment(self):
         self._set_treatment_to_log()
-    
+
     def _set_treatment_to_log(self) -> None:
         if self._use_log_treatment:
             return
-        self._df_long['meetings'] = np.log(self._df_long['meetings'] + 1)
+        self._df_long["meetings"] = np.log(self._df_long["meetings"] + 1)
         self._use_log_treatment = True
 
     def use_log_questions(self):
         self._set_questions_to_log()
-    
+
     def _set_questions_to_log(self) -> None:
         if self._use_log_questions:
             return
-        self._df_long['questions'] = np.log(self._df_long['questions'] + 1)
+        self._df_long["questions"] = np.log(self._df_long["questions"] + 1)
         self._use_log_questions = True
 
     def use_quadratic_treatment(self):
         if self._use_quadratic_treatment:
             return
-        self._df_long['meetings_squared'] = self._df_long['meetings'] ** 2
+        self._df_long["meetings_squared"] = self._df_long["meetings"] ** 2
         self._use_quadratic_treatment = True
 
     def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
@@ -755,54 +817,6 @@ class LongDatabase(DataBase):
 
         return df_long
 
-    def prepare_long_panel(
-        self,
-        include_controls: bool = True,
-        include_time_fe: bool = True,
-        lags: int = 0,
-        leads: int = 0,
-        trim_top_fraction: float | None = None,
-    ) -> pd.DataFrame:
-        df_long = self._prepare_long_panel()
-
-        df_long = df_long.reset_index()
-
-        if include_controls:
-            df_long = self.add_controls(df_long)
-
-        if include_time_fe:
-            df_long = self.add_time_fe(df_long)
-
-        if lags > 0:
-            df_long = self.add_lags(df_long, lags)
-
-        if leads > 0:
-            df_long = self.add_leads(df_long, leads)
-
-        if trim_top_fraction is not None:
-            df_long = self.trim_top_fraction(df_long, trim_top_fraction)
-
-        df_long.fillna(0, inplace=True)
-
-        # Ensure numeric outcome and treatment
-        df_long["questions"] = pd.to_numeric(df_long["questions"], errors="coerce")
-        df_long["meetings"] = pd.to_numeric(df_long["meetings"], errors="coerce")
-
-        time_col = self.get_time_col()
-
-        # Reconstruct member_id from member_domain
-        df_long["member_id"] = (
-            df_long["member_domain"].astype(str).str.split("__").str[0]
-        )
-        df_long["domain_time"] = (
-            df_long["domain"].astype(str) + "__" + df_long[time_col].astype(str)
-        )
-        df_long["member_time"] = (
-            df_long["member_id"].astype(str) + "__" + df_long[time_col].astype(str)
-        )
-
-        return df_long
-
     def add_controls(self, df_long: pd.DataFrame) -> pd.DataFrame:
         potential_sets = [
             "MEPS_POLITICAL_GROUP_COLUMNS",
@@ -841,13 +855,35 @@ class LongDatabase(DataBase):
         return df_long
 
     def add_country_fe(self, df_long: pd.DataFrame) -> pd.DataFrame:
-        df_long["country"] = df_long[self.column_sets["MEPS_COUNTRY_COLUMNS"]].idxmax(axis=1)
+        df_long["country"] = df_long[self.column_sets["MEPS_COUNTRY_COLUMNS"]].idxmax(
+            axis=1
+        )
+        # remove meps_COUNTRY_ columns
+        df_long = df_long.drop(columns=self.column_sets["MEPS_COUNTRY_COLUMNS"])
+
+        self._control_cols = [
+            c
+            for c in self._control_cols
+            if "meps_COUNTRY_" not in self.column_sets["MEPS_COUNTRY_COLUMNS"]
+        ]
+
+        self._include_country_fe = True
         return df_long
 
     def add_party_fe(self, df_long: pd.DataFrame) -> pd.DataFrame:
-        df_long["party"] = df_long[self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]].idxmax(axis=1)
+        df_long["party"] = df_long[
+            self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
+        ].idxmax(axis=1)
+
+        df_long = df_long.drop(columns=self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"])
+
+        self._control_cols = [
+            c for c in self._control_cols if "meps_POLITICAL_GROUP_" not in c
+        ]
+
+        self._include_party_fe = True
         return df_long
-    
+
     def add_lags(self, df_long: pd.DataFrame, lags: int) -> pd.DataFrame:
         for k in range(1, lags + 1):
             df_long[f"lag{k}_meetings"] = df_long.groupby("member_domain")[
@@ -875,14 +911,24 @@ class LongDatabase(DataBase):
             "meetings",
             "member_domain",
             "domain_time",
+            "country_time",
+            "party_time",
+            "country",
+            "party",
             "domain",
             "time_fe",
         ]
 
         if self._include_controls:
-            basic_cols.extend(self._control_cols)
+            cols_to_add = [
+                c
+                for c in self._control_cols
+                if c not in self._column_sets["MEPS_COUNTRY_COLUMNS"]
+                and c not in self._column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
+            ]
+            basic_cols.extend(cols_to_add)
 
-        if self._include_time_fe: 
+        if self._include_time_fe:
             basic_cols.append("time_fe")
 
         if self._lags > 0:
