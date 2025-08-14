@@ -840,6 +840,14 @@ class LongDatabase(DataBase):
         df_long["time_fe"] = df_long[time_col].astype(str)
         return df_long
 
+    def add_country_fe(self, df_long: pd.DataFrame) -> pd.DataFrame:
+        df_long["country"] = df_long[self.column_sets["MEPS_COUNTRY_COLUMNS"]].idxmax(axis=1)
+        return df_long
+
+    def add_party_fe(self, df_long: pd.DataFrame) -> pd.DataFrame:
+        df_long["party"] = df_long[self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]].idxmax(axis=1)
+        return df_long
+    
     def add_lags(self, df_long: pd.DataFrame, lags: int) -> pd.DataFrame:
         for k in range(1, lags + 1):
             df_long[f"lag{k}_meetings"] = df_long.groupby("member_domain")[
