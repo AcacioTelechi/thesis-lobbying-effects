@@ -533,6 +533,9 @@ class LongDatabase(DataBase):
             trim_top_fraction=trim_top_fraction,
         )
 
+        self._use_log_treatment = False
+        self._use_log_questions = False
+
     def get_df(self) -> pd.DataFrame:
         return self._df_long
 
@@ -544,6 +547,27 @@ class LongDatabase(DataBase):
 
     def get_time_col(self) -> str:
         return self._df_regular_filtered.index.names[1]
+    
+    def get_entity_col(self) -> str:
+        return self._df_regular_filtered.index.names[0]
+    
+    def use_log_treatment(self):
+        self._set_treatment_to_log()
+    
+    def _set_treatment_to_log(self) -> None:
+        if self._use_log_treatment:
+            return
+        self._df_long['meetings'] = np.log(self._df_long['meetings'] + 1)
+        self._use_log_treatment = True
+
+    def use_log_questions(self):
+        self._set_questions_to_log()
+    
+    def _set_questions_to_log(self) -> None:
+        if self._use_log_questions:
+            return
+        self._df_long['questions'] = np.log(self._df_long['questions'] + 1)
+        self._use_log_questions = True
 
     def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
         """
