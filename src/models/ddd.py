@@ -26,6 +26,7 @@ import tempfile
 import re
 from typing import Type
 
+import pyhdfe
 
 warnings.filterwarnings("ignore")
 
@@ -33,6 +34,60 @@ warnings.filterwarnings("ignore")
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", 100)
 plt.style.use("seaborn-v0_8")
+
+
+
+def model_continuous_ddd_linear(db: LongDatabase):
+    """
+    y_{idt} = β T_{idt} + μ_{id} + μ_{it} + μ_{dt} + X_{idt}' θ + ε_{idt}
+    """
+    df_long = db.get_df().copy()
+
+    # Identify relevant columns for FE and X
+    main_cols = ["questions", "meetings", "member_id", "domain", db.get_time_col()]
+    control_cols = db.get_control_cols()
+    control_cols = [c for c in control_cols if c in df_long.columns]
+
+    all_cols = main_cols + control_cols
+
+    # Drop any rows with NA in any relevant column
+    df_long = df_long.dropna(subset=all_cols).reset_index(drop=True)
+
+    time_col = db.get_time_col()
+
+    # Fixed effects
+    df_long["fe_id"] = (
+        df_long["member_id"].astype(str) + "_" + df_long["domain"].astype(str)
+    ).astype("category")
+
+    df_long["fe_it"] = (
+        df_long["member_id"].astype(str) + "_" + df_long[time_col].astype(str)
+    ).astype("category")
+
+    df_long["fe_dt"] = (
+        df_long["domain"].astype(str) + "_" + df_long[time_col].astype(str)
+    ).astype("category")
+
+    # Create FE DataFrame
+    fe_df = df_long[["fe_id", "fe_it", "fe_dt"]]
+
+    # Initialize pyhdfe absorber
+    absorber = pyhdfe.create(ids=fe_df)
+
+    # Partial out FEs
+    y_resid = absorber.residualize(df_long[["questions"]].astype(float)).squeeze()
+    X = df_long[["meetings"] + control_cols].astype(float)
+    X_resid = absorber.residualize(X)
+
+    # Add constant
+    X_resid = sm.add_constant(X_resid)
+
+    # OLS with cluster at member_id
+    model = sm.OLS(y_resid, X_resid)
+    res = model.fit(cov_type="cluster", cov_kwds={"groups": df_long["member_id"]})
+
+    return res
+
 
 
 def model_continuous_ddd_ppml_fixest_rscript(

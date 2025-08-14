@@ -35,7 +35,7 @@ pd.set_option("display.max_rows", 100)
 plt.style.use("seaborn-v0_8")
 
 
-def model_continuous_ddd_linear(
+def model_two_way_fixed_effects(
     db: LongDatabase,
 ):
     """
