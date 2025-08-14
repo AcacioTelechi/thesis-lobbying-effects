@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
+from abc import ABC, abstractmethod
 
 warnings.filterwarnings("ignore")
 
@@ -367,7 +368,7 @@ class DataBase:
 
         # Rename questions columns
         for c in self.df_filtered.columns:
-            if 'questions' in c:
+            if "questions" in c:
                 new_col = c.replace(" ", "_")
                 self.df_filtered.rename(columns={c: new_col}, inplace=True)
 
@@ -425,7 +426,9 @@ class DataBase:
             sal_col = f"salience_breadth_{domain}"
             # Broadcast by time over all members
             self.df_filtered[sal_col] = (
-                self.df_filtered.index.get_level_values(1).map(breadth_by_time).astype(float)
+                self.df_filtered.index.get_level_values(1)
+                .map(breadth_by_time)
+                .astype(float)
             )
             salience_cols.append(sal_col)
             # High-salience = top tercile threshold per domain
@@ -443,16 +446,188 @@ class DataBase:
             for domain in breadth_dict.keys():
                 rel_col = f"high_salience_rel_{domain}"
                 self.df_filtered[rel_col] = (
-                    self.df_filtered.index.get_level_values(1).map(rel_flags[domain]).astype(int)
+                    self.df_filtered.index.get_level_values(1)
+                    .map(rel_flags[domain])
+                    .astype(int)
                 )
-            self.column_sets["HIGH_SALIENCE_REL_COLUMNS"] = [f"high_salience_rel_{d}" for d in breadth_dict.keys()]
+            self.column_sets["HIGH_SALIENCE_REL_COLUMNS"] = [
+                f"high_salience_rel_{d}" for d in breadth_dict.keys()
+            ]
 
         if salience_cols:
             self.column_sets["SALIENCE_BREADTH_COLUMNS"] = salience_cols
         if high_cols:
             self.column_sets["HIGH_SALIENCE_COLUMNS"] = high_cols
 
-    def prepare_long_panel(self) -> pd.DataFrame:
+
+class RegularDatabase(DataBase):
+    """
+    Wrapper around the existing DataBase that serves the "regular" wide panel
+    (df_filtered). Provides a clean API and a unified 'treatment' column creator.
+    """
+
+    def __init__(
+        self,
+        data_path: str = "./data/gold/",
+        time_frequency: str = "monthly",
+        start_date: str = "2019-07",
+        end_date: str = "2024-11",
+    ):
+        super().__init__(data_path=data_path)
+        self._df_filtered, self._column_sets = self.prepare_data(
+            time_frequency=time_frequency, start_date=start_date, end_date=end_date
+        )
+
+    def get_df(self) -> pd.DataFrame:
+        return self._df_filtered
+
+    def get_column_sets(self) -> dict:
+        return self._column_sets
+
+    def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
+        df = self._df_filtered
+        if source_column not in df.columns:
+            raise KeyError(f"Column '{source_column}' not found in regular panel")
+        df = df.copy()
+        df["treatment"] = (
+            pd.to_numeric(df[source_column], errors="coerce").astype(float).fillna(0.0)
+        )
+        self._df_filtered = df
+        return self._df_filtered
+
+
+class LongDatabase(DataBase):
+    """
+    Long panel over (member_id × domain × time). Can merge alternative treatments
+    either from the long frame itself or from the originating wide frame.
+    """
+
+    def __init__(
+        self,
+        data_path: str = "./data/gold/",
+        time_frequency: str = "monthly",
+        start_date: str = "2019-07",
+        end_date: str = "2024-11",
+        include_controls: bool = True,
+        include_time_fe: bool = True,
+        lags: int = 0,
+        leads: int = 0,
+        trim_top_fraction: float | None = None,
+    ):
+        super().__init__(data_path=data_path)
+        self._control_cols = []
+        self._df_regular_filtered, self._column_sets = self.prepare_data(
+            time_frequency=time_frequency, start_date=start_date, end_date=end_date
+        )
+        self._df_long = self.prepare_long_panel(
+            include_controls=include_controls,
+            include_time_fe=include_time_fe,
+            lags=lags,
+            leads=leads,
+            trim_top_fraction=trim_top_fraction,
+        )
+
+
+    def get_df(self) -> pd.DataFrame:
+        return self._df_long
+
+    def get_column_sets(self) -> dict:
+        return self._column_sets
+    
+    def get_control_cols(self) -> list[str]:
+        return self._control_cols
+    
+    def get_time_col(self) -> str:
+        return self._df_regular_filtered.index.names[1]
+    
+    def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
+        """
+        - If source_column exists in long df: copy to 'meetings'.
+        - Else, if source_column exists in the regular wide df: merge by [member_id, time].
+        - Else, if source_column looks domain-specific in wide (suffix per domain),
+          try to assemble by domain.
+        """
+        df_long = self._df_long.copy()
+        time_col = self._df_regular_filtered.index.names[1]
+
+        if source_column in df_long.columns:
+            df_long["meetings"] = (
+                pd.to_numeric(df_long[source_column], errors="coerce")
+                .astype(float)
+                .fillna(0.0)
+            )
+            self._df_long = df_long
+            return self._df_long
+
+        wide = (
+            self._df_regular_filtered.reset_index()
+        )  # wide panel with member_id and time
+        # Case 1: source exists directly in wide (not domain-specific)
+        if source_column in wide.columns:
+            # reconstruct member_id from member_domain
+            df_long["member_id"] = (
+                df_long["member_domain"].astype(str).str.split("__").str[0]
+            )
+            df_long = df_long.merge(
+                wide[
+                    [self._df_regular_filtered.index.names[0], time_col, source_column]
+                ].rename(
+                    columns={self._df_regular_filtered.index.names[0]: "member_id"}
+                ),
+                on=["member_id", time_col],
+                how="left",
+            )
+            df_long["meetings"] = (
+                pd.to_numeric(df_long[source_column], errors="coerce")
+                .astype(float)
+                .fillna(0.0)
+            )
+            df_long.drop(columns=[source_column], inplace=True)
+            self._df_long = df_long
+            return self._df_long
+
+        # Case 2: domain-specific in wide; try compose using the long 'domain' column
+        # Expected naming like: '<prefix>_<domain>'
+        if "domain" in df_long.columns:
+            candidate_cols = [
+                c for c in wide.columns if c.startswith(source_column + "_")
+            ]
+            if candidate_cols:
+                # Build a mapping per row using domain
+                df_long["member_id"] = (
+                    df_long["member_domain"].astype(str).str.split("__").str[0]
+                )
+                # Melt candidate cols to long and match by domain name
+                melted = wide[
+                    [self._df_regular_filtered.index.names[0], time_col]
+                    + candidate_cols
+                ].rename(
+                    columns={self._df_regular_filtered.index.names[0]: "member_id"}
+                )
+                melted = melted.melt(
+                    id_vars=["member_id", time_col], var_name="var", value_name="val"
+                )
+                # Extract domain suffix
+                melted["domain"] = melted["var"].str.replace(
+                    source_column + "_", "", regex=False
+                )
+                df_long = df_long.merge(
+                    melted[["member_id", time_col, "domain", "val"]],
+                    on=["member_id", time_col, "domain"],
+                    how="left",
+                )
+                df_long["meetings"] = (
+                    pd.to_numeric(df_long["val"], errors="coerce")
+                    .astype(float)
+                    .fillna(0.0)
+                )
+                df_long.drop(columns=["val"], inplace=True)
+                self._df_long = df_long
+                return self._df_long
+
+        raise KeyError(f"Column '{source_column}' not found in long or wide panel")
+
+    def _prepare_long_panel(self) -> pd.DataFrame:
         """
         Reshape the current wide panel (member_id × time) into a long panel over domains:
         (member_id × domain × time), with outcome (questions) and treatment (meetings).
@@ -462,26 +637,37 @@ class DataBase:
             and a MultiIndex set to (member_id_domain, time) for FE estimation convenience.
         """
         # Detect index names
-        if not isinstance(self.df.index, pd.MultiIndex) or len(self.df.index.names) < 2:
+        if (
+            not isinstance(self._df_regular_filtered.index, pd.MultiIndex)
+            or len(self._df_regular_filtered.index.names) < 2
+        ):
             raise ValueError("Expected MultiIndex with ['member_id', time].")
 
-        entity_col = self.df.index.names[0]
-        time_col = self.df.index.names[1]
+        entity_col = self._df_regular_filtered.index.names[0]
+        time_col = self._df_regular_filtered.index.names[1]
 
         # Infer available domains by intersecting questions and meetings columns
         questions_prefix = "questions_infered_topic_"
         meetings_prefix = "meetings_l_"
 
         question_cols = [c for c in self.df.columns if c.startswith(questions_prefix)]
-        meeting_cols = [c for c in self.df.columns if c.startswith(meetings_prefix)
-                        and  'category' not in c
-                        and 'budget' not in c
-                        and 'days_since' not in c]
+        meeting_cols = [
+            c
+            for c in self.df.columns
+            if c.startswith(meetings_prefix)
+            and "category" not in c
+            and "budget" not in c
+            and "days_since" not in c
+        ]
 
         # Handle renamed columns (spaces replaced by underscores already)
         # Domains are the suffixes after the prefixes
-        domains_q = {c.replace(questions_prefix, "").replace(" ", "_") for c in question_cols}
-        domains_m = {c.replace(meetings_prefix, "").replace(" ", "_") for c in meeting_cols}
+        domains_q = {
+            c.replace(questions_prefix, "").replace(" ", "_") for c in question_cols
+        }
+        domains_m = {
+            c.replace(meetings_prefix, "").replace(" ", "_") for c in meeting_cols
+        }
         domains = sorted(list(domains_q.intersection(domains_m)))
 
         print(f"Number of domains: {len(domains)}")
@@ -501,7 +687,9 @@ class DataBase:
             m_col = f"{meetings_prefix}{d}"
             if q_col in base_df.columns and m_col in base_df.columns:
                 tmp = base_df[[entity_col, time_col, q_col, m_col]].copy()
-                tmp.rename(columns={q_col: "questions", m_col: "meetings"}, inplace=True)
+                tmp.rename(
+                    columns={q_col: "questions", m_col: "meetings"}, inplace=True
+                )
                 tmp["domain"] = d
                 long_frames.append(tmp)
 
@@ -519,4 +707,90 @@ class DataBase:
         # Set index for PanelOLS compatibility (entity, time)
         df_long.set_index(["member_domain", time_col], inplace=True)
 
+        return df_long
+
+    def prepare_long_panel(
+        self,
+        include_controls: bool = True,
+        include_time_fe: bool = True,
+        lags: int = 0,
+        leads: int = 0,
+        trim_top_fraction: float | None = None,
+    ) -> pd.DataFrame:
+        df_long = self._prepare_long_panel()
+
+        df_long = df_long.reset_index()
+
+        if include_controls:
+            df_long = self.add_controls(df_long)
+
+        if include_time_fe:
+            df_long = self.add_time_fe(df_long)
+
+        if lags > 0:
+            df_long = self.add_lags(df_long, lags)
+
+        if leads > 0:
+            df_long = self.add_leads(df_long, leads)
+
+        if trim_top_fraction is not None:
+            df_long = self.trim_top_fraction(df_long, trim_top_fraction)
+
+        df_long.dropna(inplace=True)
+
+        return df_long
+
+    def add_controls(self, df_long: pd.DataFrame) -> pd.DataFrame:
+        potential_sets = [
+            "MEPS_POLITICAL_GROUP_COLUMNS",
+            "MEPS_COUNTRY_COLUMNS",
+            "MEPS_POSITIONS_COLUMNS",
+            # "MEETINGS_CATEGORY_COLUMNS",
+            "MEETINGS_MEMBER_CAPACITY_COLUMNS",
+        ]
+        for set_name in potential_sets:
+            if set_name in self._column_sets:
+                for c in self._column_sets[set_name]:
+                    if c in self._df_regular_filtered.columns:
+                        self._control_cols.append(c)
+        # Merge controls from the original wide df (indexed by member_id, time)
+        orig = self._df_regular_filtered.reset_index()
+        # Ensure the join key name exists in df_long
+        entity_col = self._df_regular_filtered.index.names[0]
+        if entity_col not in df_long.columns:
+            # Reconstruct entity_col from member_domain
+            df_long[entity_col] = (
+                df_long["member_domain"].astype(str).str.split("__").str[0]
+            )
+
+        join_cols = [entity_col, self._df_regular_filtered.index.names[1]]
+        merge_cols = [col for col in self._control_cols if col in orig.columns]
+        if merge_cols:
+            df_long = df_long.merge(
+                orig[join_cols + merge_cols], on=join_cols, how="left"
+            )
+        return df_long
+
+    def add_time_fe(self, df_long: pd.DataFrame) -> pd.DataFrame:
+        time_col = self._df_regular_filtered.index.names[1]
+        df_long["time_fe"] = df_long[time_col].astype(str)
+        return df_long
+
+    def add_lags(self, df_long: pd.DataFrame, lags: int) -> pd.DataFrame:
+        for k in range(1, lags + 1):
+            df_long[f"lag{k}_meetings"] = df_long.groupby("member_domain")[
+                "meetings"
+            ].shift(k)
+        return df_long
+
+    def add_leads(self, df_long: pd.DataFrame, leads: int) -> pd.DataFrame:
+        for k in range(1, leads + 1):
+            df_long[f"lead{k}_meetings"] = df_long.groupby("member_domain")[
+                "meetings"
+            ].shift(-k)
+        return df_long
+
+    def trim_top_fraction(self, df_long: pd.DataFrame, trim_top_fraction: float) -> pd.DataFrame:
+        df_long.sort_values(by="meetings", ascending=False, inplace=True)
+        df_long = df_long.head(int(len(df_long) * (1 - trim_top_fraction)))
         return df_long
