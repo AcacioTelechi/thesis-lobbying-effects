@@ -362,15 +362,14 @@ class DataBase:
         """
         for set_name in self.column_sets:
             for i, c in enumerate(self.column_sets[set_name]):
-                new_col = c.replace(" ", "_")
+                new_col = c.replace(" ", "_").replace("-", "_")
                 self.df_filtered.rename(columns={c: new_col}, inplace=True)
                 self.column_sets[set_name][i] = new_col
 
         # Rename questions columns
         for c in self.df_filtered.columns:
-            if "questions" in c:
-                new_col = c.replace(" ", "_")
-                self.df_filtered.rename(columns={c: new_col}, inplace=True)
+            new_col = c.replace(" ", "_").replace("-", "_")
+            self.df_filtered.rename(columns={c: new_col}, inplace=True)
 
     def prepare_data(
         self, time_frequency="monthly", start_date="2019-07", end_date="2024-11"
@@ -519,6 +518,13 @@ class LongDatabase(DataBase):
         self._df_regular_filtered, self._column_sets = self.prepare_data(
             time_frequency=time_frequency, start_date=start_date, end_date=end_date
         )
+
+        self._include_controls = include_controls
+        self._include_time_fe = include_time_fe
+        self._lags = lags
+        self._leads = leads
+        self._trim_top_fraction = trim_top_fraction
+
         self._df_long = self.prepare_long_panel(
             include_controls=include_controls,
             include_time_fe=include_time_fe,
@@ -527,19 +533,18 @@ class LongDatabase(DataBase):
             trim_top_fraction=trim_top_fraction,
         )
 
-
     def get_df(self) -> pd.DataFrame:
         return self._df_long
 
     def get_column_sets(self) -> dict:
         return self._column_sets
-    
+
     def get_control_cols(self) -> list[str]:
         return self._control_cols
-    
+
     def get_time_col(self) -> str:
         return self._df_regular_filtered.index.names[1]
-    
+
     def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
         """
         - If source_column exists in long df: copy to 'meetings'.
@@ -681,7 +686,7 @@ class LongDatabase(DataBase):
 
         # Build long dataframe by vertical concatenation per domain
         long_frames: list[pd.DataFrame] = []
-        base_df = self.df.reset_index()
+        base_df = self._df_regular_filtered.reset_index()
         for d in domains:
             q_col = f"{questions_prefix}{d}"
             m_col = f"{meetings_prefix}{d}"
@@ -736,7 +741,24 @@ class LongDatabase(DataBase):
         if trim_top_fraction is not None:
             df_long = self.trim_top_fraction(df_long, trim_top_fraction)
 
-        df_long.dropna(inplace=True)
+        df_long.fillna(0, inplace=True)
+
+        # Ensure numeric outcome and treatment
+        df_long["questions"] = pd.to_numeric(df_long["questions"], errors="coerce")
+        df_long["meetings"] = pd.to_numeric(df_long["meetings"], errors="coerce")
+
+        time_col = self.get_time_col()
+
+        # Reconstruct member_id from member_domain
+        df_long["member_id"] = (
+            df_long["member_domain"].astype(str).str.split("__").str[0]
+        )
+        df_long["domain_time"] = (
+            df_long["domain"].astype(str) + "__" + df_long[time_col].astype(str)
+        )
+        df_long["member_time"] = (
+            df_long["member_id"].astype(str) + "__" + df_long[time_col].astype(str)
+        )
 
         return df_long
 
@@ -790,7 +812,38 @@ class LongDatabase(DataBase):
             ].shift(-k)
         return df_long
 
-    def trim_top_fraction(self, df_long: pd.DataFrame, trim_top_fraction: float) -> pd.DataFrame:
+    def trim_top_fraction(
+        self, df_long: pd.DataFrame, trim_top_fraction: float
+    ) -> pd.DataFrame:
         df_long.sort_values(by="meetings", ascending=False, inplace=True)
         df_long = df_long.head(int(len(df_long) * (1 - trim_top_fraction)))
         return df_long
+
+    def get_required_cols(self) -> list[str]:
+        basic_cols = [
+            "questions",
+            "meetings",
+            "member_domain",
+            "domain_time",
+            "domain",
+            "time_fe",
+        ]
+
+        if self._include_controls:
+            basic_cols.extend(self._control_cols)
+
+        if self._include_time_fe: 
+            basic_cols.append("time_fe")
+
+        if self._lags > 0:
+            for k in range(1, self._lags + 1):
+                basic_cols.append(f"lag{k}_meetings")
+
+        if self._leads > 0:
+            for k in range(1, self._leads + 1):
+                basic_cols.append(f"lead{k}_meetings")
+
+        return basic_cols
+
+    def filter_by_domain(self, domain: str) -> pd.DataFrame:
+        return self._df_long[self._df_long["domain"] == domain]

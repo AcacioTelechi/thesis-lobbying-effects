@@ -36,7 +36,7 @@ plt.style.use("seaborn-v0_8")
 
 
 def model_continuous_ddd_ppml_fixest_rscript(
-    database: Type[LongDatabase],
+    db: LongDatabase,
     Rscript_path: str | None = None,
     include_member_time_fe: bool = False,
     fe_pattern: str | None = None,
@@ -67,82 +67,14 @@ def model_continuous_ddd_ppml_fixest_rscript(
         dict with coefficient, p-value, n_obs; or None on error.
     """
     try:
-        db = database(
-            include_controls=include_controls,
-            include_time_fe=True,
-            lags=include_lags,
-            leads=include_leads,
-            trim_top_fraction=trim_top_fraction,
-        )
         df_long = db.get_df()
-        time_col = db.get_time_col()
 
         # Optional domain filter for per-domain estimation
         if domain_filter is not None:
-            df_long = df_long[
-                df_long["domain"].astype(str) == str(domain_filter)
-            ].copy()
-            if df_long.empty:
-                print(f"No rows after filtering for domain='{domain_filter}'.")
-                return None
-
-        # Reconstruct member_id from member_domain
-        df_long["member_id"] = (
-            df_long["member_domain"].astype(str).str.split("__").str[0]
-        )
-        df_long["domain_time"] = (
-            df_long["domain"].astype(str) + "__" + df_long[time_col].astype(str)
-        )
-        df_long["member_time"] = (
-            df_long["member_id"].astype(str) + "__" + df_long[time_col].astype(str)
-        )
-
-        # Ensure numeric outcome and treatment
-        df_long["questions"] = pd.to_numeric(df_long["questions"], errors="coerce")
-        df_long["meetings"] = pd.to_numeric(df_long["meetings"], errors="coerce")
-
-        # Optional share outcome within member_id × time (reallocation test)
-        if use_share_outcome:
-            entity_col = db.get_data().index.names[0]
-            # ensure entity_col exists
-            if entity_col not in df_long.columns:
-                df_long[entity_col] = (
-                    df_long["member_domain"].astype(str).str.split("__").str[0]
-                )
-            totals = df_long.groupby([entity_col, time_col])["questions"].transform(
-                "sum"
-            )
-            df_long.loc[totals > 0, "questions"] = (
-                df_long.loc[totals > 0, "questions"] / totals[totals > 0]
-            )
-            df_long.loc[totals == 0, "questions"] = float("nan")
+            df_long = db.filter_by_domain(domain_filter)
 
         # Keep only required columns to minimize IO
-        required_cols = [
-            "questions",
-            "meetings",
-            "member_domain",
-            "domain_time",
-            "domain",
-            "time_fe",
-        ]
-        if include_member_time_fe:
-            required_cols.append("member_time")
-
-        # Add optional dynamic and nonlinear columns
-        if include_meetings_squared:
-            # We'll use formula I(meetings^2) in R; no extra column needed
-            pass
-        if include_lead1_meetings:
-            required_cols.append("lead1_meetings")
-        if include_lag1_meetings:
-            required_cols.append("lag1_meetings")
-        if isinstance(include_lags, int) and include_lags > 0:
-            for k in range(1, include_lags + 1):
-                required_cols.append(f"lag{k}_meetings")
-        if isinstance(include_leads, int) and include_leads > 0:
-            for k in range(1, include_leads + 1):
-                required_cols.append(f"lead{k}_meetings")
+        required_cols = db.get_required_cols()
 
         # Ensure cluster columns exist (supports multi-way like 'member_id + time_fe')
         cluster_terms = [c.strip() for c in str(cluster_by).split("+")]
@@ -186,59 +118,8 @@ def model_continuous_ddd_ppml_fixest_rscript(
                 if term in df_long.columns and term not in required_cols:
                     required_cols.append(term)
         # Add controls if any, and sanitize names for R
-        safe_name_map: dict[str, str] = {}
         control_cols = db.get_control_cols()
-        if include_controls and not include_member_time_fe and len(control_cols) > 0:
-
-            def r_safe(name: str) -> str:
-                # Similar to make.names: replace invalid with '.', prefix 'X' if starts with digit
-                s = re.sub(r"[^0-9A-Za-z_.]", ".", name)
-                if re.match(r"^[0-9]", s):
-                    s = f"X{s}"
-                return s
-
-            for c in control_cols:
-                if c in df_long.columns:
-                    safe = r_safe(c)
-                    # Ensure uniqueness if collision
-                    if safe in df_long.columns and safe != c:
-                        idx = 1
-                        candidate = f"{safe}.{idx}"
-                        while candidate in df_long.columns:
-                            idx += 1
-                            candidate = f"{safe}.{idx}"
-                        safe = candidate
-                    safe_name_map[c] = safe
-            if safe_name_map:
-                df_long.rename(columns=safe_name_map, inplace=True)
-            present_cols = set(df_long.columns) | set(safe_name_map.values())
-            required_cols.extend(
-                [
-                    safe_name_map.get(c, c)
-                    for c in control_cols
-                    if (safe_name_map.get(c, c) in present_cols)
-                ]
-            )
-
-        # Ensure alt_treatment_var column exists before slicing
-        if alt_treatment_var is not None:
-            orig = db.get_data().reset_index()
-            if alt_treatment_var in df_long.columns:
-                if alt_treatment_var not in required_cols:
-                    required_cols.append(alt_treatment_var)
-            elif alt_treatment_var in orig.columns:
-                # Merge in the alternate treatment
-                entity_col = db.get_data().index.names[0]
-                if entity_col not in df_long.columns:
-                    df_long[entity_col] = (
-                        df_long["member_domain"].astype(str).str.split("__").str[0]
-                    )
-                join_cols = [entity_col, time_col]
-                df_long = df_long.merge(
-                    orig[join_cols + [alt_treatment_var]], on=join_cols, how="left"
-                )
-                required_cols.append(alt_treatment_var)
-
+        
         df_long = df_long[required_cols].copy()
 
         # Write temp CSV and R script
@@ -302,11 +183,7 @@ def model_continuous_ddd_ppml_fixest_rscript(
             # Build controls RHS for R formula (as a single string)
             controls_rhs_str = ""
             if include_controls and not include_member_time_fe and control_cols:
-                rhs_controls = [
-                    safe_name_map.get(c, c)
-                    for c in control_cols
-                    if safe_name_map.get(c, c) in df_long.columns
-                ]
+                rhs_controls = [c for c in control_cols if c in df_long.columns]
                 if rhs_controls:
                     controls_rhs_str = " + " + " + ".join(rhs_controls)
             # Treatment variable override and vary_by interaction support
