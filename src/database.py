@@ -36,6 +36,9 @@ class DataBase:
         self.df: pd.DataFrame = pd.DataFrame()
         self.df_filtered: pd.DataFrame = pd.DataFrame()
         self.column_sets: dict[str, list[str]] = {}
+        self._control_cols: list[str] = []
+        self._include_country_fe: bool = False
+        self._include_party_fe: bool = False
 
     def load_data(self, time_frequency="monthly"):
         """
@@ -458,6 +461,46 @@ class DataBase:
         if high_cols:
             self.column_sets["HIGH_SALIENCE_COLUMNS"] = high_cols
 
+    def add_time_fe(self) -> pd.DataFrame:
+        time_col = self.df_filtered.index.names[1]
+        self.df_filtered["time_fe"] = self.df_filtered.index.get_level_values(time_col).astype(str)
+        return self.df_filtered
+
+    def add_country_fe(self) -> pd.DataFrame:
+        self.df_filtered["country"] = self.df_filtered[
+            self.column_sets["MEPS_COUNTRY_COLUMNS"]
+        ].idxmax(axis=1)
+        
+        # remove meps_COUNTRY_ columns
+        self.df_filtered = self.df_filtered.drop(
+            columns=self.column_sets["MEPS_COUNTRY_COLUMNS"]
+        )
+
+        self._control_cols = [
+            c
+            for c in self._control_cols
+            if "meps_COUNTRY_" not in self.column_sets["MEPS_COUNTRY_COLUMNS"]
+        ]
+
+        self._include_country_fe = True
+        return self.df_filtered
+
+    def add_party_fe(self) -> pd.DataFrame:
+        self.df_filtered["party"] = self.df_filtered[
+            self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
+        ].idxmax(axis=1)
+
+        self.df_filtered = self.df_filtered.drop(
+            columns=self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
+        )
+
+        self._control_cols = [
+            c for c in self._control_cols if "meps_POLITICAL_GROUP_" not in c
+        ]
+
+        self._include_party_fe = True
+        return self.df_filtered
+
 
 class RegularDatabase(DataBase):
     """
@@ -576,12 +619,10 @@ class LongDatabase(DataBase):
         # Reconstruct member_id from member_domain
         time_col = self.get_time_col()
 
-        # FEs
-        if include_time_fe:
-            df_long = self.add_time_fe(df_long)
-
-        df_long = self.add_country_fe(df_long)
-        df_long = self.add_party_fe(df_long)
+        # FE
+        self.add_time_fe()
+        self.add_country_fe()
+        self.add_party_fe()
 
         # Reconstruct member_id from member_domain
         df_long["member_id"] = (
@@ -847,41 +888,6 @@ class LongDatabase(DataBase):
             df_long = df_long.merge(
                 orig[join_cols + merge_cols], on=join_cols, how="left"
             )
-        return df_long
-
-    def add_time_fe(self, df_long: pd.DataFrame) -> pd.DataFrame:
-        time_col = self._df_regular_filtered.index.names[1]
-        df_long["time_fe"] = df_long[time_col].astype(str)
-        return df_long
-
-    def add_country_fe(self, df_long: pd.DataFrame) -> pd.DataFrame:
-        df_long["country"] = df_long[self.column_sets["MEPS_COUNTRY_COLUMNS"]].idxmax(
-            axis=1
-        )
-        # remove meps_COUNTRY_ columns
-        df_long = df_long.drop(columns=self.column_sets["MEPS_COUNTRY_COLUMNS"])
-
-        self._control_cols = [
-            c
-            for c in self._control_cols
-            if "meps_COUNTRY_" not in self.column_sets["MEPS_COUNTRY_COLUMNS"]
-        ]
-
-        self._include_country_fe = True
-        return df_long
-
-    def add_party_fe(self, df_long: pd.DataFrame) -> pd.DataFrame:
-        df_long["party"] = df_long[
-            self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
-        ].idxmax(axis=1)
-
-        df_long = df_long.drop(columns=self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"])
-
-        self._control_cols = [
-            c for c in self._control_cols if "meps_POLITICAL_GROUP_" not in c
-        ]
-
-        self._include_party_fe = True
         return df_long
 
     def add_lags(self, df_long: pd.DataFrame, lags: int) -> pd.DataFrame:
