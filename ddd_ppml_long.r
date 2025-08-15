@@ -1,3 +1,7 @@
+# ============================================
+# DDD FE + PPML
+# ============================================
+
 # install.packages("fixest") # if needed
 library(fixest)
 library(modelsummary)
@@ -20,52 +24,52 @@ df$cl_dt <- df$domain_time
 
 # Controls
 controls <- c(
-  # "meps_POLITICAL_GROUP_5148.0",
-  # "meps_POLITICAL_GROUP_5151.0",
-  # "meps_POLITICAL_GROUP_5152.0",
-  # "meps_POLITICAL_GROUP_5153.0",
-  # "meps_POLITICAL_GROUP_5154.0",
-  # "meps_POLITICAL_GROUP_5155.0",
-  # "meps_POLITICAL_GROUP_5588.0",
-  # "meps_POLITICAL_GROUP_5704.0",
-  # "meps_POLITICAL_GROUP_6259.0",
-  # "meps_POLITICAL_GROUP_6561.0",
-  # "meps_POLITICAL_GROUP_7018.0",
-  # "meps_POLITICAL_GROUP_7028.0",
-  # "meps_POLITICAL_GROUP_7035.0",
-  # "meps_POLITICAL_GROUP_7036.0",
-  # "meps_POLITICAL_GROUP_7037.0",
-  # "meps_POLITICAL_GROUP_7038.0",
-  # "meps_POLITICAL_GROUP_7150.0",
-  # "meps_POLITICAL_GROUP_7151.0",
-  # "meps_COUNTRY_AUT",
-  # "meps_COUNTRY_BEL",
-  # "meps_COUNTRY_BGR",
-  # "meps_COUNTRY_CYP",
-  # "meps_COUNTRY_CZE",
-  # "meps_COUNTRY_DEU",
-  # "meps_COUNTRY_DNK",
-  # "meps_COUNTRY_ESP",
-  # "meps_COUNTRY_EST",
-  # "meps_COUNTRY_FIN",
-  # "meps_COUNTRY_FRA",
-  # "meps_COUNTRY_GBR",
-  # "meps_COUNTRY_GRC",
-  # "meps_COUNTRY_HRV",
-  # "meps_COUNTRY_HUN",
-  # "meps_COUNTRY_IRL",
-  # "meps_COUNTRY_ITA",
-  # "meps_COUNTRY_LTU",
-  # "meps_COUNTRY_LUX",
-  # "meps_COUNTRY_LVA",
-  # "meps_COUNTRY_MLT",
-  # "meps_COUNTRY_NLD",
-  # "meps_COUNTRY_POL",
-  # "meps_COUNTRY_PRT",
-  # "meps_COUNTRY_ROU",
-  # "meps_COUNTRY_SVK",
-  # "meps_COUNTRY_SVN",
-  # "meps_COUNTRY_SWE",
+  "meps_POLITICAL_GROUP_5148.0",
+  "meps_POLITICAL_GROUP_5151.0",
+  "meps_POLITICAL_GROUP_5152.0",
+  "meps_POLITICAL_GROUP_5153.0",
+  "meps_POLITICAL_GROUP_5154.0",
+  "meps_POLITICAL_GROUP_5155.0",
+  "meps_POLITICAL_GROUP_5588.0",
+  "meps_POLITICAL_GROUP_5704.0",
+  "meps_POLITICAL_GROUP_6259.0",
+  "meps_POLITICAL_GROUP_6561.0",
+  "meps_POLITICAL_GROUP_7018.0",
+  "meps_POLITICAL_GROUP_7028.0",
+  "meps_POLITICAL_GROUP_7035.0",
+  "meps_POLITICAL_GROUP_7036.0",
+  "meps_POLITICAL_GROUP_7037.0",
+  "meps_POLITICAL_GROUP_7038.0",
+  "meps_POLITICAL_GROUP_7150.0",
+  "meps_POLITICAL_GROUP_7151.0",
+  "meps_COUNTRY_AUT",
+  "meps_COUNTRY_BEL",
+  "meps_COUNTRY_BGR",
+  "meps_COUNTRY_CYP",
+  "meps_COUNTRY_CZE",
+  "meps_COUNTRY_DEU",
+  "meps_COUNTRY_DNK",
+  "meps_COUNTRY_ESP",
+  "meps_COUNTRY_EST",
+  "meps_COUNTRY_FIN",
+  "meps_COUNTRY_FRA",
+  "meps_COUNTRY_GBR",
+  "meps_COUNTRY_GRC",
+  "meps_COUNTRY_HRV",
+  "meps_COUNTRY_HUN",
+  "meps_COUNTRY_IRL",
+  "meps_COUNTRY_ITA",
+  "meps_COUNTRY_LTU",
+  "meps_COUNTRY_LUX",
+  "meps_COUNTRY_LVA",
+  "meps_COUNTRY_MLT",
+  "meps_COUNTRY_NLD",
+  "meps_COUNTRY_POL",
+  "meps_COUNTRY_PRT",
+  "meps_COUNTRY_ROU",
+  "meps_COUNTRY_SVK",
+  "meps_COUNTRY_SVN",
+  "meps_COUNTRY_SWE",
   "meps_COMMITTEE_PARLIAMENTARY_SPECIAL___CHAIR",
   "meps_COMMITTEE_PARLIAMENTARY_SPECIAL___MEMBER",
   "meps_COMMITTEE_PARLIAMENTARY_STANDING___CHAIR",
@@ -78,21 +82,21 @@ controls <- c(
   "meps_EU_INSTITUTION___QUAESTOR",
   "meps_EU_POLITICAL_GROUP___CHAIR",
   "meps_EU_POLITICAL_GROUP___MEMBER_BUREAU",
-  # "meps_EU_POLITICAL_GROUP___TREASURER",
-  # "meps_EU_POLITICAL_GROUP___TREASURER_CO",
+  "meps_EU_POLITICAL_GROUP___TREASURER",
+  "meps_EU_POLITICAL_GROUP___TREASURER_CO",
   "meps_NATIONAL_CHAMBER___PRESIDENT_VICE",
   "meps_WORKING_GROUP___CHAIR",
   "meps_WORKING_GROUP___MEMBER",
   "meps_WORKING_GROUP___MEMBER_BUREAU",
-  # "log_meetings_l_category_Business",
-  # "log_meetings_l_category_NGOs",
-  # "log_meetings_l_category_Other",
-  # "log_meetings_l_budget_cat_lower",
-  # "log_meetings_l_budget_cat_middle",
-  # "log_meetings_l_budget_cat_upper",
-  # "log_meetings_l_days_since_registration_lower",
-  # "log_meetings_l_days_since_registration_middle",
-  # "log_meetings_l_days_since_registration_upper",
+  "log_meetings_l_category_Business",
+  "log_meetings_l_category_NGOs",
+  "log_meetings_l_category_Other",
+  "log_meetings_l_budget_cat_lower",
+  "log_meetings_l_budget_cat_middle",
+  "log_meetings_l_budget_cat_upper",
+  "log_meetings_l_days_since_registration_lower",
+  "log_meetings_l_days_since_registration_middle",
+  "log_meetings_l_days_since_registration_upper",
   "log_meetings_member_capacity_Committee_chair",
   "log_meetings_member_capacity_Delegation_chair",
   "log_meetings_member_capacity_Member",
@@ -118,12 +122,12 @@ full_formula <- as.formula(full_formula_str)
 full_formula_str_squared <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_ct + fe_pt")
 full_formula_squared <- as.formula(full_formula_str_squared)
 
-# with time
-full_formula_str_with_time <- paste0("questions ~ meetings + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
-full_formula_with_time <- as.formula(full_formula_str_with_time)
+# # with time
+# full_formula_str_with_time <- paste0("questions ~ meetings + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
+# full_formula_with_time <- as.formula(full_formula_str_with_time)
 
-full_formula_str_squared_with_time <- paste0("questions ~ meetings + meetings**2 + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
-full_formula_squared_with_time <- as.formula(full_formula_str_squared_with_time)
+# full_formula_str_squared_with_time <- paste0("questions ~ meetings + meetings**2 + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
+# full_formula_squared_with_time <- as.formula(full_formula_str_squared_with_time)
 
 
 
@@ -147,11 +151,11 @@ m_ddd_ppml <- fepois(
   cluster = ~cl_dt
 )
 
-m_ddd_ppml_with_time <- fepois(
-  full_formula_with_time,
-  data    = df,
-  cluster = ~cl_dt
-)
+# m_ddd_ppml_with_time <- fepois(
+#   full_formula_with_time,
+#   data    = df,
+#   cluster = ~cl_dt
+# )
 
 m_ddd_ppml_squared <- fepois(
   full_formula_squared,
@@ -159,15 +163,21 @@ m_ddd_ppml_squared <- fepois(
   cluster = ~cl_dt
 )
 
-m_ddd_ppml_squared_with_time <- fepois(
-  full_formula_squared_with_time,
-  data    = df,
-  cluster = ~cl_dt
-)
+# m_ddd_ppml_squared_with_time <- fepois(
+#   full_formula_squared_with_time,
+#   data    = df,
+#   cluster = ~cl_dt
+# )
 
 # Nice side-by-side table
 modelsummary::msummary(
-  list("DDD OLS" = m_ddd_ols, "DDD PPML" = m_ddd_ppml, "DDD PPML Squared" = m_ddd_ppml_squared, "DDD PPML with time" = m_ddd_ppml_with_time, "DDD PPML Squared with time" = m_ddd_ppml_squared_with_time),
+  list(
+    "DDD OLS" = m_ddd_ols, 
+    "DDD PPML" = m_ddd_ppml, 
+    "DDD PPML Squared" = m_ddd_ppml_squared, 
+    # "DDD PPML with time" = m_ddd_ppml_with_time, 
+    # "DDD PPML Squared with time" = m_ddd_ppml_squared_with_time
+  ),
   gof_omit = "IC|Log|Adj|Pseudo|Within",
   stars = TRUE
 )
