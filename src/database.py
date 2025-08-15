@@ -907,6 +907,7 @@ class LongDatabase(DataBase):
 
     def get_required_cols(self) -> list[str]:
         basic_cols = [
+            "member_id",
             "questions",
             "meetings",
             "member_domain",

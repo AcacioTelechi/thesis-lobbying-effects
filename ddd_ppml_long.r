@@ -7,11 +7,11 @@ library(modelsummary)
 # Make sure types are appropriate (factors/integers for IDs, numeric for y/T/controls).
 df <- read.csv('df_long.csv', stringsAsFactors=TRUE)
 
-# filter by domain
-df <- df[df$domain == "agriculture", ]
+# # filter by domain
+# df <- df_raw[df_raw$domain == "agriculture", ]
 
 # 1) Build the three FE identifiers (member×domain, member×time, domain×time)
-df$fe_id <- df$member_domain   # μ_id
+df$fe_i <- df$member_id   # μ_id
 df$fe_it <- df$country_time   # μ_ct
 df$fe_dt <- df$party_time   # μ_pt
 
@@ -78,8 +78,8 @@ controls <- c(
     "meps_EU_INSTITUTION___QUAESTOR",
     "meps_EU_POLITICAL_GROUP___CHAIR",
     "meps_EU_POLITICAL_GROUP___MEMBER_BUREAU",
-    "meps_EU_POLITICAL_GROUP___TREASURER",
-    "meps_EU_POLITICAL_GROUP___TREASURER_CO",
+    # "meps_EU_POLITICAL_GROUP___TREASURER",
+    # "meps_EU_POLITICAL_GROUP___TREASURER_CO",
     "meps_NATIONAL_CHAMBER___PRESIDENT_VICE",
     "meps_WORKING_GROUP___CHAIR",
     "meps_WORKING_GROUP___MEMBER",
@@ -110,7 +110,7 @@ df$treated <- df$meetings > 0
 controls_str <- paste(controls, collapse = " + ")
 
 # Construct the full formula as a string, then convert to formula
-full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_id + fe_it + fe_dt")
+full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_it + fe_dt")
 full_formula <- as.formula(full_formula_str)
 
 # =========================
@@ -124,7 +124,7 @@ m_ddd_ols <- feols(
 )
 
 # =============================
-# B) DDD with PPML (fepois)
+# B) DDD with PPML (fepois) - all domains
 # =============================
 # PPML handles zeros in `questions` naturally and uses a log link.
 m_ddd_ppml <- fepois(
@@ -133,23 +133,45 @@ m_ddd_ppml <- fepois(
   cluster = ~ cl_dt
 )
 
-# If you model rates, include an offset:
-# m_ddd_ppml <- fepois(
-#   full_formula,
-#   data    = df,
-#   offset  = log(meetings),
-#   cluster = ~ member_id + cl_dt
-# )
 
-# =============================
-# C) Inspect results
-# =============================
-summary(m_ddd_ppml)  # PPML detailed output
-summary(m_ddd_ols)
+full_formula_str_squared <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_it + fe_dt")
+full_formula_squared <- as.formula(full_formula_str_squared)
+m_ddd_ppml_squared <- fepois(
+  full_formula_squared,
+  data    = df,
+  cluster = ~ cl_dt
+)
 
 # Nice side-by-side table
 modelsummary::msummary(
-  list("DDD OLS" = m_ddd_ols, "DDD PPML" = m_ddd_ppml),
+  list("DDD OLS" = m_ddd_ols, "DDD PPML" = m_ddd_ppml, "DDD PPML Squared" = m_ddd_ppml_squared),
   gof_omit = "IC|Log|Adj|Pseudo|Within",
   stars = TRUE
 )
+
+
+# ============================
+# C) Compare domains
+# ============================
+
+domains <- unique(df$domain)
+
+# function to run the loop
+run_loop <- function(df, full_formula) {
+    results <- list()
+    for (domain in domains) {
+        df_domain <- df[df$domain == domain, ]
+        m_ddd_ppml_domain <- fepois(
+            full_formula,
+            data    = df_domain,
+            cluster = ~ cl_dt
+        )
+    results[[domain]] <- m_ddd_ppml_domain
+    }
+    return(results)
+}
+
+results <- run_loop(df, full_formula)
+
+modelsummary::msummary(results, gof_omit = "IC|Log|Adj|Pseudo|Within", stars = TRUE)
+
