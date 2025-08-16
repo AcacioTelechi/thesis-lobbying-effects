@@ -500,6 +500,216 @@ def plot_extensive_intensive_margins(df, output_dir):
     print("✓ Gráfico 5 salvo: Análise das margens extensiva e intensiva")
     plt.close()
 
+def plot_mep_aggregated_analysis(df, output_dir):
+    """Gráfico 6: Análise agregada por MEP"""
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
+    
+    # 6.1 Análise por MEP - Total de MEPs que receberam tratamento
+    mep_treatment = df.groupby('member_id').agg({
+        'meetings': 'sum',
+        'questions': 'sum',
+        'treated': 'max'  # Se teve pelo menos uma reunião
+    }).reset_index()
+    
+    # Estatísticas de tratamento por MEP
+    total_meps = len(mep_treatment)
+    treated_meps = (mep_treatment['treated'] == 1).sum()
+    never_treated_meps = total_meps - treated_meps
+    
+    # Gráfico de pizza para tratamento por MEP
+    labels = [f'MEPs Tratados\n({treated_meps:,})', f'MEPs Nunca Tratados\n({never_treated_meps:,})']
+    sizes = [treated_meps, never_treated_meps]
+    colors = ['lightcoral', 'lightsteelblue']
+    explode = (0.05, 0)  # explode the treated slice
+    
+    wedges, texts, autotexts = ax1.pie(sizes, explode=explode, labels=labels, colors=colors,
+                                      autopct='%1.1f%%', shadow=True, startangle=90)
+    ax1.set_title('Distribuição de MEPs por Status de Tratamento\n(Período Completo)')
+    
+    # Melhorar aparência do texto
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontweight('bold')
+    
+    # 6.2 Distribuição de reuniões totais por MEP (apenas tratados)
+    treated_meps_data = mep_treatment[mep_treatment['treated'] == 1]
+    
+    ax2.hist(treated_meps_data['meetings'], bins=30, alpha=0.7, color='firebrick', 
+             edgecolor='black', linewidth=0.5)
+    ax2.set_title('Distribuição de Reuniões Totais\npor MEP (apenas MEPs tratados)')
+    ax2.set_xlabel('Número Total de Reuniões')
+    ax2.set_ylabel('Número de MEPs')
+    ax2.grid(True, alpha=0.3)
+    
+    # Adicionar estatísticas
+    mean_meetings = treated_meps_data['meetings'].mean()
+    median_meetings = treated_meps_data['meetings'].median()
+    ax2.axvline(mean_meetings, color='blue', linestyle='--', linewidth=2, 
+                label=f'Média: {mean_meetings:.1f}')
+    ax2.axvline(median_meetings, color='orange', linestyle='--', linewidth=2, 
+                label=f'Mediana: {median_meetings:.1f}')
+    ax2.legend()
+    
+    # 6.3 Scatter plot: Reuniões vs Perguntas por MEP
+    ax3.scatter(treated_meps_data['meetings'], treated_meps_data['questions'], 
+               alpha=0.6, s=30, color='darkgreen')
+    
+    # Linha de tendência
+    if len(treated_meps_data) > 1:
+        z = np.polyfit(treated_meps_data['meetings'], treated_meps_data['questions'], 1)
+        p = np.poly1d(z)
+        x_trend = np.linspace(treated_meps_data['meetings'].min(), 
+                             treated_meps_data['meetings'].max(), 100)
+        ax3.plot(x_trend, p(x_trend), "r--", alpha=0.8, linewidth=2)
+        
+        # Calcular correlação
+        corr = treated_meps_data['meetings'].corr(treated_meps_data['questions'])
+        ax3.text(0.05, 0.95, f'Correlação: {corr:.3f}', transform=ax3.transAxes,
+                fontsize=12, bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
+    
+    ax3.set_xlabel('Total de Reuniões por MEP')
+    ax3.set_ylabel('Total de Perguntas por MEP')
+    ax3.set_title('Relação Total: Reuniões vs Perguntas por MEP')
+    ax3.grid(True, alpha=0.3)
+    
+    # 6.4 Top 10 MEPs mais ativos
+    top_meps = treated_meps_data.nlargest(10, 'meetings')
+    
+    x_pos = range(len(top_meps))
+    bars = ax4.bar(x_pos, top_meps['meetings'], color='steelblue', alpha=0.8, 
+                   edgecolor='black', linewidth=0.5)
+    
+    # Adicionar valores nas barras
+    for i, (bar, meetings) in enumerate(zip(bars, top_meps['meetings'])):
+        height = bar.get_height()
+        ax4.text(bar.get_x() + bar.get_width()/2., height + 1,
+                f'{meetings}', ha='center', va='bottom', fontweight='bold')
+    
+    ax4.set_title('Top 10 MEPs com Mais Reuniões\n(Período Completo)')
+    ax4.set_xlabel('MEPs (anônimos)')
+    ax4.set_ylabel('Total de Reuniões')
+    ax4.set_xticks(x_pos)
+    ax4.set_xticklabels([f'MEP {i+1}' for i in range(len(top_meps))])
+    ax4.grid(True, alpha=0.3, axis='y')
+    
+    plt.tight_layout()
+    plt.savefig(output_dir / 'fig6_mep_aggregated_analysis.pdf')
+    plt.savefig(output_dir / 'fig6_mep_aggregated_analysis.png')
+    print("✓ Gráfico 6 salvo: Análise agregada por MEP")
+    plt.close()
+
+def plot_domain_treatment_analysis(df, output_dir):
+    """Gráfico 7: Análise detalhada de tratamento por domínio"""
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
+    
+    # 7.1 MEPs únicos tratados por domínio
+    domain_mep_treatment = df[df['meetings'] > 0].groupby('domain')['member_id'].nunique().reset_index()
+    domain_mep_treatment.columns = ['domain', 'treated_meps']
+    
+    # Total de MEPs possíveis por domínio (todos os MEPs)
+    total_meps_per_domain = df.groupby('domain')['member_id'].nunique().reset_index()
+    total_meps_per_domain.columns = ['domain', 'total_meps']
+    
+    # Merge para calcular percentuais
+    domain_treatment_stats = domain_mep_treatment.merge(total_meps_per_domain, on='domain')
+    domain_treatment_stats['treatment_rate'] = (domain_treatment_stats['treated_meps'] / 
+                                               domain_treatment_stats['total_meps'] * 100)
+    
+    # Ordenar por taxa de tratamento
+    domain_treatment_stats = domain_treatment_stats.sort_values('treatment_rate', ascending=True)
+    
+    # Gráfico de barras horizontais
+    y_pos = range(len(domain_treatment_stats))
+    bars = ax1.barh(y_pos, domain_treatment_stats['treatment_rate'], 
+                    color='forestgreen', alpha=0.8, edgecolor='black', linewidth=0.5)
+    
+    # Adicionar valores nas barras
+    for i, (bar, rate) in enumerate(zip(bars, domain_treatment_stats['treatment_rate'])):
+        width = bar.get_width()
+        ax1.text(width + 0.5, bar.get_y() + bar.get_height()/2,
+                f'{rate:.1f}%', ha='left', va='center', fontweight='bold')
+    
+    ax1.set_yticks(y_pos)
+    ax1.set_yticklabels([str(d)[:15] + '...' if len(str(d)) > 15 else str(d) 
+                        for d in domain_treatment_stats['domain']])
+    ax1.set_xlabel('% de MEPs que Receberam Tratamento')
+    ax1.set_title('Taxa de Tratamento por Domínio\n(% de MEPs únicos)')
+    ax1.grid(True, alpha=0.3, axis='x')
+    
+    # 7.2 Volume absoluto de MEPs tratados por domínio
+    bars2 = ax2.barh(y_pos, domain_treatment_stats['treated_meps'], 
+                     color='steelblue', alpha=0.8, edgecolor='black', linewidth=0.5)
+    
+    # Adicionar valores nas barras
+    for i, (bar, count) in enumerate(zip(bars2, domain_treatment_stats['treated_meps'])):
+        width = bar.get_width()
+        ax2.text(width + 5, bar.get_y() + bar.get_height()/2,
+                f'{count}', ha='left', va='center', fontweight='bold')
+    
+    ax2.set_yticks(y_pos)
+    ax2.set_yticklabels([str(d)[:15] + '...' if len(str(d)) > 15 else str(d) 
+                        for d in domain_treatment_stats['domain']])
+    ax2.set_xlabel('Número de MEPs Únicos Tratados')
+    ax2.set_title('Volume Absoluto de MEPs Tratados\npor Domínio')
+    ax2.grid(True, alpha=0.3, axis='x')
+    
+    # 7.3 Intensidade média de tratamento por domínio
+    domain_intensity = df[df['meetings'] > 0].groupby('domain').agg({
+        'meetings': ['mean', 'median', 'std']
+    }).round(2)
+    
+    domain_intensity.columns = ['mean_meetings', 'median_meetings', 'std_meetings']
+    domain_intensity = domain_intensity.reset_index()
+    domain_intensity = domain_intensity.sort_values('mean_meetings', ascending=True)
+    
+    y_pos3 = range(len(domain_intensity))
+    bars3 = ax3.barh(y_pos3, domain_intensity['mean_meetings'], 
+                     color='orange', alpha=0.8, edgecolor='black', linewidth=0.5)
+    
+    # Adicionar valores nas barras
+    for i, (bar, mean_val) in enumerate(zip(bars3, domain_intensity['mean_meetings'])):
+        width = bar.get_width()
+        ax3.text(width + 0.05, bar.get_y() + bar.get_height()/2,
+                f'{mean_val:.2f}', ha='left', va='center', fontweight='bold')
+    
+    ax3.set_yticks(y_pos3)
+    ax3.set_yticklabels([str(d)[:15] + '...' if len(str(d)) > 15 else str(d) 
+                        for d in domain_intensity['domain']])
+    ax3.set_xlabel('Reuniões Médias por Observação (quando > 0)')
+    ax3.set_title('Intensidade Média de Tratamento\npor Domínio')
+    ax3.grid(True, alpha=0.3, axis='x')
+    
+    # 7.4 Distribuição temporal do primeiro tratamento por domínio
+    # Encontrar primeiro tratamento por MEP-domínio
+    first_treatment = df[df['meetings'] > 0].groupby(['member_id', 'domain'])['Y-m'].min().reset_index()
+    first_treatment.columns = ['member_id', 'domain', 'first_treatment_period']
+    
+    # Contar primeiros tratamentos por domínio e período
+    first_treatment['year'] = pd.to_datetime(first_treatment['first_treatment_period']).dt.year
+    domain_temporal = first_treatment.groupby(['domain', 'year']).size().reset_index()
+    domain_temporal.columns = ['domain', 'year', 'first_treatments']
+    
+    # Pegar os 3 domínios com mais MEPs tratados para visualização
+    top_domains = domain_treatment_stats.nlargest(3, 'treated_meps')['domain'].tolist()
+    
+    for i, domain in enumerate(top_domains):
+        domain_data = domain_temporal[domain_temporal['domain'] == domain]
+        if len(domain_data) > 0:
+            ax4.plot(domain_data['year'], domain_data['first_treatments'], 
+                    marker='o', linewidth=2, label=str(domain)[:20], markersize=6)
+    
+    ax4.set_xlabel('Ano')
+    ax4.set_ylabel('Número de Primeiros Tratamentos')
+    ax4.set_title('Evolução dos Primeiros Tratamentos\n(Top 3 Domínios)')
+    ax4.legend()
+    ax4.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig(output_dir / 'fig7_domain_treatment_analysis.pdf')
+    plt.savefig(output_dir / 'fig7_domain_treatment_analysis.png')
+    print("✓ Gráfico 7 salvo: Análise detalhada de tratamento por domínio")
+    plt.close()
+
 def main():
     """Função principal"""
     print("=== GERADOR DE GRÁFICOS DESCRITIVOS ===")
@@ -518,9 +728,11 @@ def main():
     plot_domain_heterogeneity(df, output_dir)
     plot_correlation_analysis(df, output_dir)
     plot_extensive_intensive_margins(df, output_dir)
+    plot_mep_aggregated_analysis(df, output_dir)
+    plot_domain_treatment_analysis(df, output_dir)
     
     print(f"\n✅ CONCLUÍDO!")
-    print(f"5 gráficos gerados com sucesso em {output_dir}")
+    print(f"7 gráficos gerados com sucesso em {output_dir}")
     print("Formatos: PDF (para LaTeX) e PNG (para visualização)")
     print("\nGráficos gerados:")
     print("- fig1_zero_inflation_analysis: Análise da inflação de zeros")
@@ -528,6 +740,8 @@ def main():
     print("- fig3_domain_heterogeneity: Heterogeneidade por domínio")
     print("- fig4_correlation_analysis: Análise de correlações")
     print("- fig5_extensive_intensive_margins: Margens extensiva e intensiva")
+    print("- fig6_mep_aggregated_analysis: Análise agregada por MEP")
+    print("- fig7_domain_treatment_analysis: Análise detalhada de tratamento por domínio")
 
 if __name__ == "__main__":
     main()
