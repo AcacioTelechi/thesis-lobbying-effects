@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 from abc import ABC, abstractmethod
+from typing import Dict, List, Optional, Tuple, Union
 
 warnings.filterwarnings("ignore")
 
@@ -20,12 +21,12 @@ pd.set_option("display.max_rows", 100)
 plt.style.use("seaborn-v0_8")
 
 
-class DataBase:
+class DataBase(ABC):
     """
     Class responsible for loading and treating panel data for lobbying effects analysis.
     """
 
-    def __init__(self, data_path="./data/gold/"):
+    def __init__(self, data_path: str = "./data/gold/"):
         """
         Initialize DataBase with path to data files.
 
@@ -35,8 +36,8 @@ class DataBase:
         self.data_path = data_path
         self.df: pd.DataFrame = pd.DataFrame()
         self.df_filtered: pd.DataFrame = pd.DataFrame()
-        self.column_sets: dict[str, list[str]] = {}
-        self._control_cols: list[str] = []
+        self.column_sets: Dict[str, List[str]] = {}
+        self._control_cols: List[str] = []
         self._include_country_fe: bool = False
         self._include_party_fe: bool = False
 
@@ -339,14 +340,27 @@ class DataBase:
 
         return column_sets
 
-    def get_data(self):
+    def get_data(self) -> pd.DataFrame:
         """
         Get the processed data.
 
         Returns:
-            tuple: (df_filtered, column_sets)
+            pd.DataFrame: The filtered and processed dataset
         """
         return self.df_filtered
+    
+    @abstractmethod
+    def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
+        """
+        Create alternative treatment variable from source column.
+        
+        Args:
+            source_column (str): Name of the source column for treatment
+            
+        Returns:
+            pd.DataFrame: Dataset with new treatment variable
+        """
+        pass
 
     def filter_columns(self):
         """
@@ -375,8 +389,11 @@ class DataBase:
             self.df_filtered.rename(columns={c: new_col}, inplace=True)
 
     def prepare_data(
-        self, time_frequency="monthly", start_date="2019-07", end_date="2024-11"
-    ):
+        self, 
+        time_frequency: str = "monthly", 
+        start_date: str = "2019-07", 
+        end_date: str = "2024-11"
+    ) -> Tuple[pd.DataFrame, Dict[str, List[str]]]:
         """
         Complete data preparation pipeline.
 
@@ -384,17 +401,22 @@ class DataBase:
             time_frequency (str): Either "monthly" or "weekly"
             start_date (str): Start date in format "YYYY-MM"
             end_date (str): End date in format "YYYY-MM"
+            
+        Returns:
+            Tuple[pd.DataFrame, Dict[str, List[str]]]: Processed data and column sets
         """
         self.load_data(time_frequency)
         self.filter_time_period(start_date, end_date)
         self.filter_columns()
         self.create_log_transformations()
         self.rename_columns()
+        
         # Compute salience breadth and high-salience flags per domain-month
         try:
             self._compute_salience_columns()
         except Exception as e:
             print(f"[WARNING]: computing salience columns: {e}")
+            
         return self.get_data(), self.column_sets
 
     def _compute_salience_columns(self) -> None:
@@ -462,41 +484,59 @@ class DataBase:
             self.column_sets["HIGH_SALIENCE_COLUMNS"] = high_cols
 
     def add_time_fe(self) -> pd.DataFrame:
+        """Add time fixed effects."""
         time_col = self.df_filtered.index.names[1]
-        self.df_filtered["time_fe"] = self.df_filtered.index.get_level_values(time_col).astype(str)
+        self.df_filtered["time_fe"] = (
+            self.df_filtered.index.get_level_values(time_col).astype(str)
+        )
         return self.df_filtered
 
     def add_country_fe(self) -> pd.DataFrame:
+        """Add country fixed effects by converting dummy variables to categorical."""
+        if "MEPS_COUNTRY_COLUMNS" not in self.column_sets:
+            print("[WARNING]: No country columns found to create country FE")
+            return self.df_filtered
+            
+        # Create country categorical variable
         self.df_filtered["country"] = self.df_filtered[
             self.column_sets["MEPS_COUNTRY_COLUMNS"]
         ].idxmax(axis=1)
         
-        # remove meps_COUNTRY_ columns
-        self.df_filtered = self.df_filtered.drop(
-            columns=self.column_sets["MEPS_COUNTRY_COLUMNS"]
-        )
+        # # Remove original country dummy columns
+        # self.df_filtered = self.df_filtered.drop(
+        #     columns=self.column_sets["MEPS_COUNTRY_COLUMNS"]
+        # )
 
-        self._control_cols = [
-            c
-            for c in self._control_cols
-            if "meps_COUNTRY_" not in self.column_sets["MEPS_COUNTRY_COLUMNS"]
-        ]
+        # # Update control columns list
+        # self._control_cols = [
+        #     c for c in self._control_cols
+        #     if c not in self.column_sets["MEPS_COUNTRY_COLUMNS"]
+        # ]
 
         self._include_country_fe = True
         return self.df_filtered
 
     def add_party_fe(self) -> pd.DataFrame:
+        """Add party fixed effects by converting dummy variables to categorical."""
+        if "MEPS_POLITICAL_GROUP_COLUMNS" not in self.column_sets:
+            print("[WARNING]: No political group columns found to create party FE")
+            return self.df_filtered
+            
+        # Create party categorical variable
         self.df_filtered["party"] = self.df_filtered[
             self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
         ].idxmax(axis=1)
 
-        self.df_filtered = self.df_filtered.drop(
-            columns=self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
-        )
+        # # Remove original party dummy columns
+        # self.df_filtered = self.df_filtered.drop(
+        #     columns=self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
+        # )
 
-        self._control_cols = [
-            c for c in self._control_cols if "meps_POLITICAL_GROUP_" not in c
-        ]
+        # # Update control columns list
+        # self._control_cols = [
+        #     c for c in self._control_cols 
+        #     if c not in self.column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
+        # ]
 
         self._include_party_fe = True
         return self.df_filtered
@@ -521,20 +561,23 @@ class RegularDatabase(DataBase):
         )
 
     def get_df(self) -> pd.DataFrame:
+        """Get the processed dataframe."""
         return self._df_filtered
 
-    def get_column_sets(self) -> dict:
+    def get_column_sets(self) -> Dict[str, List[str]]:
+        """Get the column sets dictionary."""
         return self._column_sets
 
     def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
-        df = self._df_filtered
-        if source_column not in df.columns:
+        if source_column not in self._df_filtered.columns:
             raise KeyError(f"Column '{source_column}' not found in regular panel")
-        df = df.copy()
-        df["treatment"] = (
-            pd.to_numeric(df[source_column], errors="coerce").astype(float).fillna(0.0)
+        
+        self._df_filtered = self._df_filtered.copy()
+        self._df_filtered["treatment"] = (
+            pd.to_numeric(self._df_filtered[source_column], errors="coerce")
+            .astype(float)
+            .fillna(0.0)
         )
-        self._df_filtered = df
         return self._df_filtered
 
 
@@ -557,7 +600,10 @@ class LongDatabase(DataBase):
         trim_top_fraction: float | None = None,
     ):
         super().__init__(data_path=data_path)
+        # Initialize control columns before calling prepare_data
         self._control_cols = []
+        
+        # Prepare the regular wide panel first
         self._df_regular_filtered, self._column_sets = self.prepare_data(
             time_frequency=time_frequency, start_date=start_date, end_date=end_date
         )
@@ -581,6 +627,7 @@ class LongDatabase(DataBase):
         self._use_quadratic_treatment = False
 
     def get_df(self) -> pd.DataFrame:
+        """Get the long panel dataframe."""
         return self._df_long
 
     def prepare_long_panel(
@@ -591,14 +638,23 @@ class LongDatabase(DataBase):
         leads: int = 0,
         trim_top_fraction: float | None = None,
     ) -> pd.DataFrame:
+        # Add fixed effects to the wide panel first
+        if include_time_fe:
+            self.add_time_fe()
+        
+        # Add country and party FE (these modify the wide panel)
+        self.add_country_fe()
+        self.add_party_fe()
+    
+        # Create the long panel from the modified wide panel
         df_long = self._prepare_long_panel()
-
         df_long = df_long.reset_index()
 
+        # Add controls
         if include_controls:
             df_long = self.add_controls(df_long)
 
-        # Lags and leads
+        # Add lags and leads
         if lags > 0:
             df_long = self.add_lags(df_long, lags)
 
@@ -616,48 +672,72 @@ class LongDatabase(DataBase):
         df_long["questions"] = pd.to_numeric(df_long["questions"], errors="coerce")
         df_long["meetings"] = pd.to_numeric(df_long["meetings"], errors="coerce")
 
-        # Reconstruct member_id from member_domain
+        # Get time column name
         time_col = self.get_time_col()
 
-        # FE
-        self.add_time_fe()
-        self.add_country_fe()
-        self.add_party_fe()
-
-        # Reconstruct member_id from member_domain
-        df_long["member_id"] = (
-            df_long["member_domain"].astype(str).str.split("__").str[0]
-        )
+        # Reconstruct member_id from member_domain if not already present
+        if "member_id" not in df_long.columns:
+            df_long["member_id"] = (
+                df_long["member_domain"].astype(str).str.split("__").str[0]
+            )
+        
+        # Create interaction terms
         df_long["domain_time"] = (
             df_long["domain"].astype(str) + "__" + df_long[time_col].astype(str)
         )
         df_long["member_time"] = (
             df_long["member_id"].astype(str) + "__" + df_long[time_col].astype(str)
         )
-        df_long["country_time"] = (
-            df_long["country"].astype(str) + "__" + df_long[time_col].astype(str)
-        )
-        df_long["party_time"] = (
-            df_long["party"].astype(str) + "__" + df_long[time_col].astype(str)
-        )
+        
+        # Only create country_time and party_time if the columns exist
+        if "country" in df_long.columns:
+            df_long["country_time"] = (
+                df_long["country"].astype(str) + "__" + df_long[time_col].astype(str)
+            )
+        
+        if "party" in df_long.columns:
+            df_long["party_time"] = (
+                df_long["party"].astype(str) + "__" + df_long[time_col].astype(str)
+            )
 
         return df_long
 
-    def get_column_sets(self) -> dict:
+    def get_column_sets(self) -> Dict[str, List[str]]:
+        """Get the column sets dictionary."""
         return self._column_sets
 
-    def get_control_cols(self) -> list[str]:
+    def get_control_cols(self) -> List[str]:
+        """Get list of control columns for regression models."""
         basic_cols = []
+        
+        # Add quadratic terms
         if self._use_quadratic_treatment:
-            basic_cols.append("meetings_squared")
+            if "treatment_squared" in self._df_long.columns:
+                basic_cols.append("treatment_squared")
+            if "meetings_squared" in self._df_long.columns:
+                basic_cols.append("meetings_squared")
+        
+        # Add lags
         if self._lags > 0:
             for k in range(1, self._lags + 1):
-                basic_cols.append(f"lag{k}_meetings")
+                lag_col = f"lag{k}_meetings"
+                if lag_col in self._df_long.columns:
+                    basic_cols.append(lag_col)
 
+        # Add leads  
         if self._leads > 0:
             for k in range(1, self._leads + 1):
-                basic_cols.append(f"lead{k}_meetings")
-        return basic_cols + self._control_cols
+                lead_col = f"lead{k}_meetings"
+                if lead_col in self._df_long.columns:
+                    basic_cols.append(lead_col)
+                    
+        # Add other control columns (excluding dropped FE columns)
+        valid_controls = [
+            c for c in self._control_cols 
+            if c in self._df_long.columns
+        ]
+        
+        return basic_cols + valid_controls
 
     def get_time_col(self) -> str:
         return self._df_regular_filtered.index.names[1]
@@ -666,12 +746,20 @@ class LongDatabase(DataBase):
         return self._df_regular_filtered.index.names[0]
 
     def use_log_treatment(self):
+        """Apply log transformation to treatment variable."""
         self._set_treatment_to_log()
 
     def _set_treatment_to_log(self) -> None:
+        """Internal method to apply log transformation to treatment."""
         if self._use_log_treatment:
             return
-        self._df_long["meetings"] = np.log(self._df_long["meetings"] + 1)
+        
+        # Apply log transformation to both treatment and meetings columns
+        if "treatment" in self._df_long.columns:
+            self._df_long["treatment"] = np.log(self._df_long["treatment"] + 1)
+        if "meetings" in self._df_long.columns:
+            self._df_long["meetings"] = np.log(self._df_long["meetings"] + 1)
+            
         self._use_log_treatment = True
 
     def use_log_questions(self):
@@ -684,53 +772,83 @@ class LongDatabase(DataBase):
         self._use_log_questions = True
 
     def use_quadratic_treatment(self):
+        """Add quadratic treatment term."""
         if self._use_quadratic_treatment:
             return
-        self._df_long["meetings_squared"] = self._df_long["meetings"] ** 2
+            
+        # Use treatment column if available, otherwise meetings
+        treatment_col = "treatment" if "treatment" in self._df_long.columns else "meetings"
+        self._df_long["treatment_squared"] = self._df_long[treatment_col] ** 2
+        
+        # Keep backward compatibility
+        if "meetings" in self._df_long.columns:
+            self._df_long["meetings_squared"] = self._df_long["meetings"] ** 2
+            
         self._use_quadratic_treatment = True
 
     def create_alternative_treatment(self, source_column: str) -> pd.DataFrame:
         """
-        - If source_column exists in long df: copy to 'meetings'.
+        Creates alternative treatment variable in the long panel.
+        
+        - If source_column exists in long df: copy to 'treatment'.
         - Else, if source_column exists in the regular wide df: merge by [member_id, time].
         - Else, if source_column looks domain-specific in wide (suffix per domain),
           try to assemble by domain.
+          
+        Note: Uses 'treatment' column name for consistency with RegularDatabase.
         """
         df_long = self._df_long.copy()
         time_col = self._df_regular_filtered.index.names[1]
 
+        # Case 0: If source_column exists directly in long df
         if source_column in df_long.columns:
-            df_long["meetings"] = (
+            df_long["treatment"] = (
                 pd.to_numeric(df_long[source_column], errors="coerce")
                 .astype(float)
                 .fillna(0.0)
             )
+            # Also update meetings for backward compatibility
+            df_long["meetings"] = df_long["treatment"]
             self._df_long = df_long
             return self._df_long
 
-        wide = (
-            self._df_regular_filtered.reset_index()
-        )  # wide panel with member_id and time
+        wide = self._df_regular_filtered.reset_index()
+        
         # Case 1: source exists directly in wide (not domain-specific)
         if source_column in wide.columns:
-            # reconstruct member_id from member_domain
-            df_long["member_id"] = (
-                df_long["member_domain"].astype(str).str.split("__").str[0]
+            # Ensure member_id column exists in df_long
+            if "member_id" not in df_long.columns:
+                df_long["member_id"] = (
+                    df_long["member_domain"].astype(str).str.split("__").str[0]
+                )
+            
+            # Create a clean merge dataframe with only required columns
+            entity_col = self._df_regular_filtered.index.names[0]
+            merge_df = wide[[entity_col, time_col, source_column]].rename(
+                columns={entity_col: "member_id"}
             )
-            df_long = df_long.merge(
-                wide[
-                    [self._df_regular_filtered.index.names[0], time_col, source_column]
-                ].rename(
-                    columns={self._df_regular_filtered.index.names[0]: "member_id"}
-                ),
-                on=["member_id", time_col],
-                how="left",
-            )
-            df_long["meetings"] = (
+            
+            # Check for column conflicts and resolve them
+            existing_cols = set(df_long.columns)
+            merge_cols = set(merge_df.columns)
+            conflict_cols = existing_cols.intersection(merge_cols) - {"member_id", time_col}
+            
+            if conflict_cols:
+                # Drop conflicting columns from df_long before merge
+                df_long = df_long.drop(columns=list(conflict_cols))
+            
+            # Merge the treatment variable
+            df_long = df_long.merge(merge_df, on=["member_id", time_col], how="left")
+            
+            # Create both treatment and meetings columns
+            df_long["treatment"] = (
                 pd.to_numeric(df_long[source_column], errors="coerce")
                 .astype(float)
                 .fillna(0.0)
             )
+            df_long["meetings"] = df_long["treatment"]  # Backward compatibility
+            
+            # Clean up the temporary source column
             df_long.drop(columns=[source_column], inplace=True)
             self._df_long = df_long
             return self._df_long
@@ -742,35 +860,55 @@ class LongDatabase(DataBase):
                 c for c in wide.columns if c.startswith(source_column + "_")
             ]
             if candidate_cols:
-                # Build a mapping per row using domain
-                df_long["member_id"] = (
-                    df_long["member_domain"].astype(str).str.split("__").str[0]
-                )
+                # Ensure member_id column exists
+                if "member_id" not in df_long.columns:
+                    df_long["member_id"] = (
+                        df_long["member_domain"].astype(str).str.split("__").str[0]
+                    )
+                
+                # Create entity column name for melting
+                entity_col = self._df_regular_filtered.index.names[0]
+                
                 # Melt candidate cols to long and match by domain name
                 melted = wide[
-                    [self._df_regular_filtered.index.names[0], time_col]
-                    + candidate_cols
+                    [entity_col, time_col] + candidate_cols
                 ].rename(
-                    columns={self._df_regular_filtered.index.names[0]: "member_id"}
+                    columns={entity_col: "member_id"}
                 )
                 melted = melted.melt(
-                    id_vars=["member_id", time_col], var_name="var", value_name="val"
+                    id_vars=["member_id", time_col], var_name="var", value_name="treatment_val"
                 )
                 # Extract domain suffix
                 melted["domain"] = melted["var"].str.replace(
                     source_column + "_", "", regex=False
                 )
+                
+                # Check for column conflicts before merge
+                existing_cols = set(df_long.columns)
+                merge_cols = {"member_id", time_col, "domain", "treatment_val"}
+                conflict_cols = existing_cols.intersection(merge_cols) - {"member_id", time_col, "domain"}
+                
+                if conflict_cols:
+                    # Drop conflicting columns from df_long before merge
+                    df_long = df_long.drop(columns=list(conflict_cols))
+                
+                # Merge the treatment values
                 df_long = df_long.merge(
-                    melted[["member_id", time_col, "domain", "val"]],
+                    melted[["member_id", time_col, "domain", "treatment_val"]],
                     on=["member_id", time_col, "domain"],
                     how="left",
                 )
-                df_long["meetings"] = (
-                    pd.to_numeric(df_long["val"], errors="coerce")
+                
+                # Create both treatment and meetings columns
+                df_long["treatment"] = (
+                    pd.to_numeric(df_long["treatment_val"], errors="coerce")
                     .astype(float)
                     .fillna(0.0)
                 )
-                df_long.drop(columns=["val"], inplace=True)
+                df_long["meetings"] = df_long["treatment"]  # Backward compatibility
+                
+                # Clean up the temporary column
+                df_long.drop(columns=["treatment_val"], inplace=True)
                 self._df_long = df_long
                 return self._df_long
 
@@ -799,10 +937,10 @@ class LongDatabase(DataBase):
         questions_prefix = "questions_infered_topic_"
         meetings_prefix = "meetings_l_"
 
-        question_cols = [c for c in self.df.columns if c.startswith(questions_prefix)]
+        question_cols = [c for c in self._df_regular_filtered.columns if c.startswith(questions_prefix)]
         meeting_cols = [
             c
-            for c in self.df.columns
+            for c in self._df_regular_filtered.columns
             if c.startswith(meetings_prefix)
             and "category" not in c
             and "budget" not in c
@@ -859,35 +997,72 @@ class LongDatabase(DataBase):
         return df_long
 
     def add_controls(self, df_long: pd.DataFrame) -> pd.DataFrame:
+        """Add control variables to the long panel by merging from wide panel."""
+        # Define potential control sets (excluding those converted to FE)
         potential_sets = [
             "MEPS_POLITICAL_GROUP_COLUMNS",
             "MEPS_COUNTRY_COLUMNS",
             "MEPS_POSITIONS_COLUMNS",
-            "MEETINGS_CATEGORY_COLUMNS",
+            "MEETINGS_CATEGORY_COLUMNS", 
             "MEETINGS_MEMBER_CAPACITY_COLUMNS",
             # "SALIENCE_BREADTH_COLUMNS",
         ]
+        
+        # Only add political group and country columns if they weren't converted to FE
+        # if not self._include_party_fe and "MEPS_POLITICAL_GROUP_COLUMNS" in self._column_sets:
+            # potential_sets.append("MEPS_POLITICAL_GROUP_COLUMNS")
+        # if not self._include_country_fe and "MEPS_COUNTRY_COLUMNS" in self._column_sets:
+            # potential_sets.append("MEPS_COUNTRY_COLUMNS")
+        
+        # Collect available control columns
         for set_name in potential_sets:
             if set_name in self._column_sets:
                 for c in self._column_sets[set_name]:
-                    if c in self._df_regular_filtered.columns:
+                    if c in self._df_regular_filtered.columns and c not in self._control_cols:
                         self._control_cols.append(c)
-        # Merge controls from the original wide df (indexed by member_id, time)
+        
+        if not self._control_cols:
+            return df_long
+        
+        # Merge controls from the original wide df
         orig = self._df_regular_filtered.reset_index()
-        # Ensure the join key name exists in df_long
         entity_col = self._df_regular_filtered.index.names[0]
+        time_col = self._df_regular_filtered.index.names[1]
+        
+        # Ensure the join key exists in df_long
         if entity_col not in df_long.columns:
-            # Reconstruct entity_col from member_domain
             df_long[entity_col] = (
                 df_long["member_domain"].astype(str).str.split("__").str[0]
             )
 
-        join_cols = [entity_col, self._df_regular_filtered.index.names[1]]
+        # Only merge columns that actually exist in the original data
+        join_cols = [entity_col, time_col]
         merge_cols = [col for col in self._control_cols if col in orig.columns]
+        
         if merge_cols:
+            # Include country and party if they exist and should be merged
+            additional_cols = []
+            if "country" in orig.columns and "country" not in df_long.columns:
+                additional_cols.append("country")
+            if "party" in orig.columns and "party" not in df_long.columns:
+                additional_cols.append("party")
+                
+            all_merge_cols = join_cols + merge_cols + additional_cols
+            
+            # Check for column conflicts and resolve them before merge
+            existing_cols = set(df_long.columns)
+            merge_data_cols = set(all_merge_cols)
+            conflict_cols = existing_cols.intersection(merge_data_cols) - set(join_cols)
+            
+            if conflict_cols:
+                # Drop conflicting columns from df_long before merge
+                df_long = df_long.drop(columns=list(conflict_cols))
+            
+            # Perform the merge
             df_long = df_long.merge(
-                orig[join_cols + merge_cols], on=join_cols, how="left"
+                orig[all_merge_cols], on=join_cols, how="left"
             )
+        
         return df_long
 
     def add_lags(self, df_long: pd.DataFrame, lags: int) -> pd.DataFrame:
@@ -911,11 +1086,11 @@ class LongDatabase(DataBase):
         df_long = df_long.head(int(len(df_long) * (1 - trim_top_fraction)))
         return df_long
 
-    def get_required_cols(self) -> list[str]:
+    def get_required_cols(self) -> List[str]:
+        """Get list of required columns for analysis."""
         basic_cols = [
             "member_id",
-            "questions",
-            "meetings",
+            "questions", 
             "member_domain",
             "domain_time",
             "country_time",
@@ -923,35 +1098,55 @@ class LongDatabase(DataBase):
             "country",
             "party",
             "domain",
-            "time_fe",
         ]
+        
+        # Add treatment columns (both for compatibility)
+        if "treatment" in self._df_long.columns:
+            basic_cols.append("treatment")
+        if "meetings" in self._df_long.columns:
+            basic_cols.append("meetings")
 
+        # Add time FE if included
+        if self._include_time_fe and "time_fe" in self._df_long.columns:
+            basic_cols.append("time_fe")
+
+        # Add controls if included
         if self._include_controls:
+            # Exclude dropped FE columns
+            dropped_cols = set()
+            if self._include_country_fe and "MEPS_COUNTRY_COLUMNS" in self._column_sets:
+                dropped_cols.update(self._column_sets["MEPS_COUNTRY_COLUMNS"])
+            if self._include_party_fe and "MEPS_POLITICAL_GROUP_COLUMNS" in self._column_sets:
+                dropped_cols.update(self._column_sets["MEPS_POLITICAL_GROUP_COLUMNS"])
+                
             cols_to_add = [
-                c
-                for c in self._control_cols
-                if c not in self._column_sets["MEPS_COUNTRY_COLUMNS"]
-                and c not in self._column_sets["MEPS_POLITICAL_GROUP_COLUMNS"]
+                c for c in self._control_cols
+                if c not in dropped_cols and c in self._df_long.columns
             ]
             basic_cols.extend(cols_to_add)
 
-        if self._include_time_fe:
-            basic_cols.append("time_fe")
-
+        # Add lags and leads
         if self._lags > 0:
             for k in range(1, self._lags + 1):
-                basic_cols.append(f"lag{k}_meetings")
+                lag_col = f"lag{k}_meetings"
+                if lag_col in self._df_long.columns:
+                    basic_cols.append(lag_col)
 
         if self._leads > 0:
             for k in range(1, self._leads + 1):
-                basic_cols.append(f"lead{k}_meetings")
+                lead_col = f"lead{k}_meetings"
+                if lead_col in self._df_long.columns:
+                    basic_cols.append(lead_col)
 
-        return basic_cols
+        # Remove duplicates and return only existing columns
+        return [col for col in list(set(basic_cols)) if col in self._df_long.columns]
 
     def filter_by_domain(self, domain: str) -> pd.DataFrame:
+        """Filter the long panel to a specific domain."""
         return self._df_long[self._df_long["domain"] == domain]
 
-    def filter_df(self, mask: list[bool]) -> pd.DataFrame:
+    def filter_df(self, mask: List[bool]) -> pd.DataFrame:
+        """Filter the dataframe using a boolean mask."""
         if len(mask) != len(self._df_long):
             raise ValueError("Mask length does not match dataframe length")
         self._df_long = self._df_long[mask]
