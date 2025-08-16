@@ -2,9 +2,11 @@
 # DDD FE + PPML
 # ============================================
 
+
 # install.packages("fixest") # if needed
 library(fixest)
 library(modelsummary)
+library(dplyr)
 
 # --- Assume your data.frame is `df` with columns:
 # questions (y), meetings (T), member_id, domain, time, plus controls (e.g., x1, x2, ...)
@@ -89,15 +91,15 @@ controls <- c(
   "meps_WORKING_GROUP___CHAIR",
   "meps_WORKING_GROUP___MEMBER",
   "meps_WORKING_GROUP___MEMBER_BUREAU",
-  "log_meetings_l_category_Business",
-  "log_meetings_l_category_NGOs",
-  "log_meetings_l_category_Other",
-  "log_meetings_l_budget_cat_lower",
-  "log_meetings_l_budget_cat_middle",
-  "log_meetings_l_budget_cat_upper",
-  "log_meetings_l_days_since_registration_lower",
-  "log_meetings_l_days_since_registration_middle",
-  "log_meetings_l_days_since_registration_upper",
+  # "log_meetings_l_category_Business",
+  # "log_meetings_l_category_NGOs",
+  # "log_meetings_l_category_Other",
+  # "log_meetings_l_budget_cat_lower",
+  # "log_meetings_l_budget_cat_middle",
+  # "log_meetings_l_budget_cat_upper",
+  # "log_meetings_l_days_since_registration_lower",
+  # "log_meetings_l_days_since_registration_middle",
+  # "log_meetings_l_days_since_registration_upper",
   "log_meetings_member_capacity_Committee_chair",
   "log_meetings_member_capacity_Delegation_chair",
   "log_meetings_member_capacity_Member",
@@ -108,7 +110,31 @@ controls <- c(
 )
 
 # 3) Build variables
-df$treated <- df$meetings > 0
+# treated
+df <- df %>%
+  group_by(member_id, domain) %>%
+  mutate(treated = any(meetings > 0)) %>%
+  ungroup()
+
+# post
+# For each member_id (i) and domain (d), set post == TRUE for the min(time_fe) where treated == TRUE
+df$post <- FALSE
+df <- df %>%
+  group_by(member_id, domain) %>%
+  mutate(
+    # Convert time_fe to Date for comparison if it's not already
+    time_fe_date = as.Date(as.character(time_fe)),
+    min_treat_time = if (any(meetings > 0)) min(time_fe_date[meetings > 0], na.rm = TRUE) else as.Date(NA)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    post = !is.na(min_treat_time) & as.Date(as.character(time_fe)) >= min_treat_time
+  ) %>%
+  select(-min_treat_time, -time_fe_date)
+  
+# cj
+df$cj <- (as.Date(as.character(df$time_fe)) < as.Date("2022-01-01")) & df$treated  # receive treat before "2022"
+
 df$month <- format(as.Date(df$time_fe), "%m")
 df$year <- format(as.Date(df$time_fe), "%Y")
 
@@ -117,17 +143,9 @@ df$year <- format(as.Date(df$time_fe), "%Y")
 controls_str <- paste(controls, collapse = " + ")
 
 # Construct the full formula as a string, then convert to formula
-full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt")
+# yit = β0 + β1Treati + β2Postt + β3Cj + β4(Treati*Postt) + β5(Treati*Cj) + β6(Postt*Cj) + β7(Treati*Postt*Cj) + ϵit:
+full_formula_str <- paste0("questions ~  treated*post*cj + ", controls_str, " | fe_i + fe_ct + fe_pt")
 full_formula <- as.formula(full_formula_str)
-
-full_formula_str_dt <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
-full_formula_dt <- as.formula(full_formula_str_dt)
-
-full_formula_str_squared <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_ct + fe_pt")
-full_formula_squared <- as.formula(full_formula_str_squared)
-
-full_formula_str_squared_dt <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
-full_formula_squared_dt <- as.formula(full_formula_str_squared_dt)
 
 # # with time
 # full_formula_str_with_time <- paste0("questions ~ meetings + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
@@ -137,94 +155,21 @@ full_formula_squared_dt <- as.formula(full_formula_str_squared_dt)
 # full_formula_squared_with_time <- as.formula(full_formula_str_squared_with_time)
 
 
-
-# =========================
-# A) DDD with OLS (feols)
-# =========================
-
-m_ddd_ols <- feols(
-  full_formula,
-  data    = df,
-  cluster = ~cl_dt # two-way clustering: by member and by domain×time
-)
-
 # =============================
 # B) DDD with PPML (fepois) - all domains
 # =============================
-# PPML handles zeros in `questions` naturally and uses a log link.
 m_ddd_ppml <- fepois(
   full_formula,
   data    = df,
   cluster = ~cl_dt
 )
 
-m_ddd_ppml_dt <- fepois(
-  full_formula_dt,
-  data    = df,
-  cluster = ~cl_dt
-)
-
-# m_ddd_ppml_with_time <- fepois(
-#   full_formula_with_time,
-#   data    = df,
-#   cluster = ~cl_dt
-# )
-
-m_ddd_ppml_squared <- fepois(
-  full_formula_squared,
-  data    = df,
-  cluster = ~cl_dt
-)
-
-m_ddd_ppml_squared_dt <- fepois(
-  full_formula_squared_dt,
-  data    = df,
-  cluster = ~cl_dt
-)
-
-# m_ddd_ppml_squared_with_time <- fepois(
-#   full_formula_squared_with_time,
-#   data    = df,
-#   cluster = ~cl_dt
-# )
-
 # Nice side-by-side table
 modelsummary::msummary(
   list(
-    "DDD OLS" = m_ddd_ols, 
-    "DDD PPML" = m_ddd_ppml, 
-    "DDD PPML Squared" = m_ddd_ppml_squared, 
-    "DDD PPML DT" = m_ddd_ppml_dt,
-    "DDD PPML Squared DT" = m_ddd_ppml_squared_dt,
-    # "DDD PPML with time" = m_ddd_ppml_with_time, 
-    # "DDD PPML Squared with time" = m_ddd_ppml_squared_with_time
+    "DDD PPML" = m_ddd_ppml
   ),
-  gof_omit = "IC|Log|Adj|Pseudo|Within",
+  gof_omit = "IC|Log|Adj|Pseudo|Within|meps_|month|year",
+  coef_omit = paste0("^", paste(controls, collapse = "|"), "$"),
   stars = TRUE
 )
-
-
-# ============================
-# C) Compare domains
-# ============================
-
-domains <- unique(df$domain)
-
-# function to run the loop
-run_loop <- function(df, full_formula) {
-  results <- list()
-  for (domain in domains) {
-    df_domain <- df[df$domain == domain, ]
-    m_ddd_ppml_domain <- fepois(
-      full_formula,
-      data    = df_domain,
-      cluster = ~cl_dt
-    )
-    results[[domain]] <- m_ddd_ppml_domain
-  }
-  return(results)
-}
-
-results <- run_loop(df, full_formula)
-
-modelsummary::msummary(results, gof_omit = "IC|Log|Adj|Pseudo|Within", stars = TRUE)

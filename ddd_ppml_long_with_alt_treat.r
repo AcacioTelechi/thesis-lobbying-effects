@@ -6,22 +6,19 @@
 library(fixest)
 library(modelsummary)
 
-# --- Assume your data.frame is `df` with columns:
-# questions (y), meetings (T), member_id, domain, time, plus controls (e.g., x1, x2, ...)
-# Make sure types are appropriate (factors/integers for IDs, numeric for y/T/controls).
-df <- read.csv("df_long.csv", stringsAsFactors = TRUE)
 
-# # filter by domain
-# df <- df_raw[df_raw$domain == "agriculture", ]
-
-# 1) Build the three FE identifiers (member×domain, member×time, domain×time)
-df$fe_i <- df$member_id # μ_id
-df$fe_ct <- df$country_time # μ_ct
-df$fe_pt <- df$party_time # μ_pt
-df$fe_dt <- df$domain_time # μ_dt
-
-# 2) (Recommended) build a cluster for domain×time for two-way clustering
-df$cl_dt <- df$domain_time
+treatments <- list(
+  "",
+  "_meetings_l_category_Business",
+  "_meetings_l_category_NGOs",
+  "_meetings_l_category_Other",
+  "_meetings_l_budget_cat_lower",
+  "_meetings_l_budget_cat_middle",
+  "_meetings_l_budget_cat_upper",
+  "_meetings_l_days_since_registration_lower",
+  "_meetings_l_days_since_registration_middle",
+  "_meetings_l_days_since_registration_upper"
+)
 
 # Controls
 controls <- c(
@@ -107,12 +104,6 @@ controls <- c(
   "log_meetings_member_capacity_Shadow_rapporteur_for_opinion"
 )
 
-# 3) Build variables
-df$treated <- df$meetings > 0
-df$month <- format(as.Date(df$time_fe), "%m")
-df$year <- format(as.Date(df$time_fe), "%Y")
-
-# 4) Build the formula
 # Build the controls part of the formula as a string
 controls_str <- paste(controls, collapse = " + ")
 
@@ -120,111 +111,26 @@ controls_str <- paste(controls, collapse = " + ")
 full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt")
 full_formula <- as.formula(full_formula_str)
 
-full_formula_str_dt <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
-full_formula_dt <- as.formula(full_formula_str_dt)
-
 full_formula_str_squared <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_ct + fe_pt")
 full_formula_squared <- as.formula(full_formula_str_squared)
 
-full_formula_str_squared_dt <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
-full_formula_squared_dt <- as.formula(full_formula_str_squared_dt)
+results <- list()
+for (treatment in treatments) {
+  df <- read.csv(paste0("df_long", treatment, ".csv"), stringsAsFactors = TRUE)
 
-# # with time
-# full_formula_str_with_time <- paste0("questions ~ meetings + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
-# full_formula_with_time <- as.formula(full_formula_str_with_time)
+  # 1) Build the three FE identifiers (member×domain, member×time, domain×time)
+  df$fe_i <- df$member_id # μ_id
+  df$fe_ct <- df$country_time # μ_ct
+  df$fe_pt <- df$party_time # μ_pt
+  df$cl_dt <- df$domain_time
 
-# full_formula_str_squared_with_time <- paste0("questions ~ meetings + meetings**2 + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
-# full_formula_squared_with_time <- as.formula(full_formula_str_squared_with_time)
+  m_ddd_ppml <- fepois(
+    full_formula,
+    data    = df,
+    cluster = ~cl_dt
+  )
 
-
-
-# =========================
-# A) DDD with OLS (feols)
-# =========================
-
-m_ddd_ols <- feols(
-  full_formula,
-  data    = df,
-  cluster = ~cl_dt # two-way clustering: by member and by domain×time
-)
-
-# =============================
-# B) DDD with PPML (fepois) - all domains
-# =============================
-# PPML handles zeros in `questions` naturally and uses a log link.
-m_ddd_ppml <- fepois(
-  full_formula,
-  data    = df,
-  cluster = ~cl_dt
-)
-
-m_ddd_ppml_dt <- fepois(
-  full_formula_dt,
-  data    = df,
-  cluster = ~cl_dt
-)
-
-# m_ddd_ppml_with_time <- fepois(
-#   full_formula_with_time,
-#   data    = df,
-#   cluster = ~cl_dt
-# )
-
-m_ddd_ppml_squared <- fepois(
-  full_formula_squared,
-  data    = df,
-  cluster = ~cl_dt
-)
-
-m_ddd_ppml_squared_dt <- fepois(
-  full_formula_squared_dt,
-  data    = df,
-  cluster = ~cl_dt
-)
-
-# m_ddd_ppml_squared_with_time <- fepois(
-#   full_formula_squared_with_time,
-#   data    = df,
-#   cluster = ~cl_dt
-# )
-
-# Nice side-by-side table
-modelsummary::msummary(
-  list(
-    "DDD OLS" = m_ddd_ols, 
-    "DDD PPML" = m_ddd_ppml, 
-    "DDD PPML Squared" = m_ddd_ppml_squared, 
-    "DDD PPML DT" = m_ddd_ppml_dt,
-    "DDD PPML Squared DT" = m_ddd_ppml_squared_dt,
-    # "DDD PPML with time" = m_ddd_ppml_with_time, 
-    # "DDD PPML Squared with time" = m_ddd_ppml_squared_with_time
-  ),
-  gof_omit = "IC|Log|Adj|Pseudo|Within",
-  stars = TRUE
-)
-
-
-# ============================
-# C) Compare domains
-# ============================
-
-domains <- unique(df$domain)
-
-# function to run the loop
-run_loop <- function(df, full_formula) {
-  results <- list()
-  for (domain in domains) {
-    df_domain <- df[df$domain == domain, ]
-    m_ddd_ppml_domain <- fepois(
-      full_formula,
-      data    = df_domain,
-      cluster = ~cl_dt
-    )
-    results[[domain]] <- m_ddd_ppml_domain
-  }
-  return(results)
+  results[[treatment]] <- m_ddd_ppml
 }
-
-results <- run_loop(df, full_formula)
 
 modelsummary::msummary(results, gof_omit = "IC|Log|Adj|Pseudo|Within", stars = TRUE)
