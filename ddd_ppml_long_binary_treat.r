@@ -1,5 +1,5 @@
 # ============================================
-# DDD FE + PPML
+# DDD FE + PPML (wui)
 # ============================================
 
 
@@ -25,6 +25,66 @@ df$fe_dt <- df$domain_time # μ_dt
 # 2) (Recommended) build a cluster for domain×time for two-way clustering
 df$cl_dt <- df$domain_time
 
+
+# 3) Build variables
+# treated
+df <- df %>%
+  group_by(member_id, domain) %>%
+  mutate(treated = any(meetings > 0)) %>%
+  ungroup()
+
+# post
+# For each member_id (i) and domain (d), set post == TRUE for the min(time_fe) where treated == TRUE
+df$post <- FALSE
+df <- df %>%
+  group_by(member_id, domain) %>%
+  mutate(
+    # Convert time_fe to Date for comparison if it's not already
+    time_fe_date = as.Date(as.character(time_fe)),
+    min_treat_time = if (any(meetings > 0)) min(time_fe_date[meetings > 0], na.rm = TRUE) else as.Date(NA)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    post = !is.na(min_treat_time) & as.Date(as.character(time_fe)) >= min_treat_time
+  ) %>%
+  select(-min_treat_time, -time_fe_date)
+  
+# cj - cohort indicator (independent of treatment status)
+df$cj <- (as.Date(as.character(df$time_fe)) < as.Date("2022-01-01"))  # early period indicator
+
+df$month <- format(as.Date(df$time_fe), "%m")
+df$year <- format(as.Date(df$time_fe), "%Y")
+
+
+# Create a df for all the units that received first treatment after 2020 and befor 2024
+# but keep the untreated
+
+## find the first time a unit was treated after 2020 and before 2024
+df_first_treated <- df %>%
+  group_by(member_id, domain) %>%
+  mutate(
+    # Convert time_fe to Date if not already
+    time_fe_date = as.Date(as.character(time_fe)),
+    first_treatment_date = if (any(meetings > 0)) min(time_fe_date[meetings > 0], na.rm = TRUE) else as.Date(NA)
+  ) %>%
+  ungroup() %>%
+  select(-time_fe_date)
+
+# merge the treated df with the original df
+df <- merge(
+  df,
+  df_first_treated[c("member_id", "domain", "first_treatment_date")],
+  by = c("member_id", "domain"),
+  all.x = TRUE
+)
+
+# create a new variable that is 1 if the unit was treated after 2020 and before 2024, 0 otherwise
+df_treated_after_2020_before_2024 <- df %>%
+  filter((first_treatment_date >= "2020-01-01" & first_treatment_date < "2024-01-01") | treated == FALSE) 
+
+
+# 4) Build the formula
+# Build the controls part of the formula as a string
 # Controls
 controls <- c(
   "meps_POLITICAL_GROUP_5148.0",
@@ -109,43 +169,21 @@ controls <- c(
   "log_meetings_member_capacity_Shadow_rapporteur_for_opinion"
 )
 
-# 3) Build variables
-# treated
-df <- df %>%
-  group_by(member_id, domain) %>%
-  mutate(treated = any(meetings > 0)) %>%
-  ungroup()
-
-# post
-# For each member_id (i) and domain (d), set post == TRUE for the min(time_fe) where treated == TRUE
-df$post <- FALSE
-df <- df %>%
-  group_by(member_id, domain) %>%
-  mutate(
-    # Convert time_fe to Date for comparison if it's not already
-    time_fe_date = as.Date(as.character(time_fe)),
-    min_treat_time = if (any(meetings > 0)) min(time_fe_date[meetings > 0], na.rm = TRUE) else as.Date(NA)
-  ) %>%
-  ungroup() %>%
-  mutate(
-    post = !is.na(min_treat_time) & as.Date(as.character(time_fe)) >= min_treat_time
-  ) %>%
-  select(-min_treat_time, -time_fe_date)
-  
-# cj
-df$cj <- (as.Date(as.character(df$time_fe)) < as.Date("2022-01-01")) & df$treated  # receive treat before "2022"
-
-df$month <- format(as.Date(df$time_fe), "%m")
-df$year <- format(as.Date(df$time_fe), "%Y")
-
-# 4) Build the formula
-# Build the controls part of the formula as a string
 controls_str <- paste(controls, collapse = " + ")
+
+
 
 # Construct the full formula as a string, then convert to formula
 # yit = β0 + β1Treati + β2Postt + β3Cj + β4(Treati*Postt) + β5(Treati*Cj) + β6(Postt*Cj) + β7(Treati*Postt*Cj) + ϵit:
 full_formula_str <- paste0("questions ~  treated*post*cj + ", controls_str, " | fe_i + fe_ct + fe_pt")
 full_formula <- as.formula(full_formula_str)
+
+# Alternative specification if cj depends on treated (avoids collinearity):
+# full_formula_str_alt <- paste0("questions ~  treated*post + cj*post + ", controls_str, " | fe_i + fe_ct + fe_pt")
+# full_formula_alt <- as.formula(full_formula_str_alt)
+
+full_formula_str_no_controls <- paste0("questions ~  treated*post*cj  | fe_i + fe_ct + fe_pt")
+full_formula_no_controls <- as.formula(full_formula_str_no_controls)
 
 # # with time
 # full_formula_str_with_time <- paste0("questions ~ meetings + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
@@ -164,11 +202,41 @@ m_ddd_ppml <- fepois(
   cluster = ~cl_dt
 )
 
+m_ddd_ppml_no_controls <- fepois(
+  full_formula_no_controls,
+  data    = df,
+  cluster = ~cl_dt
+)
+
+m_ddd_ppml_treated_after_2020_before_2024 <- fepois(
+  full_formula_no_controls,
+  data    = df_treated_after_2020_before_2024,
+  cluster = ~cl_dt
+)
+
+
+# Per domain
+
+results <- list(
+  "DDD PPML" = m_ddd_ppml,
+  "DDD PPML (no controls)" = m_ddd_ppml_no_controls,
+  "DDD PPML (treated after 2020 and before 2024)" = m_ddd_ppml_treated_after_2020_before_2024
+)
+
+# domains <- unique(df$domain)
+# for (domain in domains) {
+#   df_domain <- df[df$domain == domain, ]
+#   m_ddd_ppml_domain <- fepois(
+#     full_formula_no_controls,
+#     data    = df_domain,
+#     cluster = ~cl_dt
+#   )
+#   results[[domain]] <- m_ddd_ppml_domain
+# }
+
 # Nice side-by-side table
 modelsummary::msummary(
-  list(
-    "DDD PPML" = m_ddd_ppml
-  ),
+  results,
   gof_omit = "IC|Log|Adj|Pseudo|Within|meps_|month|year",
   coef_omit = paste0("^", paste(controls, collapse = "|"), "$"),
   stars = TRUE
