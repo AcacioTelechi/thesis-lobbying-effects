@@ -639,8 +639,8 @@ class LongDatabase(DataBase):
         trim_top_fraction: float | None = None,
     ) -> pd.DataFrame:
         # Add fixed effects to the wide panel first
-        if include_time_fe:
-            self.add_time_fe()
+
+        self.add_time_fe()
         
         # Add country and party FE (these modify the wide panel)
         self.add_country_fe()
@@ -649,6 +649,13 @@ class LongDatabase(DataBase):
         # Create the long panel from the modified wide panel
         df_long = self._prepare_long_panel()
         df_long = df_long.reset_index()
+
+        # create time_fe
+        df_long["time_fe"] = pd.to_datetime(df_long["Y-m"])
+
+        # create year
+        df_long["year"] = df_long["time_fe"].dt.year
+        df_long["month"] = df_long["time_fe"].dt.month
 
         # Add controls
         if include_controls:
@@ -699,6 +706,26 @@ class LongDatabase(DataBase):
             df_long["party_time"] = (
                 df_long["party"].astype(str) + "__" + df_long[time_col].astype(str)
             )
+
+        # Create first treatment date column
+        # First treatment timing for each MEP-domain
+        first_treatment = (
+            df_long[df_long["meetings"] > 0]
+            .groupby(["member_id", "domain"])["Y-m"]
+            .min()
+            .reset_index()
+        )
+        first_treatment.columns = ["member_id", "domain", "first_treatment_period"]
+
+        df_long = df_long.merge(first_treatment, on=["member_id", "domain"], how="left")
+
+        # create treated 
+        ever_treated = df_long.groupby(["member_id", "domain"])["meetings"].transform(lambda x: (x > 0).any())
+        df_long["treated"] = ever_treated.astype(int)
+
+        # create post
+        df_long["post"] = (df_long["time_fe"] >= df_long["first_treatment_period"]).astype(int)
+        
 
         return df_long
 
