@@ -1,7 +1,20 @@
 # Data
 data/
 outputs/
-Tese/
+# Non .tex files
+Tese/*.aux
+Tese/*.log
+Tese/*.out
+Tese/*.toc
+Tese/*.fls
+Tese/*.fdb_latexmk
+Tese/*.fls
+Tese/*.bbl
+Tese/*.blg
+Tese/*.brf
+Tese/*.glo
+Tese/*.ist
+Tese/*.synctex.gz
 
 # Byte-compiled / optimized / DLL file
 __pycache__/

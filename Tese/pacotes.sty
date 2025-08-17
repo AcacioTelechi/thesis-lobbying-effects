@@ -21,7 +21,7 @@
 \RequirePackage{multicol} % permite o uso de mais de uma coluna de texto (é bem bugado, então é melhor evitar usar)
 %% https://ctan.org/pkg/multicol
 
-\RequirePackage{microtype} % para melhorias de justificação
+\RequirePackage[expansion=false]{microtype} % para melhorias de justificação (sem expansão automática)
 %% https://ctan.org/pkg/microtype
 
 \RequirePackage{geometry} % permite a configuração da página: margens, cabeçalho, roda-pé...
@@ -73,8 +73,14 @@
 \RequirePackage{caption} % configurar as legendas de imagens e tabelas
 %% https://ctan.org/pkg/caption
 
+% Comando personalizado para notas em figuras
+\newcommand{\note}[1]{\textit{Nota:} #1}
+
 \RequirePackage{multirow, bigstrut, bigdelim} % são usadas juntas sempre. Servem para adicionar funções nas tabelas, por exemplo unir duas linhas - como o nome já sugere 
 %% https://ctan.org/pkg/multirow
+
+\RequirePackage{booktabs} % para tabelas profissionais com \toprule, \midrule, \bottomrule
+%% https://ctan.org/pkg/booktabs
 
 \RequirePackage{tikz, tkz-euclide} % desenhar imagens no LaTeX ao invés de colocar print. tkz-euclide são formas 3D.
 \usetikzlibrary{quotes, angles, scopes} 
