@@ -1,51 +1,35 @@
-\subsection{Análise descritiva dos lobistas}
+\section{Análise descritiva dos lobistas}
 \label{sec:resultados_descritica_lobistas}
+Avaliação da distribuição dos lobistas registados junto às instituições europeias.
 
-
-
-Nesta subseção apresentamos estatísticas descritivas calculadas diretamente do ficheiro \texttt{./data/silver/df\_lobbyists.csv}. Para assegurar reprodutibilidade, as tabelas e figuras abaixo são geradas pelo script \texttt{generate\_lobbyists\_descriptives.py} e incluídas automaticamente.
-
-\paragraph{Distribuição por categoria}
 \begin{table}[!htbp]
 \centering
-\caption{Distribuição por categoria}
-\input{../outputs/lobbyists_descriptives/category_distribution.tex}
+\caption{Distribuição de organizações por categoria}
+\input{tables/category_distribution.tex}
 \end{table}
 
-A Tabela acima apresenta a composição do universo de lobistas por categoria organizacional. Observa-se o predomínio de entidades empresariais e organizações da sociedade civil, com participação ainda substantiva da categoria residual \textit{Other}. Esse arranjo é compatível com um campo plural, no qual interesses concentrados e difusos coabitam o espaço de representação junto às instituições europeias.
+A Tabela acima apresenta a composição do universo de lobistas por categoria organizacional. Observa-se o predomínio de entidades empresariais e organizações da sociedade civil. A categoria \textit{Outros} abrange uma variedade de organizações, incluindo representações governamentais, universidades, sindicatos, associações profissionais, \textit{think tanks}, consultorias profissionais, instituições acadêmicas, redes de autoridades públicas, organizações religiosas, escritórios de advocacia e entidades estabelecidas por países terceiros, conforme a classificação detalhada no registro de transparência.
 
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/category_distribution.png}
-\caption{Distribuição por categoria}
-\end{figure}
+O resultado reforça assimetrias moderadas entre categorias e não sugere concentração extrema em um único tipo organizacional. Em termos substantivos, isso indica competição horizontal por acesso e agenda entre perfis empresariais e societais.
 
-O gráfico reforça assimetrias moderadas entre categorias e não sugere concentração extrema em um único tipo organizacional. Em termos substantivos, isso indica competição horizontal por acesso e agenda entre perfis empresariais e societais.
+% \paragraph{País-sede e ano de registo}
+% \begin{table}[!htbp]
+% \centering
+% \caption{Distribuição de lobistas por país-sede}
+% \input{tables/country_distribution.tex}
+% \end{table}
 
-\paragraph{País-sede e ano de registo}
-\begin{table}[!htbp]
-\centering
-\caption{Distribuição por país-sede}
-\input{../outputs/lobbyists_descriptives/country_distribution.tex}
-\end{table}
-
-A distribuição geográfica evidencia forte concentração em Estados-Membros centrais: Bélgica (\textasciitilde18,2\%), Alemanha (\textasciitilde14,0\%) e França (\textasciitilde9,3\%). Países como Países Baixos, Espanha, Reino Unido e Itália aparecem na sequência (\textasciitilde6\% cada). Nota-se presença extracomunitária não desprezível (Estados Unidos \textasciitilde4,5\%), sinalizando a atratividade regulatória do mercado europeu.
+A distribuição geográfica evidencia forte concentração em Estados-Membros centrais: Bélgica (18,2\%), Alemanha (14,0\%) e França (9,3\%). Países como Países Baixos, Espanha, Reino Unido e Itália aparecem na sequência (6\% cada). Nota-se presença extracomunitária não desprezível. Cerca de 19\% são de países não membros da \cite{UE} (com destaque para os Estados Unidos, com 4,5\% dos lobistas registrados), sinalizando a atratividade regulatória do mercado europeu.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/country_distribution_top20.png}
-\caption{País-sede (top 20)}
+\caption{Top 20 países-sede (n = 12.468 organizações, totalizando 91\% do total de organizações)}
 \end{figure}
 
-O recorte \textit{top 20} evidencia uma cauda longa: muitos países com baixas frequências, consistentes com a internacionalização seletiva do \textit{lobbying}. O padrão é coerente com hipóteses de \textit{venue shopping} e vantagens de proximidade institucional em Bruxelas/Strasburgo.
+O recorte dos \textit{top 20} evidencia uma cauda longa: muitos países com baixas frequências, consistentes com a internacionalização seletiva do \textit{lobbying}. O padrão é coerente com hipóteses de \textit{venue shopping} e vantagens de proximidade institucional em Bruxelas/Strasburgo.
 
-\begin{table}[!htbp]
-\centering
-\caption{Distribuição por ano de registo}
-\input{../outputs/lobbyists_descriptives/year_distribution.tex}
-\end{table}
-
-Temporalmente, observa-se aceleração do registro de entidades após meados da década de 2010, com 2023 concentrando \textasciitilde17,9\% do total. Picos intermediários (2015--2016; 2020--2022) são compatíveis com ciclos legislativos, janelas regulatórias e alterações incrementais nos mecanismos de transparência.
+Temporalmente, observa-se aceleração do registro de entidades após meados da década de 2010, com 2023 concentrando 17,9\% do total. Picos intermediários (2015--2016; 2020--2022) são compatíveis com ciclos legislativos, janelas regulatórias e alterações incrementais nos mecanismos de transparência.
 
 \begin{figure}[!htbp]
 \centering
@@ -55,14 +39,7 @@ Temporalmente, observa-se aceleração do registro de entidades após meados da 
 
 O padrão visual sugere crescimento estrutural recente do ecossistema de representação de interesses, possivelmente associado às agendas de transição digital e verde e à recomposição pós-pandemia.
 
-\paragraph{Cobertura temática}
-\begin{table}[!htbp]
-\centering
-\caption{Cobertura temática (proporções e contagens)}
-\input{../outputs/lobbyists_descriptives/theme_coverage.tex}
-\end{table}
-
-As incidências por domínio destacam \textit{Infraestrutura e Indústria} (\textasciitilde68,3\%), \textit{Tecnologia} (\textasciitilde67,9\%) e \textit{Economia e Comércio} (\textasciitilde67,4\%), seguidas por \textit{Ambiente e Clima} (\textasciitilde64,7\%) e \textit{Assuntos Externos e Segurança} (\textasciitilde51,3\%). Temas como \textit{Saúde} (\textasciitilde43,7\%) e \textit{Educação} (\textasciitilde41,2\%) são intermediários; \textit{Agricultura} (\textasciitilde35,3\%) e \textit{Direitos Humanos} (\textasciitilde25,3\%) têm menor incidência relativa.
+As incidências por domínio destacam \textit{Infraestrutura e Indústria} (68,3\%), \textit{Tecnologia} (67,9\%) e \textit{Economia e Comércio} (67,4\%), seguidas por \textit{Ambiente e Clima} (64,7\%) e \textit{Assuntos Externos e Segurança} (51,3\%). Temas como \textit{Saúde} (43,7\%) e \textit{Educação} (41,2\%) são intermediários; \textit{Agricultura} (35,3\%) e \textit{Direitos Humanos} (25,3\%) têm menor incidência relativa.
 
 \begin{figure}[!htbp]
 \centering
@@ -72,24 +49,7 @@ As incidências por domínio destacam \textit{Infraestrutura e Indústria} (\tex
 
 O ordenamento por proporção sugere centralidade de agendas de competitividade industrial, digitalização e cadeias de valor, bem como a transversalidade da pauta ambiental.
 
-\paragraph{Orçamento declarado}
-\begin{table}[!htbp]
-\centering
-\caption{Medidas-resumo de l\_ln\_max\_budget}
-\input{../outputs/lobbyists_descriptives/budget_summary.tex}
-\end{table}
 
-As estatísticas de orçamento máximo declarado (log natural) indicam mediana em torno de 11,5 e quartis aproximadamente entre 10,1 e 12,9. A presença de valores inválidos/extremos na base administrativa (por exemplo, ocorrências infinitas) distorce a média e o desvio-padrão, recomendando foco em medidas robustas (mediana, intervalos interquartílicos) e rotinas de limpeza nos exercícios inferenciais.
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.75\textwidth]{figures/budget_ln_hist.png}
-\caption{Distribuição de l\_ln\_max\_budget}
-\end{figure}
-
-A distribuição apresenta assimetria e cauda à direita compatíveis com heterogeneidade de porte organizacional, sugerindo coexistência de grandes associações/empresas e organizações menores.
-
-\paragraph{Número de temas por lobista}
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.75\textwidth]{figures/themes_per_lobbyist_hist.png}
@@ -98,17 +58,28 @@ A distribuição apresenta assimetria e cauda à direita compatíveis com hetero
 
 A distribuição do número de temas por entidade indica a coexistência de atores multi-temáticos e especializados. Esse traço é relevante para a modelagem, pois sugere que a intensidade de esforço (extensivo vs. intensivo) varia com o perfil organizacional e o ambiente regulatório dos domínios.
 
-\paragraph{Síntese}
+
+As estatísticas de orçamento máximo declarado (em escala logarítmica) indicam mediana em torno de 11,5 e quartis aproximadamente entre 10,1 e 12,9. A presença de valores inválidos/extremos na base administrativa (por exemplo, ocorrências infinitas) distorce a média e o desvio-padrão, recomendando foco em medidas robustas (mediana, intervalos interquartílicos) e rotinas de limpeza nos exercícios inferenciais.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/budget_ln_hist.png}
+\caption{Distribuição de orçamento máximo declarado ($ln(budget)$)}
+\end{figure}
+
+A distribuição apresenta assimetria e cauda à direita compatíveis com heterogeneidade de porte organizacional, sugerindo coexistência de grandes associações/empresas e organizações menores.
+
+
 Em conjunto, os resultados descritivos apontam para um ecossistema plural, geograficamente ancorado em polos institucionais centrais, com dinamismo temporal recente e agendas orientadas por digitalização, competitividade industrial e sustentabilidade. Esses padrões informam as escolhas de especificação nos capítulos seguintes, notadamente a estratificação por perfis organizacionais, a construção de domínios temáticos e o controle para tendências temporais.
 
-\paragraph{Discussão e interpretação}
+
 Os resultados descritivos delineiam um panorama abrangente do universo de lobistas registados junto às instituições europeias. Em primeiro lugar, a distribuição por categoria revela a coexistência de diferentes perfis organizacionais (\textit{Business}, \textit{NGOs} e \textit{Other}), com magnitudes comparáveis entre atores empresariais e organizações da sociedade civil. Essa composição é compatível com a literatura sobre pluralismo organizacional e competição por acesso institucional no contexto da União Europeia, sugerindo um campo de ação onde interesses difusos e concentrados buscam simultaneamente agenda e influência.
 
-No plano geográfico, observa-se forte concentração em Estados-Membros centrais e com infraestrutura institucional robusta. Destacam-se Bélgica (\textasciitilde18,2\%), Alemanha (\textasciitilde14,0\%) e França (\textasciitilde9,3\%), seguidas por Países Baixos, Espanha, Reino Unido e Itália (\textasciitilde6\% cada). Há ainda presença extracomunitária não desprezível (Estados Unidos \textasciitilde4,5\%), o que evidencia a atratividade regulatória do mercado europeu e a permeabilidade do \textit{lobbying} transnacional. Esses achados são consistentes com hipóteses de \textit{venue shopping} e vantagens de proximidade institucional (Bruxelas/Strasburgo) para atividades de representação de interesses.
+No plano geográfico, observa-se forte concentração em Estados-Membros centrais e com infraestrutura institucional robusta. Destacam-se Bélgica (18,2\%), Alemanha (14,0\%) e França (9,3\%), seguidas por Países Baixos, Espanha, Reino Unido e Itália (6\% cada). Há ainda presença extracomunitária não desprezível (Estados Unidos 4,5\%), o que evidencia a atratividade regulatória do mercado europeu e a permeabilidade do \textit{lobbying} transnacional. Esses achados são consistentes com hipóteses de \textit{venue shopping} e vantagens de proximidade institucional (Bruxelas/Strasburgo) para atividades de representação de interesses.
 
-Temporalmente, as frequências por ano indicam aceleração recente dos registos, com 2023 concentrando \textasciitilde17,9\% das entradas no período observado. Picos intermediários (2015--2016; 2020--2022) são compatíveis com ciclos legislativos, janelas regulatórias e mudanças incrementais no regime de transparência, fatores que tendem a alterar a propensão ao registro. A expansão no pós-2020 pode refletir a reconfiguração de estratégias após as restrições pandémicas, além da ênfase em agendas de transição digital e verde.
+Temporalmente, as frequências por ano indicam aceleração recente dos registos, com 2023 concentrando 17,9\% das entradas no período observado. Picos intermediários (2015--2016; 2020--2022) são compatíveis com ciclos legislativos, janelas regulatórias e mudanças incrementais no regime de transparência, fatores que tendem a alterar a propensão ao registro. A expansão no pós-2020 pode refletir a reconfiguração de estratégias após as restrições pandémicas, além da ênfase em agendas de transição digital e verde.
 
-Quanto à cobertura temática, a incidência é mais elevada em \textit{Infraestrutura e Indústria} (\textasciitilde68,3\%), \textit{Tecnologia} (\textasciitilde67,9\%) e \textit{Economia e Comércio} (\textasciitilde67,4\%), seguidas por \textit{Ambiente e Clima} (\textasciitilde64,7\%) e \textit{Assuntos Externos e Segurança} (\textasciitilde51,3\%). Temas como \textit{Saúde} (\textasciitilde43,7\%) e \textit{Educação} (\textasciitilde41,2\%) ocupam posição intermediária, ao passo que \textit{Agricultura} (\textasciitilde35,3\%) e \textit{Direitos Humanos} (\textasciitilde25,3\%) apresentam menor incidência relativa. Em conjunto, esse perfil sugere: (i) centralidade de agendas de competitividade industrial, digitalização e cadeias de valor; (ii) transversalidade da pauta ambiental como condicionante regulatória; e (iii) segmentação de atores com missões setoriais mais estreitas ou normativas, potencialmente menos numerosos.
+Quanto à cobertura temática, a incidência é mais elevada em \textit{Infraestrutura e Indústria} (68,3\%), \textit{Tecnologia} (67,9\%) e \textit{Economia e Comércio} (67,4\%), seguidas por \textit{Ambiente e Clima} (64,7\%) e \textit{Política Externa e Segurança} (51,3\%). Temas como \textit{Saúde} (43,7\%) e \textit{Educação} (41,2\%) ocupam posição intermediária, ao passo que \textit{Agricultura} (35,3\%) e \textit{Direitos Humanos} (25,3\%) apresentam menor incidência relativa. Em conjunto, esse perfil sugere: (i) centralidade de agendas de competitividade industrial, digitalização e cadeias de valor; (ii) transversalidade da pauta ambiental como condicionante regulatória; e (iii) segmentação de atores com missões setoriais mais estreitas ou normativas, potencialmente menos numerosos.
 
 A distribuição do número de temas por lobista sugere coexistência de atores multi-temáticos, capazes de cobrir diversas frentes de política pública, e de atores especializados com foco estreito. Tal heterogeneidade é relevante para a modelagem empírica, pois a intensidade de esforço (extensivo vs. intensivo) pode variar sistematicamente com o tipo de organização e com o ambiente regulatório dos diferentes domínios.
 

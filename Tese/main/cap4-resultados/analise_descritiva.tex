@@ -1,21 +1,13 @@
-\subsection{Análise descritiva}
+\section{Análise descritiva do tratamento}
 \label{sec:resultados_descritica}
 
 Esta seção apresenta uma análise descritiva sistemática dos dados utilizados para investigar os efeitos do lobbying na atividade parlamentar dos deputados do Parlamento Europeu. A abordagem adotada segue uma estratégia analítica multinível, iniciando com padrões agregados gerais e progredindo para análises desagregadas mais específicas. Esta progressão metodológica permite compreender tanto as tendências globais quanto os mecanismos específicos que operam no nível individual e temporal.
 
-O conjunto de dados constitui um painel balanceado que combina informações sobre atividade parlamentar (perguntas) e intensidade de lobbying (reuniões) para todos os deputados europeus ao longo de 63 meses, de julho de 2019 a novembro de 2024. Esta estrutura temporal permite capturar variações tanto na dimensão cross-sectional (entre deputados e domínios) quanto longitudinal (evolução temporal), fornecendo a base empírica necessária para estratégias de identificação causal robustas.
+O conjunto de dados constitui um painel balanceado que combina informações sobre atividade parlamentar (perguntas) e intensidade de lobbying (reuniões) para 1.353 deputados ao longo de 63 meses, de julho de 2019 a novembro de 2024 em 9 domínios de política pública. Esta estrutura temporal permite capturar variações tanto na dimensão \textit{cross-sectional} (entre deputados e domínios) quanto longitudinal (evolução temporal), fornecendo a base empírica necessária para estratégias de identificação causal robustas.
 
-\subsubsection{Visão geral: padrões agregados e tendências temporais}
+Considerando a unidade de análise a tríade MEP-domínio-mês, temos 767.151 observações com taxa de completude de 100\%. Esta estrutura balanceada é metodologicamente vantajosa, pois elimina preocupações com viés de seleção decorrente de atrito amostral e garante que as estimativas não sejam distorcidas por padrões de observações ausentes.
 
-Antes de examinar os mecanismos específicos no nível individual, é essencial compreender os padrões agregados que caracterizam o fenômeno em estudo. Esta análise inicial fornece o contexto necessário para interpretar os resultados desagregados subsequentes e identifica as principais características empíricas que devem informar as escolhas metodológicas.
-
-\paragraph{Estrutura e cobertura temporal dos dados}
-
-O painel de dados apresenta uma estrutura tridimensional balanceada, abrangendo 1.353 deputados únicos, 9 domínios de política pública e 63 períodos mensais, resultando em 767.151 observações com taxa de completude de 100\%. Esta estrutura balanceada é metodologicamente vantajosa, pois elimina preocupações com viés de seleção decorrente de atrito amostral e garante que as estimativas não sejam distorcidas por padrões de observações ausentes.
-
-A cobertura temporal de julho de 2019 a novembro de 2024 é particularmente relevante por abranger períodos de intensa atividade legislativa europeia, incluindo a transição entre legislaturas e eventos político-econômicos significativos que podem ter influenciado tanto a atividade parlamentar quanto as estratégias de lobbying.
-
-\paragraph{Tendências temporais agregadas}
+A cobertura temporal de julho de 2019 a novembro de 2024 é particularmente relevante por abranger períodos de intensa atividade legislativa europeia, incluindo a transição entre legislaturas e eventos político-econômicos significativos. Destaca-se, nesse intervalo, o impacto da pandemia de COVID-19, que afetou profundamente tanto a dinâmica da atividade parlamentar quanto as estratégias de lobbying. A pandemia resultou em mudanças substanciais nos modos de trabalho do Parlamento Europeu, com a adoção de sessões remotas e restrições a reuniões presenciais, o que pode ter alterado padrões de interação entre deputados e grupos de interesse. Assim, a análise cobre não apenas períodos de normalidade institucional, mas também um contexto de crise sanitária global, permitindo investigar como choques exógenos desse tipo influenciam o comportamento político e o lobbying.
 
 A \autoref{fig:time_series} apresenta a evolução temporal das variáveis principais no nível mais agregado, revelando padrões que são fundamentais para compreender a dinâmica do sistema político europeu ao longo do período estudado.
 
@@ -29,13 +21,16 @@ A \autoref{fig:time_series} apresenta a evolução temporal das variáveis princ
 
 A análise temporal revela quatro padrões empiricamente relevantes. Primeiro, observa-se uma \textbf{tendência crescente} em ambas as variáveis ao longo do período, sugerindo intensificação tanto da atividade parlamentar quanto do lobbying. Segundo, existe clara \textbf{sazonalidade} relacionada ao calendário parlamentar, com reduções sistemáticas durante períodos de recesso. Terceiro, identificam-se \textbf{picos de atividade} que coincidem com discussões de legislação relevante em domínios específicos, indicando resposta coordenada do sistema político. Quarto, a \textbf{correlação contemporânea} entre perguntas e reuniões permanece relativamente estável ao longo do tempo, sugerindo estabilidade estrutural na relação entre as variáveis.
 
+% não há exatamente essa tendência cerescente...
+
+
 Estes padrões temporais têm implicações metodológicas importantes. A presença de tendências temporais justifica a inclusão de efeitos fixos de tempo nas especificações econométricas para controlar choques temporais comuns. A sazonalidade observada valida a escolha da frequência mensal como unidade temporal, capturando variações de curto prazo sem introduzir ruído excessivo. A estabilidade da correlação fornece evidência preliminar contra quebras estruturais que poderiam comprometer a validade das estimativas.
 
-\subsubsection{Padrões de participação: análise agregada por deputado}
+% \subsection{Padrões de participação: análise agregada por deputado}
 
 Complementando a análise temporal, é fundamental examinar os padrões de participação no nível individual dos deputados. Esta perspectiva agregada revela a distribuição da atividade de lobbying entre os parlamentares e fornece insights sobre a concentração e heterogeneidade dos fenômenos estudados.
 
-\paragraph{Distribuição do tratamento entre deputados}
+\subsubsection{Distribuição do tratamento entre deputados}
 
 A \autoref{fig:mep_aggregated} apresenta uma análise abrangente dos padrões de participação agregados por deputado, revelando aspectos fundamentais da distribuição da atividade de lobbying no Parlamento Europeu.
 
@@ -53,7 +48,7 @@ Segundo, observa-se \textbf{concentração extrema} na intensidade de tratamento
 
 Terceiro, a \textbf{correlação agregada} entre reuniões e perguntas totais por deputado é surpreendentemente baixa (0,056), contrastando com correlações mais elevadas observadas no nível temporal. Este padrão sugere que os efeitos do lobbying podem ser mais evidentes em frequências temporais específicas do que em padrões de atividade agregados de longo prazo.
 
-\paragraph{Implicações para a estratégia empírica}
+% \paragraph{Implicações para a estratégia empírica}
 
 Estes padrões agregados têm implicações importantes para a identificação causal. A concentração do tratamento em uma minoria de deputados sugere que estratégias de identificação baseadas em variação cross-sectional podem sofrer de poder estatístico limitado. Simultaneamente, a variação substancial na intensidade de tratamento entre deputados tratados fornece fonte valiosa de identificação para estimativas de dose-resposta.
 
@@ -83,11 +78,11 @@ Correlação reuniões-perguntas & 0{,}056 \\
 \end{tabular}
 \end{table}
 
-\subsubsection{Heterogeneidade entre domínios de política pública}
+\subsection{Heterogeneidade entre domínios de política pública}
 
 A terceira dimensão da análise agregada examina a variação entre domínios de política pública. Esta heterogeneidade setorial é teoricamente relevante porque diferentes áreas de política podem apresentar características distintas em termos de complexidade técnica, interesse econômico e organização de grupos de pressão, afetando tanto a demanda por lobbying quanto a responsividade parlamentar.
 
-\paragraph{Padrões de tratamento por domínio}
+% \paragraph{Padrões de tratamento por domínio}
 
 A \autoref{fig:domain_treatment} apresenta uma análise sistemática da variação inter-domínios em múltiplas dimensões: penetração, volume e intensidade do tratamento, bem como padrões temporais de iniciação.
 
@@ -101,7 +96,7 @@ A \autoref{fig:domain_treatment} apresenta uma análise sistemática da variaç�
 
 A análise revela heterogeneidade sistemática mas moderada entre domínios. Em termos de \textbf{penetração}, as taxas variam de 40,9\% (agricultura) a 45,5\% (economia e tecnologia), uma amplitude de apenas 4,6 pontos percentuais. Esta variação relativamente pequena sugere que o lobbying possui caráter transversal, não concentrando-se drasticamente em setores específicos.
 
-Contudo, emergem padrões teoricamente consistentes. Domínios relacionados à \textbf{regulação econômica} (economia e comércio, tecnologia, infraestrutura) apresentam sistematicamente maiores taxas de penetração, refletindo os elevados stakes econômicos e a complexidade regulatória que incentivam investimento em atividades de lobbying. Inversamente, domínios com características de bem público (agricultura, direitos humanos) apresentam menores taxas, consistente com problemas de ação coletiva e menor capacidade organizacional de grupos difusos.
+Contudo, emergem padrões teoricamente consistentes. Domínios relacionados à \textbf{regulação econômica} (economia e comércio, tecnologia, infraestrutura) apresentam sistematicamente maiores taxas de penetração, refletindo os elevados interesses econômicos e a complexidade regulatória que incentivam investimento em atividades de lobbying. Este padrão é especialmente relevante considerando que a promoção da integração econômica é o foco principal de um bloco como a União Europeia, o que naturalmente direciona maior atenção e mobilização de grupos de interesse para essas áreas. Inversamente, domínios com características de bem público (agricultura, direitos humanos) apresentam menores taxas, consistente com problemas de ação coletiva e menor capacidade organizacional de grupos difusos.
 
 \begin{table}[htbp]
 \centering
@@ -124,23 +119,22 @@ Agricultura & 554 & 1{,}353 & 40{,}9 \\
 \end{tabular}
 \end{table}
 
-\paragraph{Implicações para heterogeneidade de efeitos}
 
-A heterogeneidade observada entre domínios tem duas implicações metodológicas importantes. Primeiro, a variação sistemática sugere que estimativas de efeito médio podem mascarar diferenças substantivas entre setores, justificando análises de heterogeneidade de efeitos por domínio. Segundo, a ordenação consistente dos domínios por múltiplas métricas (penetração, volume, intensidade) sugere que esta heterogeneidade reflete características estruturais dos setores rather than variação aleatória, aumentando a credibilidade de interpretações causais diferenciadas.
+A heterogeneidade observada entre domínios tem duas implicações metodológicas importantes. Primeiro, a variação sistemática sugere que estimativas de efeito médio podem mascarar diferenças substantivas entre setores, justificando análises de heterogeneidade de efeitos por domínio. Segundo, a ordenação consistente dos domínios por múltiplas métricas (penetração, volume, intensidade) sugere que esta heterogeneidade reflete características estruturais dos setores ao invés de variação aleatória, aumentando a credibilidade de interpretações causais diferenciadas.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig3_domain_heterogeneity.pdf}
+\includegraphics[width=.9\textwidth]{figures/fig3_domain_heterogeneity.pdf}
 \caption{Heterogeneidade por domínio: atividade média e distribuições}
 \label{fig:domain_heterogeneity}
 \note{O painel superior esquerdo mostra a atividade média mensal por domínio para ambas as variáveis. O painel superior direito apresenta as taxas de tratamento mensais. Os painéis inferiores mostram box plots das distribuições completas por domínio, evidenciando tanto diferenças de localização quanto de dispersão entre áreas de política pública.}
 \end{figure}
 
-\subsubsection{Análise detalhada: observações MEP-domínio-período}
+\subsection{Análise detalhada: observações MEP-domínio-período}
 
 Após estabelecer os padrões agregados gerais, temporais e setoriais, esta seção examina as características específicas dos dados no nível mais desagregado: observações MEP-domínio-mês. Esta análise é crucial porque a unidade de observação constitui a base para as estimações econométricas e suas características distribucionais determinam as escolhas metodológicas apropriadas.
 
-\paragraph{Especialização temática e o problema da inflação artificial de zeros}
+% \paragraph{Especialização temática e o problema da inflação artificial de zeros}
 
 A análise da inflação de zeros requer cuidado metodológico particular, pois a unidade de observação MEP-domínio-mês pode gerar inflação \textbf{artificial} de zeros. Como documentado na literatura sobre comportamento parlamentar \cite{example}, deputados tendem a especializar-se tematicamente, concentrando atividade em subconjuntos específicos de domínios. Consequentemente, grupos de interesse, cientes desta especialização, direcionam esforços de lobbying apenas para deputados ativos em suas áreas de interesse.
 
