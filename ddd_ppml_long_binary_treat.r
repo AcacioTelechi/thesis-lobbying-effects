@@ -6,168 +6,91 @@
 # install.packages("fixest") # if needed
 library(fixest)
 library(modelsummary)
-library(dplyr)
 
-# --- Assume your data.frame is `df` with columns:
-# questions (y), meetings (T), member_id, domain, time, plus controls (e.g., x1, x2, ...)
-# Make sure types are appropriate (factors/integers for IDs, numeric for y/T/controls).
-df <- read.csv("df_long.csv", stringsAsFactors = TRUE)
+# Prefer fast, column-selective IO if available
+if (requireNamespace("data.table", quietly = TRUE)) {
+  fread <- data.table::fread
+} else {
+  fread <- NULL
+}
 
-# # filter by domain
-# df <- df_raw[df_raw$domain == "agriculture", ]
-
-# 1) Build the three FE identifiers (member×domain, member×time, domain×time)
-df$fe_i <- df$member_id # μ_id
-df$fe_ct <- df$country_time # μ_ct
-df$fe_pt <- df$party_time # μ_pt
-df$fe_dt <- df$domain_time # μ_dt
-
-# 2) (Recommended) build a cluster for domain×time for two-way clustering
-df$cl_dt <- df$domain_time
-
-# 3) Build variables
-# post
-# cj - cohort indicator (independent of treatment status)
-df$cj <- (as.Date(as.character(df$time_fe)) < as.Date("2022-01-01"))  # early period indicator
-
-# Create a df for all the units that received first treatment after 2020 and befor 2024
-# but keep the untreated
-df_treated_after_2020_before_2024 <- df %>%
-  filter(
-    (
-      as.Date(as.character(first_treatment_period)) >= "2020-01-01"
-      & as.Date(as.character(first_treatment_period)) < "2024-01-01"
-    )
-    | treated == FALSE
-  )
-
-# 4) Build the formula
-# Build the controls part of the formula as a string
-# Controls
-controls <- c(
-  "meps_POLITICAL_GROUP_5148.0",
-  "meps_POLITICAL_GROUP_5151.0",
-  "meps_POLITICAL_GROUP_5152.0",
-  "meps_POLITICAL_GROUP_5153.0",
-  "meps_POLITICAL_GROUP_5154.0",
-  "meps_POLITICAL_GROUP_5155.0",
-  "meps_POLITICAL_GROUP_5588.0",
-  "meps_POLITICAL_GROUP_5704.0",
-  "meps_POLITICAL_GROUP_6259.0",
-  "meps_POLITICAL_GROUP_6561.0",
-  "meps_POLITICAL_GROUP_7018.0",
-  "meps_POLITICAL_GROUP_7028.0",
-  "meps_POLITICAL_GROUP_7035.0",
-  "meps_POLITICAL_GROUP_7036.0",
-  "meps_POLITICAL_GROUP_7037.0",
-  "meps_POLITICAL_GROUP_7038.0",
-  "meps_POLITICAL_GROUP_7150.0",
-  "meps_POLITICAL_GROUP_7151.0",
-  "meps_COUNTRY_AUT",
-  "meps_COUNTRY_BEL",
-  "meps_COUNTRY_BGR",
-  "meps_COUNTRY_CYP",
-  "meps_COUNTRY_CZE",
-  "meps_COUNTRY_DEU",
-  "meps_COUNTRY_DNK",
-  "meps_COUNTRY_ESP",
-  "meps_COUNTRY_EST",
-  "meps_COUNTRY_FIN",
-  "meps_COUNTRY_FRA",
-  "meps_COUNTRY_GBR",
-  "meps_COUNTRY_GRC",
-  "meps_COUNTRY_HRV",
-  "meps_COUNTRY_HUN",
-  "meps_COUNTRY_IRL",
-  "meps_COUNTRY_ITA",
-  "meps_COUNTRY_LTU",
-  "meps_COUNTRY_LUX",
-  "meps_COUNTRY_LVA",
-  "meps_COUNTRY_MLT",
-  "meps_COUNTRY_NLD",
-  "meps_COUNTRY_POL",
-  "meps_COUNTRY_PRT",
-  "meps_COUNTRY_ROU",
-  "meps_COUNTRY_SVK",
-  "meps_COUNTRY_SVN",
-  "meps_COUNTRY_SWE",
-  "meps_COMMITTEE_PARLIAMENTARY_SPECIAL___CHAIR",
-  "meps_COMMITTEE_PARLIAMENTARY_SPECIAL___MEMBER",
-  "meps_COMMITTEE_PARLIAMENTARY_STANDING___CHAIR",
-  "meps_COMMITTEE_PARLIAMENTARY_STANDING___MEMBER",
-  "meps_COMMITTEE_PARLIAMENTARY_SUB___CHAIR",
-  "meps_COMMITTEE_PARLIAMENTARY_SUB___MEMBER",
-  "meps_DELEGATION_PARLIAMENTARY___CHAIR",
-  "meps_DELEGATION_PARLIAMENTARY___MEMBER",
-  "meps_EU_INSTITUTION___PRESIDENT",
-  "meps_EU_INSTITUTION___QUAESTOR",
-  "meps_EU_POLITICAL_GROUP___CHAIR",
-  "meps_EU_POLITICAL_GROUP___MEMBER_BUREAU",
-  "meps_EU_POLITICAL_GROUP___TREASURER",
-  "meps_EU_POLITICAL_GROUP___TREASURER_CO",
-  "meps_NATIONAL_CHAMBER___PRESIDENT_VICE",
-  "meps_WORKING_GROUP___CHAIR",
-  "meps_WORKING_GROUP___MEMBER",
-  "meps_WORKING_GROUP___MEMBER_BUREAU",
-  # "log_meetings_l_category_Business",
-  # "log_meetings_l_category_NGOs",
-  # "log_meetings_l_category_Other",
-  # "log_meetings_l_budget_cat_lower",
-  # "log_meetings_l_budget_cat_middle",
-  # "log_meetings_l_budget_cat_upper",
-  # "log_meetings_l_days_since_registration_lower",
-  # "log_meetings_l_days_since_registration_middle",
-  # "log_meetings_l_days_since_registration_upper",
-  "log_meetings_member_capacity_Committee_chair",
-  "log_meetings_member_capacity_Delegation_chair",
-  "log_meetings_member_capacity_Member",
-  "log_meetings_member_capacity_Rapporteur",
-  "log_meetings_member_capacity_Rapporteur_for_opinion",
-  "log_meetings_member_capacity_Shadow_rapporteur",
-  "log_meetings_member_capacity_Shadow_rapporteur_for_opinion"
+# --- Load only the columns we need to save memory
+# Required columns for current models: outcome, treatment-time indicator, FE and clustering fields, dates
+needed_cols <- c(
+  "questions", "post", "member_id", "domain_time",
+  "time_fe", "first_treatment_period", "treated"
 )
 
-controls_str <- paste(controls, collapse = " + ")
+if (!is.null(fread)) {
+  df <- fread("df_long.csv", select = needed_cols, showProgress = FALSE)
+  df <- as.data.frame(df)
+} else {
+  # Fallback if data.table not installed
+  df <- read.csv("df_long.csv", stringsAsFactors = FALSE)
+  df <- df[, intersect(colnames(df), needed_cols)]
+}
+
+# Convert types compactly
+df$member_id <- as.factor(df$member_id)
+df$domain_time <- as.factor(df$domain_time)
+df$questions <- as.numeric(df$questions)
+df$post <- as.integer(df$post)
+if ("treated" %in% names(df)) df$treated <- as.integer(df$treated)
+
+
+# Fixed effects will use existing columns directly (avoid duplicating columns)
+
+# 3) Date variables (overwrite in place to avoid extra copies)
+df$time_fe <- as.Date(as.character(df$time_fe))
+df$first_treatment_period <- as.Date(as.character(df$first_treatment_period))
+
+# Helper logical for restricted cohort (no persistent copy)
+keep_2020_2023 <- is.na(df$first_treatment_period) |
+  (df$first_treatment_period >= as.Date("2020-01-01") &
+     df$first_treatment_period < as.Date("2024-01-01"))
+
+# 4) Build formulas (no-controls variants only to reduce memory)
 
 
 
-# Construct the full formula as a string, then convert to formula
-# yit = β0 + β1Treati + β2Postt + β3Cj + β4(Treati*Postt) + β5(Treati*Cj) + β6(Postt*Cj) + β7(Treati*Postt*Cj) + ϵit:
-full_formula_str <- paste0("questions ~  treated*post + ", controls_str, " | fe_i + fe_ct + fe_pt")
-full_formula <- as.formula(full_formula_str)
+# TWFE PPML with time-varying treatment indicator (post)
+twfe_formula_no_controls <- as.formula("questions ~ post | member_id + domain_time")
 
-
-full_formula_str_no_controls <- paste0("questions ~  treated*post | fe_i + fe_ct + fe_pt")
-full_formula_no_controls <- as.formula(full_formula_str_no_controls)
+# Sun & Abraham event-study using cohort (first_treatment_period) and period (time_fe)
+sa_formula_no_controls <- as.formula("questions ~ sunab(first_treatment_period, time_fe) | member_id + domain_time")
 
 # =============================
-# B) DDD with PPML (fepois) - all domains
+# Staggered DiD with PPML (fepois)
 # =============================
-m_ddd_ppml <- fepois(
-  full_formula,
+
+# TWFE with post only
+m_twfe_ppml_no_controls <- fepois(
+  twfe_formula_no_controls,
   data    = df,
-  cluster = ~cl_dt
+  cluster = ~domain_time
 )
 
-m_ddd_ppml_no_controls <- fepois(
-  full_formula_no_controls,
+# Sun & Abraham event-study
+m_sa_ppml_no_controls <- fepois(
+  sa_formula_no_controls,
   data    = df,
-  cluster = ~cl_dt
+  cluster = ~domain_time
 )
 
-m_ddd_ppml_treated_after_2020_before_2024 <- fepois(
-  full_formula_no_controls,
-  data    = df_treated_after_2020_before_2024,
-  cluster = ~cl_dt
+m_sa_ppml_treated_after_2020_before_2024 <- fepois(
+  sa_formula_no_controls,
+  data    = df[keep_2020_2023, ],
+  cluster = ~domain_time
 )
+
 
 
 # Per domain
 
 results <- list(
-  # "DDD PPML" = m_ddd_ppml,
-  "DDD PPML (no controls)" = m_ddd_ppml_no_controls,
-  "DDD PPML (treated after 2020 and before 2024)" = m_ddd_ppml_treated_after_2020_before_2024
+  "TWFE PPML (no controls)" = m_twfe_ppml_no_controls,
+  "Sun-Abraham PPML (no controls)" = m_sa_ppml_no_controls,
+  "Sun-Abraham PPML (treated after 2020 and before 2024)" = m_sa_ppml_treated_after_2020_before_2024
 )
 
 # domains <- unique(df$domain)
@@ -182,9 +105,8 @@ results <- list(
 # }
 
 # Nice side-by-side table
-modelsummary::msummary(
-  results,
-  gof_omit = "IC|Log|Adj|Pseudo|Within|meps_|month|year",
-  coef_omit = paste0("^", paste(controls, collapse = "|"), "$"),
-  stars = TRUE
-)
+modelsummary::msummary(results, stars = TRUE)
+
+# Free memory
+rm(keep_2020_2023)
+gc()
