@@ -1002,12 +1002,12 @@ def main():
     print(f"Gráficos serão salvos em: {output_dir}\n")
 
     # Gerar gráficos
-    # plot_zero_inflation_analysis(df, output_dir)
-    # plot_time_series_analysis(df, output_dir)
-    # plot_domain_heterogeneity(df, output_dir)
-    # plot_correlation_analysis(df, output_dir)
-    # plot_extensive_intensive_margins(df, output_dir)
-    # plot_mep_aggregated_analysis(df, output_dir)
+    plot_zero_inflation_analysis(df, output_dir)
+    plot_time_series_analysis(df, output_dir)
+    plot_domain_heterogeneity(df, output_dir)
+    plot_correlation_analysis(df, output_dir)
+    plot_extensive_intensive_margins(df, output_dir)
+    plot_mep_aggregated_analysis(df, output_dir)
     plot_domain_treatment_analysis(df, output_dir)
 
     print(f"\n✅ CONCLUÍDO!")

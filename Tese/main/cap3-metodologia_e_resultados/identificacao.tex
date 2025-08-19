@@ -60,66 +60,6 @@ Para encontrar o domínio em que o lobby foi realizado, faremos uma inferência 
 
 
 
+% Justificar questions como proxy
 
-
-% % VERSÃO 2
-% \begin{equation}
-%     \label{eq:esperanca}
-%     E(AL_{0idt} \vert d,t, X_{dt}) = \gamma_d + \lambda_t + X'_{dt} \delta
-% \end{equation}
-
-% A equação \ref{eq:esperanca} denota que, na ausência de pressão significativa de lobby, a \acrshort{al} é determinada pela soma dos efeitos invariantes no tempo do domínio temático ($d$), do tempo ($t$) e das co-variadas dos parlamentares em cada tema e período ($X'_{dt}$)  que são comuns entre os parlamentares e independentes do domínio temático, tais como características individuais dos parlamentares, do país pelos quais foram eleitos e de seus grupos político (seguindo o \textit{framework} de análise do comportamento parlamentar da \ref{fig:framework}).
-
-
-% Agora consideremos $L_{dt}$ como uma variável \textit{dummy} para o esforço de lobby em determinado tema ($d$) e período ($t$). Se assumirmos que $E(AL_{1idt} - AL_{0idt} \vert d, t)$ é constante, isto é, os efeitos do tema e do tempo são iguais para todos os parlamentares, descrito por $\beta$, temos:
-
-% \begin{equation}
-%     AL_{idt} = \gamma_d + \lambda_t + \beta L_{dt} + \epsilon_{idt}
-% \end{equation}
-% Onde $E(\epsilon_{idt} \vert d,t) = 0$, de forma que podemos chegar na seguinte especificação:
-
-% \begin{equation}
-%     AL_{idt} = \alpha + \gamma D_d + \lambda d_t + \beta(D_d * d_t) + \epsilon_{idt}
-% \end{equation}
-% Onde $D_d$ seja uma variável \textit{dummy} para representar o tema $d$; e $d_t$ outra variável \textit{dummy} que recebe o valor 1 caso no período $t$ o parlamentar tenha recebido pressão significativa de lobby.
-
-
-
-% VERSÃO 1
-
-% \begin{equation}
-%     \label{eq:country}
-%     C_{it} = \gamma_0 SE_{i} + \gamma_1 E_{i} + \epsilon_{i}
-% \end{equation}
-
-% Onde $C_{it}$ são os efeitos da dimensão país sobre o parlamentar $i$ no tempo $t$; $SE_i$, a variável que capta o tipo de sistema eleitoral do país do parlamentar $i$; $E_i$, que capta os efeitos do eleitorado do país de $i$; e $\epsilon_i$, que considera as características não observáveis do país de $i$. Essas características são, aqui, como constantes no tempo, uma vez que apresentam poucas variações ao longo dos anos. A equação \ref{eq:party}, abaixo, descreve os efeitos da dimensão partidária:
-
-% \begin{equation}
-%     \label{eq:party}
-%     P_{it} = \rho_0 Gov_{it} + \rho_1 Dis_{it} + \epsilon_{i}
-% \end{equation}
-
-% Onde $P_{it}$ refere-se aos efeitos da dimensão partidária do parlamentar $i$ no tempo $t$; $Gov_{it}$, à situação do partido do parlamentar $i$ em relação ao governo no tempo $t$; $Dis_{it}$, à disciplina partidária do parlamentar $i$ no tempo $t$; e $\epsilon_i$ os efeitos não observáveis que são invariáveis no tempo em relação ao parlamentar $i$. A equação \ref{eq:mep}, a seguir, descreve os efeitos da dimensão individual do parlamentar:
-
-% \begin{equation}
-%     \label{eq:mep}
-%     MEP_{it} = \mu_0 Ets_{it} + \mu_1 Exp_{it} + \epsilon_{i}
-% \end{equation}
-
-% Onde $MEP_{it}$ refere-se aos efeitos das características individuais do parlamentar $i$ no tempo $t$; $Ets_{it}$, à expertise do parlamentar $i$ no tempo $t$; e $Exp_{it}$, à experiência do parlamentar $i$ no tempo $t$. Note que aqui também consideramos as características individuais fixas no tempo do parlamentar $i$ ($\epsilon_i$). Assim, a \acrshort{al} pode ser descrita como:
-
-% \begin{equation}
-%     \label{eq:al}
-%     AL_{it} = \beta_0 L_{it} + \beta_1 C_{it} + \beta_2 P_{it} + \beta_3 MEP_{it} + \epsilon_{it}
-% \end{equation}
-
-% O ativismo legislativo do parlamentar $i$ no tempo $t$ ($AL_{it}$) pode ser descrito então como a somatória dos efeitos do país, partido, características individuais. Adicionamos mais um componente, $L_{it}$, que representa os efeitos do lobby no ativismo legislativo, a nossa variável de interesse.
-
-%  Considerando que as variáveis não observadas são fixas em relação ao tempo, podemos reescrever \ref{eq:al} da seguinte maneira:
- 
-% \begin{equation}
-%     \label{eq:aldiff}
-%     \Delta_t AL_{i} = \beta_0 \Delta_t L_{i} + \beta_1 \Delta_t C_{i} + \beta_2 \Delta_t P_{i} + \beta_3 \Delta_t  MEP_{i} + \Delta_t \epsilon_{i}
-% \end{equation}
-
-% Onde $\Delta_t$ representa a variação entre dois períodos. 
+% Justificar meetings como proxy
