@@ -21,7 +21,7 @@ ensure_dir(tab_dir)
 
 # ---- Load data (columns needed for these models)
 # Controls
-controls <- c(
+contsrols <- c(
   "meps_POLITICAL_GROUP_5148.0",
   "meps_POLITICAL_GROUP_5151.0",
   "meps_POLITICAL_GROUP_5152.0",
@@ -85,23 +85,7 @@ controls <- c(
   "meps_NATIONAL_CHAMBER___PRESIDENT_VICE",
   "meps_WORKING_GROUP___CHAIR",
   "meps_WORKING_GROUP___MEMBER",
-  "meps_WORKING_GROUP___MEMBER_BUREAU",
-#   "log_meetings_l_category_Business",
-#   "log_meetings_l_category_NGOs",
-#   "log_meetings_l_category_Other",
-#   "log_meetings_l_budget_cat_lower",
-#   "log_meetings_l_budget_cat_middle",
-#   "log_meetings_l_budget_cat_upper",
-#   "log_meetings_l_days_since_registration_lower",
-#   "log_meetings_l_days_since_registration_middle",
-#   "log_meetings_l_days_since_registration_upper",
-  "log_meetings_member_capacity_Committee_chair",
-  "log_meetings_member_capacity_Delegation_chair",
-  "log_meetings_member_capacity_Member",
-  "log_meetings_member_capacity_Rapporteur",
-  "log_meetings_member_capacity_Rapporteur_for_opinion",
-  "log_meetings_member_capacity_Shadow_rapporteur",
-  "log_meetings_member_capacity_Shadow_rapporteur_for_opinion"
+  "meps_WORKING_GROUP___MEMBER_BUREAU"
 )
 
 
@@ -128,16 +112,17 @@ df$domain_time  <- as.factor(df$domain_time)
 df$fe_i  <- df$member_id
 df$fe_ct <- df$country_time
 df$fe_pt <- df$party_time
+df$fe_dt <- df$domain_time
 df$cl_dt <- df$domain_time
 
 # ---- Main PPML model (linear in meetings)
-full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt")
+full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 formula_linear <- as.formula(full_formula_str)
 
 m_ddd_ppml <- fepois(
   formula_linear,
   data    = df,
-  cluster = ~cl_dt + member_id
+  cluster = ~cl_dt
 )
 
 # ---- Main PPML model with different FEs
@@ -176,12 +161,12 @@ m_ddd_ppml_no_fe_pt <- fepois(
 
 
 # ---- Quadratic PPML model (meetings + meetings^2)
-formula_quadratic_str <- paste0("questions ~ meetings + I(meetings^2) + ", controls_str, " | fe_i + fe_ct + fe_pt")
+formula_quadratic_str <- paste0("questions ~ meetings + I(meetings^2) + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 formula_quadratic <- as.formula(formula_quadratic_str)
 m_ddd_ppml_squared <- fepois(
   formula_quadratic,
   data    = df,
-  cluster = ~cl_dt + member_id
+  cluster = ~cl_dt
 )
 
 # ---- Helper: build grid of meetings within observed support
@@ -308,7 +293,7 @@ msummary(
   ),
   gof_omit = "IC|Log|Adj|Pseudo|Within",
   stars = TRUE,
-  output = file.path(tab_dir, "tab_main_ppml_both_full.tex")
+  # output = file.path(tab_dir, "tab_main_ppml_both_full.tex")
 )
 
 # ---- Compact core table (only key coefficients) as LaTeX

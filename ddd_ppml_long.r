@@ -88,23 +88,23 @@ controls <- c(
   "meps_NATIONAL_CHAMBER___PRESIDENT_VICE",
   "meps_WORKING_GROUP___CHAIR",
   "meps_WORKING_GROUP___MEMBER",
-  "meps_WORKING_GROUP___MEMBER_BUREAU",
-  "log_meetings_l_category_Business",
-  "log_meetings_l_category_NGOs",
-  "log_meetings_l_category_Other",
-  "log_meetings_l_budget_cat_lower",
-  "log_meetings_l_budget_cat_middle",
-  "log_meetings_l_budget_cat_upper",
-  "log_meetings_l_days_since_registration_lower",
-  "log_meetings_l_days_since_registration_middle",
-  "log_meetings_l_days_since_registration_upper",
-  "log_meetings_member_capacity_Committee_chair",
-  "log_meetings_member_capacity_Delegation_chair",
-  "log_meetings_member_capacity_Member",
-  "log_meetings_member_capacity_Rapporteur",
-  "log_meetings_member_capacity_Rapporteur_for_opinion",
-  "log_meetings_member_capacity_Shadow_rapporteur",
-  "log_meetings_member_capacity_Shadow_rapporteur_for_opinion"
+  "meps_WORKING_GROUP___MEMBER_BUREAU"
+  # "log_meetings_l_category_Business",
+  # "log_meetings_l_category_NGOs",
+  # "log_meetings_l_category_Other",
+  # "log_meetings_l_budget_cat_lower",
+  # "log_meetings_l_budget_cat_middle",
+  # "log_meetings_l_budget_cat_upper",
+  # "log_meetings_l_days_since_registration_lower",
+  # "log_meetings_l_days_since_registration_middle",
+  # "log_meetings_l_days_since_registration_upper",
+  # "log_meetings_member_capacity_Committee_chair",
+  # "log_meetings_member_capacity_Delegation_chair",
+  # "log_meetings_member_capacity_Member",
+  # "log_meetings_member_capacity_Rapporteur",
+  # "log_meetings_member_capacity_Rapporteur_for_opinion",
+  # "log_meetings_member_capacity_Shadow_rapporteur",
+  # "log_meetings_member_capacity_Shadow_rapporteur_for_opinion"
 )
 
 # 3) Build variables
@@ -120,22 +120,14 @@ controls_str <- paste(controls, collapse = " + ")
 full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt")
 full_formula <- as.formula(full_formula_str)
 
-full_formula_str_dt <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
+full_formula_str_dt <- paste0("questions ~ meetings + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 full_formula_dt <- as.formula(full_formula_str_dt)
 
 full_formula_str_squared <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_ct + fe_pt")
 full_formula_squared <- as.formula(full_formula_str_squared)
 
-full_formula_str_squared_dt <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
+full_formula_str_squared_dt <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 full_formula_squared_dt <- as.formula(full_formula_str_squared_dt)
-
-# # with time
-# full_formula_str_with_time <- paste0("questions ~ meetings + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
-# full_formula_with_time <- as.formula(full_formula_str_with_time)
-
-# full_formula_str_squared_with_time <- paste0("questions ~ meetings + meetings**2 + month + year + ", controls_str, " | fe_i + fe_ct + fe_pt")
-# full_formula_squared_with_time <- as.formula(full_formula_str_squared_with_time)
-
 
 
 # =========================
@@ -146,6 +138,12 @@ m_ddd_ols <- feols(
   full_formula,
   data    = df,
   cluster = ~cl_dt # two-way clustering: by member and by domain×time
+)
+
+m_ddd_ols_dt <- feols(
+  full_formula_dt,
+  data    = df,
+  cluster = ~cl_dt
 )
 
 # =============================
@@ -164,12 +162,6 @@ m_ddd_ppml_dt <- fepois(
   cluster = ~cl_dt
 )
 
-# m_ddd_ppml_with_time <- fepois(
-#   full_formula_with_time,
-#   data    = df,
-#   cluster = ~cl_dt
-# )
-
 m_ddd_ppml_squared <- fepois(
   full_formula_squared,
   data    = df,
@@ -182,49 +174,45 @@ m_ddd_ppml_squared_dt <- fepois(
   cluster = ~cl_dt
 )
 
-# m_ddd_ppml_squared_with_time <- fepois(
-#   full_formula_squared_with_time,
-#   data    = df,
-#   cluster = ~cl_dt
-# )
-
 # Nice side-by-side table
 modelsummary::msummary(
   list(
     "DDD OLS" = m_ddd_ols, 
-    "DDD PPML" = m_ddd_ppml, 
-    "DDD PPML Squared" = m_ddd_ppml_squared, 
-    "DDD PPML DT" = m_ddd_ppml_dt,
-    "DDD PPML Squared DT" = m_ddd_ppml_squared_dt,
+    "DDD OLS DT" = m_ddd_ols_dt,
+    # "DDD PPML" = m_ddd_ppml, 
+    # "DDD PPML Squared" = m_ddd_ppml_squared, 
+    "DDD PPML" = m_ddd_ppml_dt,
+    "DDD PPML Squared" = m_ddd_ppml_squared_dt
     # "DDD PPML with time" = m_ddd_ppml_with_time, 
     # "DDD PPML Squared with time" = m_ddd_ppml_squared_with_time
   ),
   gof_omit = "IC|Log|Adj|Pseudo|Within",
+  coef_omit = "meps_", 
   stars = TRUE
 )
 
 
-# ============================
-# C) Compare domains
-# ============================
+# # ============================
+# # C) Compare domains
+# # ============================
 
-domains <- unique(df$domain)
+# domains <- unique(df$domain)
 
-# function to run the loop
-run_loop <- function(df, full_formula) {
-  results <- list()
-  for (domain in domains) {
-    df_domain <- df[df$domain == domain, ]
-    m_ddd_ppml_domain <- fepois(
-      full_formula,
-      data    = df_domain,
-      cluster = ~cl_dt
-    )
-    results[[domain]] <- m_ddd_ppml_domain
-  }
-  return(results)
-}
+# # function to run the loop
+# run_loop <- function(df, full_formula) {
+#   results <- list()
+#   for (domain in domains) {
+#     df_domain <- df[df$domain == domain, ]
+#     m_ddd_ppml_domain <- fepois(
+#       full_formula,
+#       data    = df_domain,
+#       cluster = ~cl_dt
+#     )
+#     results[[domain]] <- m_ddd_ppml_domain
+#   }
+#   return(results)
+# }
 
-results <- run_loop(df, full_formula)
+# results <- run_loop(df, full_formula)
 
-modelsummary::msummary(results, gof_omit = "IC|Log|Adj|Pseudo|Within", stars = TRUE)
+# modelsummary::msummary(results, gof_omit = "IC|Log|Adj|Pseudo|Within", stars = TRUE)
