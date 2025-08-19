@@ -37,7 +37,6 @@ pd.set_option("display.max_rows", 100)
 plt.style.use("seaborn-v0_8")
 
 
-
 def model_continuous_ddd_linear(db: LongDatabase):
     """
     y_{idt} = β T_{idt} + μ_{id} + μ_{it} + μ_{dt} + X_{idt}' θ + ε_{idt}
@@ -90,6 +89,173 @@ def model_continuous_ddd_linear(db: LongDatabase):
     return res
 
 
+def model_staggered_diff_in_diffs(
+    db: LongDatabase, min_treatment_periods=3
+):
+    """
+    Model 6: Staggered Diff-in-Diff (Event Study)
+    
+    This implements a proper staggered DiD with event study indicators.
+    The reference period is set to -1 (one period before treatment).
+    """
+    df_long = db.get_df().copy()
+
+    # Log transform
+    df_long["log_meetings"] = np.log(df_long["meetings"] + 1)
+    df_long["log_questions"] = np.log(df_long["questions"] + 1)
+
+    # Create treatment indicators
+    df_long["treatment_date"] = df_long["first_treatment_period"]
+    df_long["ever_treated"] = df_long["treated"]
+
+    # Calculate relative time to treatment
+    df_long["relative_time"] = (
+        df_long["time_fe"] - df_long["treatment_date"]
+    ).dt.days / 30  # Convert to months
+
+    # Create event study indicators (pre-treatment: -3 to -1, post-treatment: 0 to 3)
+    # Note: We'll omit period -1 as the reference period
+    event_periods = list(range(-min_treatment_periods, min_treatment_periods + 1))
+    
+    # Initialize all event indicators to 0
+    for period in event_periods:
+        if period < 0:
+            df_long[f"pre_{abs(period)}"] = 0
+        else:
+            df_long[f"post_{period}"] = 0
+
+    # Fill in event indicators only for treated units
+    for period in event_periods:
+        if period < 0:
+            # Pre-treatment periods (excluding -1 which is reference)
+            if period != -1:  # Skip reference period
+                df_long[f"pre_{abs(period)}"] = (
+                    (df_long["ever_treated"] == 1)
+                    & (df_long["relative_time"].round(0) == period)
+                ).astype(int)
+        else:
+            # Post-treatment periods
+            df_long[f"post_{period}"] = (
+                (df_long["ever_treated"] == 1)
+                & (df_long["relative_time"].round(0) == period)
+            ).astype(int)
+
+    # Create control variables
+    control_cols = db.get_control_cols()
+    control_cols = [c for c in control_cols if c in df_long.columns]
+
+    # Set index for PanelOLS
+    df_long = df_long.set_index(["member_domain", 'Y-m'])
+
+    # Create event variables list (excluding reference period -1)
+    event_vars = []
+    for period in range(-min_treatment_periods, min_treatment_periods + 1):
+        if period == -1:  # Skip reference period
+            continue
+        elif period < 0:
+            event_vars.append(f"pre_{abs(period)}")
+        else:
+            event_vars.append(f"post_{period}")
+
+    # Note: We don't include ever_treated separately as it's absorbed by entity effects
+    # The event indicators already capture the treatment effects
+    all_vars = event_vars + control_cols
+
+    # Run model
+    model = PanelOLS(
+        dependent=df_long["log_questions"],
+        exog=df_long[all_vars],
+        entity_effects=True,
+        time_effects=True,
+        drop_absorbed=True
+    )
+
+    results = model.fit()
+
+    # Extract results - focus on event study coefficients
+    print(f"R-squared: {results.rsquared:.4f}")
+    print(f"N observations: {results.nobs}")
+
+    # Event study coefficients
+    event_coefficients = {}
+    for var in event_vars:
+        if var in results.params:
+            event_coefficients[var] = {
+                "coefficient": results.params[var],
+                "p_value": results.pvalues[var],
+            }
+
+    print("\nEvent Study Coefficients (relative to period -1):")
+    for period in range(-min_treatment_periods, min_treatment_periods + 1):
+        if period == -1:  # Skip reference period
+            continue
+        elif period < 0:
+            var = f"pre_{abs(period)}"
+        else:
+            var = f"post_{period}"
+
+        if var in event_coefficients:
+            coef = event_coefficients[var]["coefficient"]
+            p_val = event_coefficients[var]["p_value"]
+            sig = (
+                "***"
+                if p_val < 0.01
+                else "**" if p_val < 0.05 else "*" if p_val < 0.1 else ""
+            )
+            print(f"  Period {period:2d}: {coef:8.4f} {sig}")
+        else:
+            print(f"  Period {period:2d}: {'REFERENCE':>8}")
+
+    # Parallel trends test (pre-treatment coefficients should be zero)
+    pre_coefficients = []
+    pre_p_values = []
+    
+    for period in range(-min_treatment_periods, 0):
+        if period == -1:  # Skip reference period
+            continue
+        var = f"pre_{abs(period)}"
+        if var in event_coefficients:
+            pre_coefficients.append(event_coefficients[var]["coefficient"])
+            pre_p_values.append(event_coefficients[var]["p_value"])
+
+    # Test if pre-treatment coefficients are jointly zero
+    pre_significant = any(p < 0.05 for p in pre_p_values) if pre_p_values else False
+
+    print(f"\nParallel Trends Test:")
+    if pre_significant:
+        print(
+            "⚠ Some pre-treatment coefficients are significant - parallel trends may be violated"
+        )
+    else:
+        print(
+            "✓ Pre-treatment coefficients are not significant - parallel trends assumption holds"
+        )
+
+    # Calculate average treatment effect on treated (ATET)
+    post_coefficients = []
+    for period in range(1, min_treatment_periods + 1):
+        var = f"post_{period}"
+        if var in event_coefficients:
+            post_coefficients.append(event_coefficients[var]["coefficient"])
+    
+    atet = np.mean(post_coefficients) if post_coefficients else np.nan
+
+    # Calculate overall treatment effect (average of post-treatment coefficients)
+    if post_coefficients:
+        print(f"\nAverage Treatment Effect on Treated (ATET): {atet:.4f}")
+
+    res = {
+        "model": f"Staggered Diff-in-Diff (Event Study)",
+        "atet": atet,
+        "r_squared": results.rsquared,
+        "n_obs": results.nobs,
+        "event_coefficients": event_coefficients,
+        "parallel_trends_violated": pre_significant,
+        "results": results,
+    }
+
+    return res
+
 
 def model_continuous_ddd_ppml_fixest_rscript(
     db: LongDatabase,
@@ -135,12 +301,12 @@ def model_continuous_ddd_ppml_fixest_rscript(
         for term in cluster_terms:
             if term in df_long.columns and term not in required_cols:
                 required_cols.append(term)
-        
+
         # Add treatment variable if alternative is specified
         if alt_treatment_var and alt_treatment_var in df_long.columns:
             if alt_treatment_var not in required_cols:
                 required_cols.append(alt_treatment_var)
-        
+
         # Add vary_by variable if specified
         if vary_by and vary_by in df_long.columns:
             if vary_by not in required_cols:
@@ -157,7 +323,7 @@ def model_continuous_ddd_ppml_fixest_rscript(
 
             r_script_path = os.path.join(td, "ppml_fixest.R")
             output_json = os.path.join(td, "ppml_output.json")
-            
+
             # Determine treatment variable
             treat_var = alt_treatment_var if alt_treatment_var else "meetings"
 
@@ -181,7 +347,9 @@ def model_continuous_ddd_ppml_fixest_rscript(
                     controls_rhs_str = " + " + " + ".join(available_controls)
 
             # Build full formula string
-            formula_str = f"questions ~ {treatment_term}{controls_rhs_str} | {fe_pattern}"
+            formula_str = (
+                f"questions ~ {treatment_term}{controls_rhs_str} | {fe_pattern}"
+            )
             # Generate R script
             r_code = f"""
 options(warn=1)
@@ -258,7 +426,9 @@ quit(status=0)
 """
 
             # Run R script
-            res = run_r_script(r_script_path, r_code, output_json, td, Rscript_path, timeout_seconds)
+            res = run_r_script(
+                r_script_path, r_code, output_json, td, Rscript_path, timeout_seconds
+            )
 
             if res is None:
                 print("[WARNING] !!! R script failed !!!")
@@ -276,7 +446,7 @@ quit(status=0)
                 delta_domains = res.get("delta_domains", []) or []
                 delta_coefs = res.get("delta_coefs", []) or []
                 delta_pvals = res.get("delta_pvals", []) or []
-                
+
                 print("\n=== Domain-varying slopes (fixest::fepois) ===")
                 print(f"N observations: {n_obs}")
                 print(f"Base coefficient: {base_coef} (p={base_p})")
@@ -301,7 +471,7 @@ quit(status=0)
                 # Pooled slope results
                 beta = res.get("beta", None)
                 p_value = res.get("p_value", None)
-                
+
                 print("\n=== Continuous-Treatment PPML (Rscript fixest::fepois) ===")
                 print(f"Coefficient on {treat_var}: {beta}")
                 print(f"P-value (clustered by {cluster_by}): {p_value}")
