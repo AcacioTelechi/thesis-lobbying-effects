@@ -6,17 +6,18 @@ O comportamento parlamentar pode se dar de diferentes formas. Os trabalhos que b
 
 Consideremos então que:
 \begin{center}
-$AL_{1,icpdt}$ = o ativismo legislativo do parlamentar $i$, eleito pelo país $c$ e pertencente ao grupo político $p$, caso tenha recebido esforço de lobby significativo no domínio temático $d$ no tempo $t$; e
+$AL_{1,idt}$ = o ativismo legislativo do parlamentar $i$, caso tenha recebido esforço de lobby significativo no domínio temático $d$ no tempo $t$; e
 
-$AL_{0,icpdt}$ = o ativismo legislativo do parlamentar $i$, eleito pelo país $c$ e pertencente ao grupo político $p$, caso \emph{não} tenha recebido esforço de lobby significativo no domínio temático $d$ no tempo $t$.
+$AL_{0,idt}$ = o ativismo legislativo do parlamentar $i$, caso \emph{não} tenha recebido esforço de lobby significativo no domínio temático $d$ no tempo $t$.
 \end{center}
 
+% tem um salto lógico grande aqui.... usar Angrist e Pischke
 Esses resultados são, contudo, potenciais, isto é, não observamos $AL_{1idt}$ e $AL_{0idt}$ ao mesmo tempo, apenas um ou outro. Partindo do \textit{framework} de análise do comportamento parlamentares, esperamos que:
 
 % VERSÃO 3
 \begin{equation}
     \label{eq:esperanca}
-    E(AL_{0,icpdt} \vert c,p,d,t,X) = \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{cpt} \delta
+    E(AL_{0,idt} \vert c,p,d,t,X) = \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it} \delta
 \end{equation}
 
 A equação \ref{eq:esperanca} denota que, na ausência de pressão significativa de lobby, a \acrshort{al} é determinada pela soma dos efeitos:
@@ -33,18 +34,18 @@ Considerando que o esforço de lobby varia de acordo com o domínio temático, p
 
 \begin{equation}
     \begin{split}
-        AL_{icpdt} &= \gamma_{ct} + \lambda_{pt} + \theta_{dt}\\
+        AL_{idt} &= \gamma_{ct} + \lambda_{pt} + \theta_{dt}\\
         &+ \beta_1 L_{idt}\\
         &+ \beta_2 (L_{idt} * T_{dt})\\
         &+ \beta_3 (L_{idt} * D_d)\\
         &+ \beta_4 (L_{idt} * T_{dt} * D_d)\\
-        &+ X'_{icpdt} \delta
+        &+ X'_{idt} \delta
     \end{split}
 \end{equation}
 
 Onde:
 \begin{itemize}
-    \item $AL_{icpdt}$: denota o ativismo legislativo esperado do parlamentar $i$, dado que foi eleito pelo país $c$, pertence grupo político $p$, no domínio $d$ no tempo $t$;
+    \item $AL_{idt}$: denota o ativismo legislativo esperado do parlamentar $i$, no domínio $d$ no tempo $t$;
     \item $L_{idt}$: o esforço de lobby sobre o parlamentar $i$ no domínio $d$ no tempo $t$;
     \item $T_{dt}$: variável \textit{dummy} que recebe o valor 1 a partir do momento em que o esforço do lobby é realizado no domínio $d$; e
     \item $D_d$: variável \textit{dummy} que recebe o valor 1 nos temas em que houve esforço significativo de lobby.
@@ -52,9 +53,25 @@ Onde:
 
 De tal forma que $\beta_1$ representa o efeito médio do lobby no ativismo legislativo em todos os domínios e períodos, independente do tratamento (receber ou não lobby); $\beta_2$ captura o efeito do lobby após o tratamento; $\beta_3$ mensura a diferença no efeito do lobby entre tratados e grupo de controle antes do tratamento; e $\beta_4$ é estimador principal do \acrshort{ddd}, pois captura o efeito médio do tratamento sobre os tratados.
 
+Ocorre, porém, dois problemas com essa especificação. Primeiro, o efeito do lobby não é binário, mas contínuo. Estabelcer limiares para o efeito do lobby pode gerar vieses. Segundo, as reuniões ocorrem a todo momento, tornando impossível definir um período de tratamento. Cada parlamentar pode receber lobby em qualquer momento.  % desenvovler... para chegar em
+
+
+\begin{equation}
+    \begin{split}
+        AL_{idt} &= \gamma_{ct} + \lambda_{pt} + \theta_{dt}\\
+        &+ \beta_1 L_{idt}\\
+        &+ X'_{idt} \delta
+    \end{split}
+\end{equation}
+
+
+
+
+
+
 Para operacionalização, irei mensurar o $AL$ por meio de um indicador de ativismo legislativo, o qual levará em consideração a autoria de requisições, discursos e emendas realizadas pelo parlamentar por domínio temático. Para a captação de dados, utilizarei a API disponibilizada pelo próprio Parlamento e, adicionalmente, lançarei mão de \textit{scraper} em Python a fim de pegar os dados mais detalhados dos trâmites que não estão disponíveis na API, porém estão no site da \acrshort{pe}.
 
-Os esforços de lobby ($L$) será mensurado pela quantidade de reuniões que determinado parlamentar realizou com representantes de grupos de pressão. Os eurodeputados são obrigados a publicizá-las, quando forem relatores. Esses dados também são possíveis de serem extraídos por meio de \textit{scraper}. Com isso, teremos o registro de quem se reuniu com quem e a data do encontro, o que permitirá calcular as variáveis \textit{dummy} ($T$ e $D$).
+Os esforços de lobby ($L$) será mensurado pela quantidade de reuniões que determinado parlamentar realizou com representantes de grupos de pressão. Os eurodeputados são obrigados a publicizá-las, quando forem relatores. Esses dados também são possíveis de serem extraídos por meio de \textit{scraper}. Com isso, teremos o registro de quem se reuniu com quem e a data do encontro%, o que permitirá calcular as variáveis \textit{dummy} ($T$ e $D$).
 
 Para encontrar o domínio em que o lobby foi realizado, faremos uma inferência a partir do representante de interesse lobista. Ou seja, partiremos do pressuposto que as organizações tem interesses específicos em temas específicos, que tem relação com a sua natureza, de tal modo que, por exemplo, uma associação comercial tem interesses em temas comerciais e econômicos, já uma organização da sociedade civil de defesa do meio ambiente tem interesses no domínio de meio ambiente. O Registro de Transparência da \acrshort{ue} nos permite saber quem são os atores registrados, bem como suas áreas de interesse. Assim, ao cruzarmos com os dados dos encontros publicados, poderemos saber em qual área determinado parlamentar recebeu pressão de lobby. Demais dados podem ser obtidos pela API, tais como grupo político, gênero, ocupação, país eleito de um eurodeputado. 
 
