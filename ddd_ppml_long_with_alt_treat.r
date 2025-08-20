@@ -85,33 +85,17 @@ controls <- c(
   "meps_NATIONAL_CHAMBER___PRESIDENT_VICE",
   "meps_WORKING_GROUP___CHAIR",
   "meps_WORKING_GROUP___MEMBER",
-  "meps_WORKING_GROUP___MEMBER_BUREAU",
-  "log_meetings_l_category_Business",
-  "log_meetings_l_category_NGOs",
-  "log_meetings_l_category_Other",
-  "log_meetings_l_budget_cat_lower",
-  "log_meetings_l_budget_cat_middle",
-  "log_meetings_l_budget_cat_upper",
-  "log_meetings_l_days_since_registration_lower",
-  "log_meetings_l_days_since_registration_middle",
-  "log_meetings_l_days_since_registration_upper",
-  "log_meetings_member_capacity_Committee_chair",
-  "log_meetings_member_capacity_Delegation_chair",
-  "log_meetings_member_capacity_Member",
-  "log_meetings_member_capacity_Rapporteur",
-  "log_meetings_member_capacity_Rapporteur_for_opinion",
-  "log_meetings_member_capacity_Shadow_rapporteur",
-  "log_meetings_member_capacity_Shadow_rapporteur_for_opinion"
+  "meps_WORKING_GROUP___MEMBER_BUREAU"
 )
 
 # Build the controls part of the formula as a string
 controls_str <- paste(controls, collapse = " + ")
 
 # Construct the full formula as a string, then convert to formula
-full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt")
+full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 full_formula <- as.formula(full_formula_str)
 
-full_formula_str_squared <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_i + fe_ct + fe_pt")
+full_formula_str_squared <- paste0("questions ~ meetings + meetings**2 + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 full_formula_squared <- as.formula(full_formula_str_squared)
 
 results <- list()
@@ -122,15 +106,21 @@ for (treatment in treatments) {
   df$fe_i <- df$member_id # μ_id
   df$fe_ct <- df$country_time # μ_ct
   df$fe_pt <- df$party_time # μ_pt
+  df$fe_dt <- df$domain_time # μ_dt
   df$cl_dt <- df$domain_time
 
   m_ddd_ppml <- fepois(
     full_formula,
     data    = df,
-    cluster = ~cl_dt
+    cluster = ~ domain_time
   )
 
   results[[treatment]] <- m_ddd_ppml
 }
 
-modelsummary::msummary(results, gof_omit = "IC|Log|Adj|Pseudo|Within", stars = TRUE)
+modelsummary::msummary(
+  results,
+  gof_omit = "IC|Log|Adj|Pseudo|Within",
+  coef_omit = "meps_",
+  stars = TRUE
+)
