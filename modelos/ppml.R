@@ -5,6 +5,7 @@
 # install.packages("fixest") # if needed
 library(fixest)
 library(modelsummary)
+library(ggplot2)
 
 # --- Assume your data.frame is `df` with columns:
 # questions (y), meetings (T), member_id, domain, time, plus controls (e.g., x1, x2, ...)
@@ -186,24 +187,30 @@ modelsummary::msummary(results_domains, gof_omit = "IC|Log|Adj|Pseudo|Within", c
 
 results_alt_treatments <- list("Geral" = m_ddd_ppml)
 
+alt_treatments <- c(
+    "l_category_Business",
+    "l_category_NGOs",
+    "l_category_Other",
+    "l_budget_cat_lower",
+    "l_budget_cat_middle",
+    "l_budget_cat_upper",
+    "l_days_since_registration_lower",
+    "l_days_since_registration_middle",
+    "l_days_since_registration_upper"
+)
+
+# Ignore any days_since_registration columns
+alt_treatments <- alt_treatments[!grepl("days_since_registration", alt_treatments)]
+
 run_alt_treatment_loop <- function(df) {
-    alt_treatments <- c(
-        "l_category_Business",
-        "l_category_NGOs",
-        "l_category_Other",
-        "l_budget_cat_lower",
-        "l_budget_cat_middle",
-        "l_budget_cat_upper",
-        "l_days_since_registration_lower",
-        "l_days_since_registration_middle",
-        "l_days_since_registration_upper"
-    )
 
     for (treatment in alt_treatments) {
-        form <- as.formula(paste0("questions ~ ", treatment, " + ", controls_str, " | fe_ct + fe_pt + fe_dt"))
+        df_copy <- df
+        df_copy$meetings <- df_copy[[treatment]]
+
         m_ddd_ppml_treatment <- fepois(
-            form,
-            data    = df,
+            full_formula,
+            data    = df_copy,
             cluster = ~cl_dt
         )
         results_alt_treatments[[treatment]] <- m_ddd_ppml_treatment
@@ -217,3 +224,188 @@ results_alt_treatments <- run_alt_treatment_loop(df)
 modelsummary::msummary(results_alt_treatments, gof_omit = "IC|Log|Adj|Pseudo|Within", coef_omit = "meps_", stars = TRUE)
 
 results_alt_treatments
+
+
+# ============================
+# E) Compare different treatments in different domains
+# ============================
+
+results_alt_treatments_domains <- list("Geral" = m_ddd_ppml)
+
+for (treatment in alt_treatments) {
+    df_copy <- df
+    df_copy$meetings <- df_copy[[treatment]]
+
+    for (domain in domains) {
+        df_copy_domain <- df_copy[df_copy$domain == domain, ]
+        m_ddd_ppml_treatment_domain <- fepois(
+            full_formula,
+            data    = df_copy_domain,
+            cluster = ~cl_dt
+        )
+        results_alt_treatments_domains[[paste(treatment, domain)]] <- m_ddd_ppml_treatment_domain
+    }
+    print(paste(treatment, "done"))
+}
+
+
+modelsummary::msummary(results_alt_treatments_domains, gof_omit = "IC|Log|Adj|Pseudo|Within", coef_omit = "meps_", stars = TRUE)
+
+
+
+## ======================================
+## F) Graphs to compare coefficients
+## ======================================
+
+# Helper to extract coefficient and SE for `meetings`
+extract_meetings <- function(m) {
+    cf <- coef(m)
+    if (!("meetings" %in% names(cf))) return(list(b = NA_real_, se = NA_real_))
+    b <- unname(cf["meetings"])
+    V <- try(vcov(m), silent = TRUE)
+    se <- NA_real_
+    if (!inherits(V, "try-error") && all(c("meetings", "meetings") %in% colnames(V))) {
+        se <- sqrt(V["meetings", "meetings"])
+    }
+    list(b = b, se = se)
+}
+
+# Baseline estimate for reference line
+baseline_est <- NA_real_
+if ("meetings" %in% names(coef(m_ddd_ppml))) {
+    baseline_est <- unname(coef(m_ddd_ppml)["meetings"])
+}
+
+# Pretty labels for treatments and domains
+pretty_treatment_label <- function(x) {
+    map <- c(
+        "baseline" = "Baseline (meetings)",
+        "l_category_Business" = "Category: Business",
+        "l_category_NGOs" = "Category: NGOs",
+        "l_category_Other" = "Category: Other",
+        "l_budget_cat_lower" = "Budget: Lower",
+        "l_budget_cat_middle" = "Budget: Middle",
+        "l_budget_cat_upper" = "Budget: Upper",
+        "l_days_since_registration_lower" = "Registration days: Lower",
+        "l_days_since_registration_middle" = "Registration days: Middle",
+        "l_days_since_registration_upper" = "Registration days: Upper"
+    )
+    out <- unname(map[x])
+    out[is.na(out)] <- x[is.na(out)]
+    out
+}
+
+pretty_domain_label <- function(x) {
+    # Replace underscores with spaces; keep original case to avoid breaking acronyms
+    gsub("_", " ", x)
+}
+
+# ------------------------------
+# F1) Across domains (baseline treatment)
+# ------------------------------
+
+df_domains_plot <- data.frame(domain = character(), estimate = numeric(), se = numeric(), stringsAsFactors = FALSE)
+
+for (nm in names(results_domains)) {
+    if (nm == "Geral") next
+    fit <- results_domains[[nm]]
+    x <- extract_meetings(fit)
+    if (is.na(x$b)) next
+    df_domains_plot <- rbind(df_domains_plot, data.frame(domain = nm, estimate = x$b, se = x$se))
+}
+
+if (nrow(df_domains_plot) > 0) {
+    df_domains_plot$ci_lo <- df_domains_plot$estimate - 1.96 * df_domains_plot$se
+    df_domains_plot$ci_hi <- df_domains_plot$estimate + 1.96 * df_domains_plot$se
+    df_domains_plot$domain_label <- pretty_domain_label(df_domains_plot$domain)
+    df_domains_plot$domain_label <- factor(df_domains_plot$domain_label, levels = df_domains_plot$domain_label[order(df_domains_plot$estimate)])
+
+    p_domains <- ggplot(df_domains_plot, aes(x = estimate, y = domain_label)) +
+        geom_vline(xintercept = 0, color = "black") +
+        { if (!is.na(baseline_est)) geom_vline(xintercept = baseline_est, linetype = "dotted", color = "red") } +
+        geom_point(color = "#1f77b4", size = 2.8) +
+        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#1f77b4") +
+        labs(
+            title = "Meetings effect across domains (PPML)",
+            subtitle = "Points are estimates; bars are 95% CIs. Red dotted = overall baseline",
+            x = "Estimate (meetings)", y = "Domain"
+        ) +
+        theme_minimal()
+
+    ggsave("Tese/figures/fig_coeff_domains.png", p_domains, width = 10, height = 7, dpi = 300)
+    ggsave("Tese/figures/fig_coeff_domains.pdf", p_domains, width = 10, height = 7)
+}
+
+# ------------------------------
+# F2) Across treatments (overall)
+# ------------------------------
+
+df_treat_overall <- data.frame(treatment = character(), estimate = numeric(), se = numeric(), stringsAsFactors = FALSE)
+
+for (nm in names(results_alt_treatments)) {
+    fit <- results_alt_treatments[[nm]]
+    x <- extract_meetings(fit)
+    if (is.na(x$b)) next
+    label <- if (nm == "Geral") "baseline" else nm
+    df_treat_overall <- rbind(df_treat_overall, data.frame(treatment = label, estimate = x$b, se = x$se))
+}
+
+if (nrow(df_treat_overall) > 0) {
+    df_treat_overall$ci_lo <- df_treat_overall$estimate - 1.96 * df_treat_overall$se
+    df_treat_overall$ci_hi <- df_treat_overall$estimate + 1.96 * df_treat_overall$se
+    df_treat_overall$treatment_label <- pretty_treatment_label(df_treat_overall$treatment)
+    df_treat_overall$treatment_label <- factor(df_treat_overall$treatment_label, levels = df_treat_overall$treatment_label[order(df_treat_overall$estimate)])
+
+    p_treat_overall <- ggplot(df_treat_overall, aes(x = estimate, y = treatment_label)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
+        geom_point(color = "#2ca02c", size = 2.8) +
+        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#2ca02c") +
+        labs(
+            title = "Meetings effect across treatments (overall PPML)",
+            subtitle = "Points are estimates; bars are 95% CIs.",
+            x = "Estimate (meetings)", y = "Treatment"
+        ) +
+        theme_minimal()
+
+    ggsave("Tese/figures/fig_coeff_treatments_overall.png", p_treat_overall, width = 10, height = 7, dpi = 300)
+    ggsave("Tese/figures/fig_coeff_treatments_overall.pdf", p_treat_overall, width = 10, height = 7)
+}
+
+# ------------------------------
+# F3) Across treatments per domain (faceted)
+# ------------------------------
+
+df_treat_by_domain <- data.frame(domain = character(), treatment = character(), estimate = numeric(), se = numeric(), stringsAsFactors = FALSE)
+
+for (tr in alt_treatments) {
+    for (dm in domains) {
+        key <- paste(tr, dm)
+        if (!(key %in% names(results_alt_treatments_domains))) next
+        fit <- results_alt_treatments_domains[[key]]
+        x <- extract_meetings(fit)
+        if (is.na(x$b)) next
+        df_treat_by_domain <- rbind(df_treat_by_domain, data.frame(domain = dm, treatment = tr, estimate = x$b, se = x$se))
+    }
+}
+
+if (nrow(df_treat_by_domain) > 0) {
+    df_treat_by_domain$ci_lo <- df_treat_by_domain$estimate - 1.96 * df_treat_by_domain$se
+    df_treat_by_domain$ci_hi <- df_treat_by_domain$estimate + 1.96 * df_treat_by_domain$se
+    df_treat_by_domain$treatment_label <- pretty_treatment_label(df_treat_by_domain$treatment)
+    df_treat_by_domain$domain_label <- pretty_domain_label(df_treat_by_domain$domain)
+
+    p_treat_by_domain <- ggplot(df_treat_by_domain, aes(x = estimate, y = treatment_label)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
+        geom_point(color = "#9467bd", size = 2.6) +
+        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.18, color = "#9467bd") +
+        labs(
+            title = "Meetings effect: treatments by domain (PPML)",
+            subtitle = "Points are estimates; bars are 95% CIs.",
+            x = "Estimate (meetings)", y = "Treatment"
+        ) +
+        facet_wrap(~ domain_label, ncol = 3, scales = "free_y") +
+        theme_minimal()
+
+    ggsave("Tese/figures/fig_coeff_treatments_by_domain.png", p_treat_by_domain, width = 12, height = 8, dpi = 300)
+    ggsave("Tese/figures/fig_coeff_treatments_by_domain.pdf", p_treat_by_domain, width = 12, height = 8)
+}
