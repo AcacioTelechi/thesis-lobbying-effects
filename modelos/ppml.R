@@ -298,6 +298,19 @@ pretty_treatment_label <- function(x) {
 pretty_domain_label <- function(x) {
     # Replace underscores with spaces; keep original case to avoid breaking acronyms
     gsub("_", " ", x)
+    map <- c(
+        "agriculture" = "Agricultura",
+        "education" = "Educação",
+        "human rights" = "Direitos Humanos",
+        "environment and climate" = "Meio Ambiente e Clima",
+        "health" = "Saúde",
+        "infrastructure and industry" = "Infraestrutura e Indústria",
+        "economics and trade" = "Economia e Comércio",
+        "foreign and security affairs" = "Assuntos Externos e Segurança"
+    )
+    out <- unname(map[x])
+    out[is.na(out)] <- x[is.na(out)]
+    out
 }
 
 # ------------------------------
@@ -321,14 +334,14 @@ if (nrow(df_domains_plot) > 0) {
     df_domains_plot$domain_label <- factor(df_domains_plot$domain_label, levels = df_domains_plot$domain_label[order(df_domains_plot$estimate)])
 
     p_domains <- ggplot(df_domains_plot, aes(x = estimate, y = domain_label)) +
-        geom_vline(xintercept = 0, color = "black") +
-        { if (!is.na(baseline_est)) geom_vline(xintercept = baseline_est, linetype = "dotted", color = "red") } +
+        geom_vline(xintercept = 0, color = "darkgray") +
+        { if (!is.na(baseline_est)) geom_vline(xintercept = baseline_est, linetype = "dashed", color = "red") } +
         geom_point(color = "#1f77b4", size = 2.8) +
         geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#1f77b4") +
         labs(
-            title = "Meetings effect across domains (PPML)",
-            subtitle = "Points are estimates; bars are 95% CIs. Red dotted = overall baseline",
-            x = "Estimate (meetings)", y = "Domain"
+            # title = "Meetings effect across domains (PPML)",
+            # subtitle = "Points are estimates; bars are 95% CIs. Red dotted = overall baseline",
+            x = "Efeito (meetings)", y = "Domínio"
         ) +
         theme_minimal()
 
