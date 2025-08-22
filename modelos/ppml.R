@@ -175,7 +175,7 @@ run_domain_loop <- function(df, full_formula) {
     return(results_domains)
 }
 
-results_domains<- run_domain_loop(df, full_formula)
+results_domains <- run_domain_loop(df, full_formula)
 
 results_domains <- append(list("Geral" = m_ddd_ppml), results_domains)
 modelsummary::msummary(results_domains, gof_omit = "IC|Log|Adj|Pseudo|Within", coef_omit = "meps_", stars = TRUE)
@@ -203,7 +203,6 @@ alt_treatments <- c(
 alt_treatments <- alt_treatments[!grepl("days_since_registration", alt_treatments)]
 
 run_alt_treatment_loop <- function(df) {
-
     for (treatment in alt_treatments) {
         df_copy <- df
         df_copy$meetings <- df_copy[[treatment]]
@@ -260,7 +259,9 @@ modelsummary::msummary(results_alt_treatments_domains, gof_omit = "IC|Log|Adj|Ps
 # Helper to extract coefficient and SE for `meetings`
 extract_meetings <- function(m) {
     cf <- coef(m)
-    if (!("meetings" %in% names(cf))) return(list(b = NA_real_, se = NA_real_))
+    if (!("meetings" %in% names(cf))) {
+        return(list(b = NA_real_, se = NA_real_))
+    }
     b <- unname(cf["meetings"])
     V <- try(vcov(m), silent = TRUE)
     se <- NA_real_
@@ -272,23 +273,25 @@ extract_meetings <- function(m) {
 
 # Baseline estimate for reference line
 baseline_est <- NA_real_
+baseline_est_se <- NA_real_
 if ("meetings" %in% names(coef(m_ddd_ppml))) {
     baseline_est <- unname(coef(m_ddd_ppml)["meetings"])
+    baseline_est_se <- sqrt(vcov(m_ddd_ppml)["meetings", "meetings"])
 }
 
 # Pretty labels for treatments and domains
 pretty_treatment_label <- function(x) {
     map <- c(
-        "baseline" = "Baseline (meetings)",
-        "l_category_Business" = "Category: Business",
-        "l_category_NGOs" = "Category: NGOs",
-        "l_category_Other" = "Category: Other",
-        "l_budget_cat_lower" = "Budget: Lower",
-        "l_budget_cat_middle" = "Budget: Middle",
-        "l_budget_cat_upper" = "Budget: Upper",
-        "l_days_since_registration_lower" = "Registration days: Lower",
-        "l_days_since_registration_middle" = "Registration days: Middle",
-        "l_days_since_registration_upper" = "Registration days: Upper"
+        # "baseline" = "Baseline (meetings)",
+        "l_category_Business" = "Categoria: Empresa",
+        "l_category_NGOs" = "Categoria: ONG",
+        "l_category_Other" = "Categoria: Outros",
+        "l_budget_cat_lower" = "Orçamento: Baixo",
+        "l_budget_cat_middle" = "Orçamento: Médio",
+        "l_budget_cat_upper" = "Orçamento: Alto",
+        "l_days_since_registration_lower" = "Dias desde registro: Baixo",
+        "l_days_since_registration_middle" = "Dias desde registro: Médio",
+        "l_days_since_registration_upper" = "Dias desde registro: Alto"
     )
     out <- unname(map[x])
     out[is.na(out)] <- x[is.na(out)]
@@ -301,12 +304,13 @@ pretty_domain_label <- function(x) {
     map <- c(
         "agriculture" = "Agricultura",
         "education" = "Educação",
-        "human rights" = "Direitos Humanos",
-        "environment and climate" = "Meio Ambiente e Clima",
+        "human_rights" = "Direitos Humanos",
+        "environment_and_climate" = "Meio Ambiente e Clima",
         "health" = "Saúde",
-        "infrastructure and industry" = "Infraestrutura e Indústria",
-        "economics and trade" = "Economia e Comércio",
-        "foreign and security affairs" = "Assuntos Externos e Segurança"
+        "infrastructure_and_industry" = "Infraestrutura e Indústria",
+        "economics_and_trade" = "Economia e Comércio",
+        "foreign_and_security_affairs" = "Assuntos Externos e Segurança",
+        "technology" = "Tecnologia"
     )
     out <- unname(map[x])
     out[is.na(out)] <- x[is.na(out)]
@@ -334,8 +338,19 @@ if (nrow(df_domains_plot) > 0) {
     df_domains_plot$domain_label <- factor(df_domains_plot$domain_label, levels = df_domains_plot$domain_label[order(df_domains_plot$estimate)])
 
     p_domains <- ggplot(df_domains_plot, aes(x = estimate, y = domain_label)) +
-        geom_vline(xintercept = 0, color = "darkgray") +
-        { if (!is.na(baseline_est)) geom_vline(xintercept = baseline_est, linetype = "dashed", color = "red") } +
+        geom_vline(xintercept = 0, color = "gray70") +
+        {
+            if (!is.na(baseline_est) && !is.na(baseline_est_se)) {
+                b_lo <- baseline_est - 1.96 * baseline_est_se
+                b_hi <- baseline_est + 1.96 * baseline_est_se
+                list(
+                    annotate("rect", xmin = b_lo, xmax = b_hi, ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "#B45C1F"),
+                    geom_vline(xintercept = baseline_est, linetype = "dashed", color = "#B45C1F")
+                )
+            } else {
+                NULL
+            }
+        } +
         geom_point(color = "#1f77b4", size = 2.8) +
         geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#1f77b4") +
         labs(
@@ -359,8 +374,8 @@ for (nm in names(results_alt_treatments)) {
     fit <- results_alt_treatments[[nm]]
     x <- extract_meetings(fit)
     if (is.na(x$b)) next
-    label <- if (nm == "Geral") "baseline" else nm
-    df_treat_overall <- rbind(df_treat_overall, data.frame(treatment = label, estimate = x$b, se = x$se))
+    if (nm == "Geral") next
+    df_treat_overall <- rbind(df_treat_overall, data.frame(treatment = nm, estimate = x$b, se = x$se))
 }
 
 if (nrow(df_treat_overall) > 0) {
@@ -370,13 +385,25 @@ if (nrow(df_treat_overall) > 0) {
     df_treat_overall$treatment_label <- factor(df_treat_overall$treatment_label, levels = df_treat_overall$treatment_label[order(df_treat_overall$estimate)])
 
     p_treat_overall <- ggplot(df_treat_overall, aes(x = estimate, y = treatment_label)) +
-        geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
-        geom_point(color = "#2ca02c", size = 2.8) +
-        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#2ca02c") +
+        geom_vline(xintercept = 0, color = "gray70") +
+         {
+            if (!is.na(baseline_est) && !is.na(baseline_est_se)) {
+                b_lo <- baseline_est - 1.96 * baseline_est_se
+                b_hi <- baseline_est + 1.96 * baseline_est_se
+                list(
+                    annotate("rect", xmin = b_lo, xmax = b_hi, ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "#B45C1F"),
+                    geom_vline(xintercept = baseline_est, linetype = "dashed", color = "#B45C1F")
+                )
+            } else {
+                NULL
+            }
+        } +
+        geom_point(color = "#1f77b4", size = 2.8) +
+        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#1f77b4") +
         labs(
-            title = "Meetings effect across treatments (overall PPML)",
-            subtitle = "Points are estimates; bars are 95% CIs.",
-            x = "Estimate (meetings)", y = "Treatment"
+            # title = "Meetings effect across treatments (overall PPML)",
+            # subtitle = "Points are estimates; bars are 95% CIs.",
+            x = "Efeito (meetings)", y = "Tratamento"
         ) +
         theme_minimal()
 
@@ -408,17 +435,32 @@ if (nrow(df_treat_by_domain) > 0) {
     df_treat_by_domain$domain_label <- pretty_domain_label(df_treat_by_domain$domain)
 
     p_treat_by_domain <- ggplot(df_treat_by_domain, aes(x = estimate, y = treatment_label)) +
-        geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
-        geom_point(color = "#9467bd", size = 2.6) +
-        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.18, color = "#9467bd") +
+        geom_vline(xintercept = 0, color = "gray70") +
+        {
+            if (!is.na(baseline_est) && !is.na(baseline_est_se)) {
+                b_lo <- baseline_est - 1.96 * baseline_est_se
+                b_hi <- baseline_est + 1.96 * baseline_est_se
+                list(
+                    annotate("rect", xmin = b_lo, xmax = b_hi, ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "#B45C1F"),
+                    geom_vline(xintercept = baseline_est, linetype = "dashed", color = "#B45C1F")
+                )
+            } else {
+                NULL
+            }
+        } +
+        geom_point(color = "#1f77b4", size = 2.6) +
+        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.18, color = "#1f77b4") +
         labs(
-            title = "Meetings effect: treatments by domain (PPML)",
-            subtitle = "Points are estimates; bars are 95% CIs.",
-            x = "Estimate (meetings)", y = "Treatment"
+            # title = "Meetings effect: treatments by domain (PPML)",
+            # subtitle = "Points are estimates; bars are 95% CIs.",
+            x = "Efeito (meetings)", y = "Tratamento"
         ) +
-        facet_wrap(~ domain_label, ncol = 3, scales = "free_y") +
+        facet_wrap(~domain_label, ncol = 3, scales = "free_y") +
         theme_minimal()
 
     ggsave("Tese/figures/fig_coeff_treatments_by_domain.png", p_treat_by_domain, width = 12, height = 8, dpi = 300)
     ggsave("Tese/figures/fig_coeff_treatments_by_domain.pdf", p_treat_by_domain, width = 12, height = 8)
 }
+
+
+
