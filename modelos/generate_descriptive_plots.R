@@ -7,7 +7,7 @@ library(scales)
 library(gridExtra)
 
 # Set figure directory
-fig_dir <- "../Tese/figures"
+fig_dir <- "./Tese/figures"
 
 # Create directory if it doesn't exist
 if (!dir.exists(fig_dir)) {
@@ -176,6 +176,84 @@ print(p2_proportion_meetings)
 # periods of increased or decreased lobbying activity, while the accumulated proportion
 # shows the cumulative reach of lobbying activities across the entire MEP population.
 # This helps identify both short-term fluctuations and long-term trends in lobbying participation.
+
+# ============================================
+# PLOT 3: Histogram of meetings by MEP
+# ============================================
+
+# Aggregate total meetings and questions by time period
+df_histogram_meetings <- df %>%
+    filter(meetings > 0) %>%
+    group_by(member_id) %>%
+    summarise(
+        total_meetings = sum(meetings, na.rm = TRUE),
+        .groups = "drop"
+    )
+
+# Histogram of total meetings per treated MEP, with mean and median lines (Python logic in R)
+# Aggregate total meetings by MEP who were treated (i.e., had at least one meeting)
+df_histogram_meetings <- df %>%
+    filter(meetings > 0) %>%
+    group_by(member_id) %>%
+    summarise(
+        total_meetings = sum(meetings, na.rm = TRUE),
+        .groups = "drop"
+    )
+
+mean_meetings <- mean(df_histogram_meetings$total_meetings, na.rm = TRUE)
+median_meetings <- median(df_histogram_meetings$total_meetings, na.rm = TRUE)
+
+p3_histogram_meetings <- ggplot(df_histogram_meetings, aes(x = total_meetings)) +
+    geom_histogram(
+        bins = 30, 
+        fill = "#1f77b4", 
+        color = "black", 
+        alpha = 0.7, 
+        linewidth = 0.5
+    ) +
+    labs(
+        x = "Número Total de Reuniões",
+        y = "Número de MEPs",
+        title = "Distribuição de Reuniões Totais\npor MEP (apenas MEPs tratados)"
+    ) +
+    geom_vline(
+        xintercept = mean_meetings,
+        color = "blue",
+        linetype = "dashed",
+        linewidth = 1,
+        show.legend = TRUE
+    ) +
+    geom_vline(
+        xintercept = median_meetings,
+        color = "orange",
+        linetype = "dashed",
+        linewidth = 1,
+        show.legend = TRUE
+    ) +
+    annotate(
+        "text", 
+        x = mean_meetings, 
+        y = Inf, 
+        label = paste0("Média: ", round(mean_meetings, 1)), 
+        vjust = -0.5, 
+        hjust = -0.1, 
+        color = "blue", 
+        fontface = "bold"
+    ) +
+    annotate(
+        "text", 
+        x = median_meetings, 
+        y = Inf, 
+        label = paste0("Mediana: ", round(median_meetings, 1)), 
+        vjust = -1.5, 
+        hjust = -0.1, 
+        color = "orange", 
+        fontface = "bold"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(p3_histogram_meetings)
 
 # ============================================
 # PLOT 3: Correlation of meetings and questions by Y.m
@@ -417,6 +495,10 @@ ggsave(file.path(fig_dir, "fig2_proportion_meetings.png"), p2_proportion_meeting
 
 ggsave(file.path(fig_dir, "fig3_correlation_meetings_questions.pdf"), p3_correlation, width = 10, height = 6)
 ggsave(file.path(fig_dir, "fig3_correlation_meetings_questions.png"), p3_correlation, width = 10, height = 6, dpi = 300)
+
+
+ggsave(file.path(fig_dir, "fig3.1_meetings_hist.pdf"), p3_histogram_meetings, width = 10, height = 6)
+ggsave(file.path(fig_dir, "fig3.1_meetings_hist.png"), p3_histogram_meetings, width = 10, height = 6, dpi = 300)
 
 # Save domain-based plots if they exist
 if (exists("p4_domain_meetings")) {
