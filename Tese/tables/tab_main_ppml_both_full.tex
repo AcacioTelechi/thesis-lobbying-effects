@@ -5,168 +5,148 @@ entry=none,label=none,
 note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
-colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
-column{2-7}={}{halign=c,},
+colspec={Q[]Q[]Q[]},
+column{2-3}={}{halign=c,},
 column{1}={}{halign=l,},
-hline{150}={1-7}{solid, black, 0.05em},
+hline{130}={1-3}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
-& DDD PPML (sem FEs) & DDD PPML (FE - membro) & DDD PPML (FE - país) & DDD PPML (FE - partido) & DDD PPML & DDD PPML (Quadrático) \\ \midrule %% TinyTableHeader
-(Intercept) & \num{-20.315}*** &  &  &  &  &  \\
-& (\num{0.000}) &  &  &  &  &  \\
-meetings & \num{0.006} & \num{0.007} & \num{0.015}* & \num{0.015}* & \num{0.021}*** & \num{0.066}*** \\
-& (\num{0.006}) & (\num{0.006}) & (\num{0.006}) & (\num{0.006}) & (\num{0.006}) & (\num{0.013}) \\
-meps\_POLITICAL\_GROUP\_5148.0 & \num{-0.466}+ & \num{-0.739}* & \num{-0.094} & \num{18.506}*** & \num{17.467}*** & \num{18.116}*** \\
-& (\num{0.248}) & (\num{0.341}) & (\num{0.197}) & (\num{0.199}) & (\num{1.981}) & (\num{3.000}) \\
-meps\_POLITICAL\_GROUP\_5151.0 & \num{0.157} & \num{0.622}** & \num{0.208}+ &  &  &  \\
-& (\num{0.210}) & (\num{0.237}) & (\num{0.117}) &  &  &  \\
-meps\_POLITICAL\_GROUP\_5152.0 & \num{-0.294} & \num{-0.942}*** & \num{0.088} & \num{-0.937}+ & \num{-0.917}+ & \num{-0.914}+ \\
-& (\num{0.208}) & (\num{0.224}) & (\num{0.130}) & (\num{0.517}) & (\num{0.513}) & (\num{0.514}) \\
-meps\_POLITICAL\_GROUP\_5153.0 & \num{-0.770}*** & \num{-0.609}* & \num{-0.426}** & \num{-0.219} & \num{0.427} & \num{0.426} \\
-& (\num{0.206}) & (\num{0.249}) & (\num{0.133}) & (\num{0.332}) & (\num{0.270}) & (\num{0.270}) \\
-meps\_POLITICAL\_GROUP\_5154.0 & \num{-0.819}*** & \num{-0.754}* & \num{-0.466}*** & \num{0.072} & \num{0.583} & \num{0.575} \\
-& (\num{0.210}) & (\num{0.350}) & (\num{0.140}) & (\num{0.437}) & (\num{0.482}) & (\num{0.485}) \\
-meps\_POLITICAL\_GROUP\_5155.0 & \num{-0.283} & \num{-1.034}*** & \num{0.083} & \num{0.959}** & \num{0.208} & \num{0.213} \\
-& (\num{0.241}) & (\num{0.237}) & (\num{0.179}) & (\num{0.366}) & (\num{0.324}) & (\num{0.323}) \\
-meps\_POLITICAL\_GROUP\_5588.0 & \num{0.063} & \num{0.078} & \num{0.399}** & \num{-0.855}*** & \num{-0.105} & \num{-0.104} \\
-& (\num{0.208}) & (\num{0.278}) & (\num{0.144}) & (\num{0.227}) & (\num{0.313}) & (\num{0.313}) \\
-meps\_POLITICAL\_GROUP\_5704.0 & \num{-0.648}** & \num{-0.929}** & \num{-0.276}+ & \num{-0.057} & \num{0.131} & \num{0.118} \\
-& (\num{0.223}) & (\num{0.305}) & (\num{0.158}) & (\num{0.283}) & (\num{0.308}) & (\num{0.309}) \\
-meps\_POLITICAL\_GROUP\_6259.0 & \num{-0.192} & \num{0.302} & \num{0.251}* & \num{-1.977}** & \num{-0.913}** & \num{-0.897}** \\
-& (\num{0.211}) & (\num{0.243}) & (\num{0.114}) & (\num{0.666}) & (\num{0.320}) & (\num{0.329}) \\
-meps\_POLITICAL\_GROUP\_6561.0 & \num{-0.506} & \num{-0.619}+ & \num{15.742}*** & \num{16.810}*** & \num{15.090}* & \num{16.063} \\
-& (\num{0.430}) & (\num{0.346}) & (\num{0.390}) & (\num{0.483}) & (\num{5.945}) & (\num{14.706}) \\
-meps\_POLITICAL\_GROUP\_7018.0 & \num{-1.080}*** & \num{-0.708}** & \num{15.045}*** & \num{27.876}*** & \num{27.467}*** & \num{29.441}*** \\
-& (\num{0.246}) & (\num{0.251}) & (\num{0.280}) & (\num{0.727}) & (\num{4.426}) & (\num{8.569}) \\
-meps\_POLITICAL\_GROUP\_7028.0 & \num{-0.506} & \num{-1.154}*** & \num{15.589}*** & \num{14.992}*** & \num{13.917}* & \num{14.884} \\
-& (\num{0.322}) & (\num{0.348}) & (\num{0.320}) & (\num{0.536}) & (\num{5.972}) & (\num{14.715}) \\
-meps\_POLITICAL\_GROUP\_7035.0 & \num{-1.233}*** & \num{-1.347}*** & \num{14.969}*** & \num{15.397}*** & \num{17.378}** & \num{18.339} \\
-& (\num{0.280}) & (\num{0.358}) & (\num{0.324}) & (\num{0.646}) & (\num{6.096}) & (\num{14.821}) \\
-meps\_POLITICAL\_GROUP\_7036.0 & \num{0.018} & \num{-0.053} & \num{16.078}*** & \num{17.039}*** & \num{17.275}** & \num{18.247} \\
-& (\num{0.242}) & (\num{0.279}) & (\num{0.288}) & (\num{0.201}) & (\num{5.945}) & (\num{14.705}) \\
-meps\_POLITICAL\_GROUP\_7037.0 & \num{-0.087} & \num{-0.309} & \num{15.952}*** & \num{16.324}*** & \num{15.846}** & \num{16.833} \\
-& (\num{0.233}) & (\num{0.296}) & (\num{0.287}) & (\num{0.625}) & (\num{6.040}) & (\num{14.786}) \\
-meps\_POLITICAL\_GROUP\_7038.0 & \num{-0.736}** & \num{-0.890}** & \num{15.381}*** & \num{15.878}*** & \num{14.793} & \num{15.822} \\
-& (\num{0.239}) & (\num{0.332}) & (\num{0.256}) & (\num{0.691}) & (\num{13.853}) & (\num{36.624}) \\
-meps\_POLITICAL\_GROUP\_7150.0 & \num{0.021} & \num{-0.142} & \num{16.191}*** & \num{16.084}*** & \num{17.151}** & \num{18.130} \\
-& (\num{0.234}) & (\num{0.255}) & (\num{0.259}) & (\num{0.519}) & (\num{6.043}) & (\num{14.781}) \\
-meps\_POLITICAL\_GROUP\_7151.0 & \num{0.102} & \num{0.030} & \num{16.236}*** & \num{16.154}*** & \num{17.465}** & \num{18.442} \\
-& (\num{0.373}) & (\num{0.715}) & (\num{0.369}) & (\num{0.451}) & (\num{6.236}) & (\num{14.985}) \\
-meps\_COUNTRY\_AUT & \num{19.072}*** & \num{18.787}*** & \num{19.724}*** & \num{0.221} &  &  \\
-& (\num{0.242}) & (\num{0.189}) & (\num{0.206}) & (\num{0.148}) &  &  \\
-meps\_COUNTRY\_BEL & \num{19.490}*** & \num{19.087}*** &  & \num{0.627}** & \num{374.410} & \num{351.529} \\
-& (\num{0.294}) & (\num{0.215}) &  & (\num{0.236}) & (\num{95616.979}) & (\num{104463.654}) \\
-meps\_COUNTRY\_BGR & \num{18.697}*** & \num{18.326}*** &  & \num{-0.172} &  &  \\
-& (\num{0.270}) & (\num{0.286}) &  & (\num{0.186}) &  &  \\
-meps\_COUNTRY\_CYP & \num{19.756}*** & \num{19.173}*** &  & \num{0.902}*** & \num{252.860} & \num{227.787} \\
-& (\num{0.341}) & (\num{0.237}) &  & (\num{0.266}) & (\num{276763.762}) & (\num{300323.396}) \\
-meps\_COUNTRY\_CZE & \num{18.349}*** & \num{18.526}*** &  & \num{-0.504}+ & \num{181.545} & \num{159.152} \\
-& (\num{0.317}) & (\num{0.258}) &  & (\num{0.270}) & (\num{232562.916}) & (\num{251103.756}) \\
-meps\_COUNTRY\_DEU & \num{18.757}*** & \num{18.730}*** &  & \num{-0.099} & \num{-6.354} & \num{13.105} \\
-& (\num{0.243}) & (\num{0.285}) &  & (\num{0.128}) & (\num{474933.134}) & (\num{517074.304}) \\
-meps\_COUNTRY\_DNK & \num{19.258}*** & \num{19.489}*** &  & \num{0.354} & \num{34.849} & \num{12.375} \\
-& (\num{0.301}) & (\num{0.146}) &  & (\num{0.244}) & (\num{337801.956}) & (\num{359260.302}) \\
-meps\_COUNTRY\_ESP & \num{19.721}*** & \num{19.445}*** &  & \num{0.863}*** &  &  \\
-& (\num{0.227}) & (\num{0.204}) &  & (\num{0.098}) &  &  \\
-meps\_COUNTRY\_EST & \num{18.230}*** & \num{17.506}*** &  & \num{-0.653}** &  &  \\
-& (\num{0.309}) & (\num{0.288}) &  & (\num{0.239}) &  &  \\
-meps\_COUNTRY\_FIN & \num{18.831}*** & \num{19.125}*** &  & \num{-0.032} &  &  \\
-& (\num{0.291}) & (\num{0.147}) &  & (\num{0.220}) &  &  \\
-meps\_COUNTRY\_FRA & \num{19.447}*** & \num{19.516}*** &  & \num{0.594}*** &  &  \\
-& (\num{0.228}) & (\num{0.212}) &  & (\num{0.121}) &  &  \\
-meps\_COUNTRY\_GBR & \num{18.281}*** & \num{18.670}*** &  & \num{-0.556}+ & \num{31.192} & \num{27.372} \\
-& (\num{0.355}) & (\num{0.308}) &  & (\num{0.294}) & (\num{177865.053}) & (\num{189678.669}) \\
-meps\_COUNTRY\_GRC & \num{20.020}*** & \num{19.649}*** &  & \num{1.160}*** &  &  \\
-& (\num{0.253}) & (\num{0.235}) &  & (\num{0.139}) &  &  \\
-meps\_COUNTRY\_HRV & \num{18.795}*** & \num{19.088}*** &  & \num{-0.085} &  &  \\
-& (\num{0.286}) & (\num{0.352}) &  & (\num{0.201}) &  &  \\
-meps\_COUNTRY\_HUN & \num{18.425}*** & \num{17.752}*** &  & \num{-0.425}* &  &  \\
-& (\num{0.249}) & (\num{0.246}) &  & (\num{0.173}) &  &  \\
-meps\_COUNTRY\_IRL & \num{19.408}*** & \num{19.206}*** &  & \num{0.574}* & \num{-129.700} & \num{-122.899} \\
-& (\num{0.297}) & (\num{0.268}) &  & (\num{0.232}) & (\num{104223.328}) & (\num{109483.774}) \\
-meps\_COUNTRY\_ITA & \num{19.736}*** & \num{19.616}*** &  & \num{0.871}*** &  &  \\
-& (\num{0.222}) & (\num{0.229}) &  & (\num{0.130}) &  &  \\
-meps\_COUNTRY\_LTU & \num{19.182}*** & \num{18.574}*** &  & \num{0.303} &  &  \\
-& (\num{0.332}) & (\num{0.231}) &  & (\num{0.251}) &  &  \\
-meps\_COUNTRY\_LUX & \num{19.061}*** & \num{19.363}*** &  & \num{0.213} &  &  \\
-& (\num{0.310}) & (\num{0.267}) &  & (\num{0.242}) &  &  \\
-meps\_COUNTRY\_LVA & \num{17.608}*** & \num{18.209}*** &  & \num{-1.266}*** &  &  \\
-& (\num{0.278}) & (\num{0.433}) &  & (\num{0.199}) &  &  \\
-meps\_COUNTRY\_MLT & \num{19.480}*** & \num{19.484}*** &  & \num{0.623}* &  &  \\
-& (\num{0.363}) & (\num{0.316}) &  & (\num{0.294}) &  &  \\
-meps\_COUNTRY\_NLD & \num{19.101}*** & \num{19.169}*** &  & \num{0.232} &  &  \\
-& (\num{0.249}) & (\num{0.233}) &  & (\num{0.143}) &  &  \\
-meps\_COUNTRY\_POL & \num{18.767}*** & \num{19.019}*** &  & \num{-0.112} &  &  \\
-& (\num{0.269}) & (\num{0.254}) &  & (\num{0.173}) &  &  \\
-meps\_COUNTRY\_PRT & \num{19.764}*** & \num{18.865}*** &  & \num{0.902}*** &  &  \\
-& (\num{0.230}) & (\num{0.221}) &  & (\num{0.138}) &  &  \\
-meps\_COUNTRY\_ROU & \num{19.196}*** & \num{18.687}*** &  & \num{0.336}* &  &  \\
-& (\num{0.288}) & (\num{0.240}) &  & (\num{0.145}) &  &  \\
-meps\_COUNTRY\_SVK & \num{19.314}*** & \num{19.028}*** &  & \num{0.451}** &  &  \\
-& (\num{0.258}) & (\num{0.279}) &  & (\num{0.172}) &  &  \\
-meps\_COUNTRY\_SVN & \num{19.860}*** & \num{18.993}*** &  & \num{0.974}*** &  &  \\
-& (\num{0.270}) & (\num{0.302}) &  & (\num{0.201}) &  &  \\
-meps\_COUNTRY\_SWE & \num{19.125}*** & \num{19.336}*** &  & \num{0.254} &  &  \\
-& (\num{0.259}) & (\num{0.207}) &  & (\num{0.192}) &  &  \\
-meps\_COMMITTEE\_PARLIAMENTARY\_SPECIAL\_\_\_CHAIR & \num{0.466}+ & \num{0.251} & \num{0.412} & \num{0.222} & \num{-0.186} & \num{-0.174} \\
-& (\num{0.272}) & (\num{0.244}) & (\num{0.346}) & (\num{0.189}) & (\num{0.193}) & (\num{0.192}) \\
-meps\_COMMITTEE\_PARLIAMENTARY\_SPECIAL\_\_\_MEMBER & \num{0.553}*** & \num{0.374}*** & \num{0.416}*** & \num{0.409}*** & \num{0.069} & \num{0.071} \\
-& (\num{0.103}) & (\num{0.062}) & (\num{0.094}) & (\num{0.092}) & (\num{0.063}) & (\num{0.063}) \\
-meps\_COMMITTEE\_PARLIAMENTARY\_STANDING\_\_\_CHAIR & \num{-0.275}+ & \num{-0.010} & \num{-0.271} & \num{-0.273}+ & \num{0.028} & \num{0.036} \\
-& (\num{0.163}) & (\num{0.271}) & (\num{0.166}) & (\num{0.164}) & (\num{0.155}) & (\num{0.152}) \\
-meps\_COMMITTEE\_PARLIAMENTARY\_STANDING\_\_\_MEMBER & \num{0.033} & \num{0.184}* & \num{0.005} & \num{-0.001} & \num{0.112} & \num{0.111} \\
-& (\num{0.098}) & (\num{0.089}) & (\num{0.100}) & (\num{0.099}) & (\num{0.076}) & (\num{0.076}) \\
-meps\_COMMITTEE\_PARLIAMENTARY\_SUB\_\_\_CHAIR & \num{-0.092} & \num{-0.354} & \num{-0.035} & \num{-0.064} & \num{0.142} & \num{0.142} \\
-& (\num{0.096}) & (\num{0.380}) & (\num{0.115}) & (\num{0.110}) & (\num{0.335}) & (\num{0.335}) \\
-meps\_COMMITTEE\_PARLIAMENTARY\_SUB\_\_\_MEMBER & \num{-0.031} & \num{-0.180}* & \num{-0.003} & \num{-0.011} & \num{-0.028} & \num{-0.028} \\
-& (\num{0.072}) & (\num{0.078}) & (\num{0.069}) & (\num{0.069}) & (\num{0.058}) & (\num{0.058}) \\
-meps\_DELEGATION\_PARLIAMENTARY\_\_\_CHAIR & \num{0.166}+ & \num{0.239} & \num{0.143} & \num{0.151} & \num{0.237} & \num{0.234} \\
-& (\num{0.099}) & (\num{0.268}) & (\num{0.102}) & (\num{0.102}) & (\num{0.178}) & (\num{0.177}) \\
-meps\_DELEGATION\_PARLIAMENTARY\_\_\_MEMBER & \num{-0.014} & \num{0.184}* & \num{-0.054} & \num{-0.059} & \num{-0.019} & \num{-0.019} \\
-& (\num{0.057}) & (\num{0.092}) & (\num{0.055}) & (\num{0.054}) & (\num{0.055}) & (\num{0.055}) \\
-meps\_EU\_INSTITUTION\_\_\_PRESIDENT & \num{-19.141}*** &  & \num{-20.338}*** & \num{-19.328}*** &  &  \\
-& (\num{0.138}) &  & (\num{0.143}) & (\num{0.142}) &  &  \\
-meps\_EU\_INSTITUTION\_\_\_QUAESTOR & \num{0.024} & \num{0.021} & \num{0.047} & \num{-0.021} & \num{0.430} & \num{0.440} \\
-& (\num{0.223}) & (\num{0.362}) & (\num{0.233}) & (\num{0.262}) & (\num{0.273}) & (\num{0.276}) \\
-meps\_EU\_POLITICAL\_GROUP\_\_\_CHAIR & \num{-1.831}*** & \num{0.026} & \num{-1.959}*** & \num{-1.958}*** & \num{-0.259} & \num{-0.260} \\
-& (\num{0.300}) & (\num{0.218}) & (\num{0.282}) & (\num{0.290}) & (\num{0.169}) & (\num{0.168}) \\
-meps\_EU\_POLITICAL\_GROUP\_\_\_MEMBER\_BUREAU & \num{0.044} & \num{0.205} & \num{0.032} & \num{0.024} & \num{0.211} & \num{0.214} \\
-& (\num{0.221}) & (\num{0.182}) & (\num{0.220}) & (\num{0.220}) & (\num{0.154}) & (\num{0.154}) \\
-meps\_EU\_POLITICAL\_GROUP\_\_\_TREASURER & \num{0.111} & \num{-1.068}*** & \num{0.197} & \num{0.169} & \num{-0.924} & \num{-0.923} \\
-& (\num{0.299}) & (\num{0.249}) & (\num{0.311}) & (\num{0.307}) & (\num{0.917}) & (\num{0.914}) \\
-meps\_EU\_POLITICAL\_GROUP\_\_\_TREASURER\_CO & \num{1.128}*** & \num{1.610}*** & \num{1.100}*** & \num{1.118}*** &  &  \\
-& (\num{0.201}) & (\num{0.287}) & (\num{0.202}) & (\num{0.197}) &  &  \\
-meps\_NATIONAL\_CHAMBER\_\_\_PRESIDENT\_VICE & \num{-0.798}*** & \num{-0.362}* & \num{-0.194} & \num{-0.219} & \num{0.358} & \num{0.359} \\
-& (\num{0.128}) & (\num{0.170}) & (\num{0.164}) & (\num{0.160}) & (\num{0.245}) & (\num{0.245}) \\
-meps\_WORKING\_GROUP\_\_\_CHAIR & \num{0.354}* & \num{0.205} & \num{0.341}* & \num{0.328}** & \num{0.083} & \num{0.087} \\
-& (\num{0.142}) & (\num{0.208}) & (\num{0.134}) & (\num{0.124}) & (\num{0.190}) & (\num{0.191}) \\
-meps\_WORKING\_GROUP\_\_\_MEMBER & \num{0.273}*** & \num{0.270}** & \num{0.211}** & \num{0.204}** & \num{0.151}+ & \num{0.152}+ \\
-& (\num{0.068}) & (\num{0.101}) & (\num{0.073}) & (\num{0.072}) & (\num{0.083}) & (\num{0.083}) \\
-meps\_WORKING\_GROUP\_\_\_MEMBER\_BUREAU & \num{0.120} & \num{-0.244} & \num{0.139} & \num{0.128} & \num{0.172} & \num{0.171} \\
-& (\num{0.181}) & (\num{0.220}) & (\num{0.170}) & (\num{0.175}) & (\num{0.126}) & (\num{0.126}) \\
-log\_meetings\_member\_capacity\_Committee\_chair & \num{0.074} & \num{0.115} & \num{-0.030} & \num{-0.001} & \num{0.012} & \num{-0.037} \\
-& (\num{0.146}) & (\num{0.127}) & (\num{0.139}) & (\num{0.136}) & (\num{0.099}) & (\num{0.100}) \\
-log\_meetings\_member\_capacity\_Delegation\_chair & \num{-0.337} & \num{-0.317} & \num{0.059} & \num{-0.132} & \num{0.054} & \num{0.012} \\
-& (\num{0.283}) & (\num{0.233}) & (\num{0.374}) & (\num{0.310}) & (\num{0.329}) & (\num{0.326}) \\
-log\_meetings\_member\_capacity\_Member & \num{0.065}+ & \num{0.040} & \num{0.065}+ & \num{0.056} & \num{0.019} & \num{-0.038} \\
-& (\num{0.038}) & (\num{0.034}) & (\num{0.035}) & (\num{0.034}) & (\num{0.024}) & (\num{0.029}) \\
-log\_meetings\_member\_capacity\_Rapporteur & \num{-0.064} & \num{-0.033} & \num{-0.101}* & \num{-0.097}+ & \num{-0.070}* & \num{-0.109}** \\
-& (\num{0.056}) & (\num{0.050}) & (\num{0.051}) & (\num{0.051}) & (\num{0.035}) & (\num{0.038}) \\
-log\_meetings\_member\_capacity\_Rapporteur\_for\_opinion & \num{0.078} & \num{0.019} & \num{0.110} & \num{0.078} & \num{-0.034} & \num{-0.081} \\
-& (\num{0.106}) & (\num{0.085}) & (\num{0.100}) & (\num{0.085}) & (\num{0.071}) & (\num{0.073}) \\
-log\_meetings\_member\_capacity\_Shadow\_rapporteur & \num{-0.023} & \num{-0.031} & \num{-0.098}+ & \num{-0.068} & \num{-0.115}*** & \num{-0.157}*** \\
-& (\num{0.053}) & (\num{0.036}) & (\num{0.054}) & (\num{0.048}) & (\num{0.028}) & (\num{0.032}) \\
-log\_meetings\_member\_capacity\_Shadow\_rapporteur\_for\_opinion & \num{0.007} & \num{-0.052} & \num{0.077} & \num{0.087} & \num{-0.068} & \num{-0.107}+ \\
-& (\num{0.122}) & (\num{0.082}) & (\num{0.087}) & (\num{0.110}) & (\num{0.054}) & (\num{0.055}) \\
-I(meetings\textasciicircum{}2) &  &  &  &  &  & \num{-0.002}*** \\
-&  &  &  &  &  & (\num{0.001}) \\
-Num.Obs. & \num{767151} & \num{487053} & \num{734220} & \num{720432} & \num{452952} & \num{452952} \\
-R2 & \num{0.314} & \num{0.272} & \num{0.369} & \num{0.354} & \num{0.339} & \num{0.339} \\
-RMSE & \num{0.47} & \num{0.57} & \num{0.46} & \num{0.47} & \num{0.55} & \num{0.55} \\
-Std.Errors & by: cl\_dt \& member\_id & by: cl\_dt \& member\_id & by: cl\_dt \& member\_id & by: cl\_dt \& member\_id & by: cl\_dt \& member\_id & by: cl\_dt \& member\_id \\
-FE: fe\_i &  & X &  &  & X & X \\
-FE: fe\_ct &  &  & X &  & X & X \\
-FE: fe\_pt &  &  &  & X & X & X \\
+& DDD PPML & DDD PPML (Quadrático) \\ \midrule %% TinyTableHeader
+meetings & \num{0.025}*** & \num{0.098}*** \\
+& (\num{0.002}) & (\num{0.007}) \\
+meps\_POLITICAL\_GROUP\_5148.0 & \num{0.238} & \num{0.230} \\
+& (\num{0.622}) & (\num{0.622}) \\
+meps\_POLITICAL\_GROUP\_5152.0 & \num{0.061} & \num{0.083} \\
+& (\num{0.306}) & (\num{0.304}) \\
+meps\_POLITICAL\_GROUP\_5153.0 & \num{-0.268} & \num{-0.261} \\
+& (\num{0.180}) & (\num{0.180}) \\
+meps\_POLITICAL\_GROUP\_5154.0 & \num{-0.004} & \num{-0.018} \\
+& (\num{0.237}) & (\num{0.240}) \\
+meps\_POLITICAL\_GROUP\_5155.0 & \num{1.182}*** & \num{1.185}*** \\
+& (\num{0.186}) & (\num{0.186}) \\
+meps\_POLITICAL\_GROUP\_5588.0 & \num{-0.778}*** & \num{-0.769}*** \\
+& (\num{0.176}) & (\num{0.176}) \\
+meps\_POLITICAL\_GROUP\_5704.0 & \num{0.014} & \num{-0.003} \\
+& (\num{0.153}) & (\num{0.151}) \\
+meps\_POLITICAL\_GROUP\_6259.0 & \num{-0.317} & \num{-0.332} \\
+& (\num{0.468}) & (\num{0.472}) \\
+meps\_POLITICAL\_GROUP\_6561.0 & \num{12.296}*** & \num{12.263}*** \\
+& (\num{0.284}) & (\num{0.283}) \\
+meps\_POLITICAL\_GROUP\_7018.0 & \num{12.261}*** & \num{12.229}*** \\
+& (\num{0.409}) & (\num{0.413}) \\
+meps\_POLITICAL\_GROUP\_7028.0 & \num{13.732}*** & \num{13.711}*** \\
+& (\num{0.375}) & (\num{0.383}) \\
+meps\_POLITICAL\_GROUP\_7035.0 & \num{14.133}*** & \num{14.090}*** \\
+& (\num{0.324}) & (\num{0.327}) \\
+meps\_POLITICAL\_GROUP\_7036.0 & \num{15.658}*** & \num{15.618}*** \\
+& (\num{0.177}) & (\num{0.178}) \\
+meps\_POLITICAL\_GROUP\_7037.0 & \num{14.655}*** & \num{14.600}*** \\
+& (\num{0.264}) & (\num{0.268}) \\
+meps\_POLITICAL\_GROUP\_7038.0 & \num{13.449}*** & \num{13.353}*** \\
+& (\num{0.285}) & (\num{0.285}) \\
+meps\_POLITICAL\_GROUP\_7150.0 & \num{14.582}*** & \num{14.530}*** \\
+& (\num{0.215}) & (\num{0.217}) \\
+meps\_POLITICAL\_GROUP\_7151.0 & \num{13.494}*** & \num{13.525}*** \\
+& (\num{0.495}) & (\num{0.492}) \\
+meps\_COUNTRY\_AUT & \num{3.368}*** & \num{3.366}*** \\
+& (\num{0.439}) & (\num{0.446}) \\
+meps\_COUNTRY\_BEL & \num{2.992}*** & \num{2.940}*** \\
+& (\num{0.433}) & (\num{0.438}) \\
+meps\_COUNTRY\_BGR & \num{3.277}*** & \num{3.276}*** \\
+& (\num{0.425}) & (\num{0.429}) \\
+meps\_COUNTRY\_CYP & \num{19.060}*** & \num{19.074}*** \\
+& (\num{0.778}) & (\num{0.774}) \\
+meps\_COUNTRY\_CZE & \num{19.020}*** & \num{19.008}*** \\
+& (\num{0.604}) & (\num{0.609}) \\
+meps\_COUNTRY\_DEU & \num{17.573}*** & \num{17.488}*** \\
+& (\num{0.652}) & (\num{0.642}) \\
+meps\_COUNTRY\_DNK & \num{18.904}*** & \num{18.708}*** \\
+& (\num{0.503}) & (\num{0.511}) \\
+meps\_COUNTRY\_ESP & \num{18.917}*** & \num{18.928}*** \\
+& (\num{0.584}) & (\num{0.591}) \\
+meps\_COUNTRY\_EST & \num{16.191}*** & \num{16.207}*** \\
+& (\num{0.480}) & (\num{0.484}) \\
+meps\_COUNTRY\_FIN & \num{3.209}*** & \num{3.166}*** \\
+& (\num{0.451}) & (\num{0.455}) \\
+meps\_COUNTRY\_FRA & \num{16.740}*** & \num{16.759}*** \\
+& (\num{0.498}) & (\num{0.504}) \\
+meps\_COUNTRY\_GRC & \num{20.249}*** & \num{20.268}*** \\
+& (\num{0.529}) & (\num{0.531}) \\
+meps\_COUNTRY\_HRV & \num{2.589}*** & \num{2.626}*** \\
+& (\num{0.498}) & (\num{0.507}) \\
+meps\_COUNTRY\_HUN & \num{3.732}*** & \num{3.754}*** \\
+& (\num{0.441}) & (\num{0.443}) \\
+meps\_COUNTRY\_IRL & \num{1.865}* & \num{1.870}* \\
+& (\num{0.900}) & (\num{0.908}) \\
+meps\_COUNTRY\_ITA & \num{19.337}*** & \num{19.331}*** \\
+& (\num{0.480}) & (\num{0.485}) \\
+meps\_COUNTRY\_LTU & \num{3.605}*** & \num{3.567}*** \\
+& (\num{0.443}) & (\num{0.446}) \\
+meps\_COUNTRY\_LUX & \num{2.640}*** & \num{2.676}*** \\
+& (\num{0.498}) & (\num{0.507}) \\
+meps\_COUNTRY\_LVA & \num{2.604}*** & \num{2.578}*** \\
+& (\num{0.469}) & (\num{0.477}) \\
+meps\_COUNTRY\_MLT & \num{0.706} & \num{0.733} \\
+& (\num{1.089}) & (\num{1.092}) \\
+meps\_COUNTRY\_NLD & \num{18.712}*** & \num{18.662}*** \\
+& (\num{0.529}) & (\num{0.533}) \\
+meps\_COUNTRY\_POL & \num{17.410}*** & \num{17.394}*** \\
+& (\num{0.559}) & (\num{0.561}) \\
+meps\_COUNTRY\_PRT & \num{17.230}*** & \num{17.227}*** \\
+& (\num{0.435}) & (\num{0.430}) \\
+meps\_COUNTRY\_ROU & \num{16.840}*** & \num{16.874}*** \\
+& (\num{0.983}) & (\num{0.992}) \\
+meps\_COUNTRY\_SVK & \num{18.808}*** & \num{18.756}*** \\
+& (\num{0.794}) & (\num{0.797}) \\
+meps\_COUNTRY\_SVN & \num{1.901}+ & \num{1.916}+ \\
+& (\num{1.045}) & (\num{1.048}) \\
+meps\_COUNTRY\_SWE & \num{18.612}*** & \num{18.621}*** \\
+& (\num{0.552}) & (\num{0.556}) \\
+meps\_COMMITTEE\_PARLIAMENTARY\_SPECIAL\_\_\_CHAIR & \num{0.321}** & \num{0.296}** \\
+& (\num{0.112}) & (\num{0.113}) \\
+meps\_COMMITTEE\_PARLIAMENTARY\_SPECIAL\_\_\_MEMBER & \num{0.386}*** & \num{0.387}*** \\
+& (\num{0.028}) & (\num{0.028}) \\
+meps\_COMMITTEE\_PARLIAMENTARY\_STANDING\_\_\_CHAIR & \num{-0.271}*** & \num{-0.286}*** \\
+& (\num{0.028}) & (\num{0.028}) \\
+meps\_COMMITTEE\_PARLIAMENTARY\_STANDING\_\_\_MEMBER & \num{-0.000} & \num{0.002} \\
+& (\num{0.018}) & (\num{0.019}) \\
+meps\_COMMITTEE\_PARLIAMENTARY\_SUB\_\_\_CHAIR & \num{-0.043} & \num{-0.030} \\
+& (\num{0.064}) & (\num{0.064}) \\
+meps\_COMMITTEE\_PARLIAMENTARY\_SUB\_\_\_MEMBER & \num{-0.011} & \num{-0.006} \\
+& (\num{0.015}) & (\num{0.015}) \\
+meps\_DELEGATION\_PARLIAMENTARY\_\_\_CHAIR & \num{0.164}*** & \num{0.168}*** \\
+& (\num{0.020}) & (\num{0.020}) \\
+meps\_DELEGATION\_PARLIAMENTARY\_\_\_MEMBER & \num{-0.055}*** & \num{-0.061}*** \\
+& (\num{0.008}) & (\num{0.008}) \\
+meps\_EU\_INSTITUTION\_\_\_PRESIDENT & \num{-18.132}*** & \num{-18.115}*** \\
+& (\num{0.221}) & (\num{0.228}) \\
+meps\_EU\_INSTITUTION\_\_\_QUAESTOR & \num{0.011} & \num{0.015} \\
+& (\num{0.067}) & (\num{0.067}) \\
+meps\_EU\_POLITICAL\_GROUP\_\_\_CHAIR & \num{-1.976}*** & \num{-1.988}*** \\
+& (\num{0.159}) & (\num{0.159}) \\
+meps\_EU\_POLITICAL\_GROUP\_\_\_MEMBER\_BUREAU & \num{0.010} & \num{0.010} \\
+& (\num{0.027}) & (\num{0.027}) \\
+meps\_EU\_POLITICAL\_GROUP\_\_\_TREASURER & \num{0.287}* & \num{0.281}* \\
+& (\num{0.112}) & (\num{0.112}) \\
+meps\_EU\_POLITICAL\_GROUP\_\_\_TREASURER\_CO & \num{1.096}*** & \num{1.085}*** \\
+& (\num{0.092}) & (\num{0.092}) \\
+meps\_NATIONAL\_CHAMBER\_\_\_PRESIDENT\_VICE & \num{-0.316}* & \num{-0.296}+ \\
+& (\num{0.155}) & (\num{0.155}) \\
+meps\_WORKING\_GROUP\_\_\_CHAIR & \num{0.321}*** & \num{0.315}*** \\
+& (\num{0.032}) & (\num{0.032}) \\
+meps\_WORKING\_GROUP\_\_\_MEMBER & \num{0.200}*** & \num{0.194}*** \\
+& (\num{0.014}) & (\num{0.014}) \\
+meps\_WORKING\_GROUP\_\_\_MEMBER\_BUREAU & \num{0.130}*** & \num{0.126}*** \\
+& (\num{0.033}) & (\num{0.034}) \\
+I(meetings\textasciicircum{}2) &  & \num{-0.004}*** \\
+&  & (\num{0.001}) \\
+Num.Obs. & \num{600237} & \num{600237} \\
+R2 & \num{0.253} & \num{0.254} \\
+RMSE & \num{0.56} & \num{0.56} \\
+Std.Errors & by: cl\_dt & by: cl\_dt \\
+FE: fe\_ct & X & X \\
+FE: fe\_pt & X & X \\
+FE: fe\_dt & X & X \\
 \bottomrule
 \end{talltblr}
 \end{table}
