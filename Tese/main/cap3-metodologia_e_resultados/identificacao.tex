@@ -1,99 +1,47 @@
 \section{Estratégia de identificação e de operacionalização}
 
-Muitos trabalhos sobre os efeitos lobby preocupam-se em medi-los resultados de políticas (como impacto em tarifas comerciais), de volume de contratos com o poder público, benefícios fiscais, entre outras variáveis dependentes amplas. Ora, os determinantes desses resultados são complexos. Ao focarmos no comportamento parlamentar conseguimos controlar melhorar os seus determinantes.
+A análise causal dos efeitos do lobby enfrenta desafios significativos, conforme discutido. Para superá-los, esta tese adota uma estratégia de identificação que combina um foco analítico restrito com um modelo empírico robusto, fundamentado no \textit{framework} de análise do comportamento parlamentar (\ref{fig:framework}).
 
-O comportamento parlamentar pode se dar de diferentes formas. Os trabalhos que buscam estudar os efeitos sobre os votos dos parlamentares, caem no problema de que o voto possui, também, determinantes complexos, tais como o partido, relação com os pares, entre outros. Buscando minimizar esse desafio, este trabalho analisa a \acrfull{al}, isto é, o quão ativo determinado parlamentar é em determinado tema. A atividade, portanto, envolve a proposição de projetos, requisições, emendas e discursos. a \acrshort{al}, então, é majoritariamente determinada pelos interesses dos parlamentares. Não quero dizer que as variáveis como partido e relação entre os pares não influenciam, apenas defendo que a \acrshort{al} está mais fortemente correlacionada com os objetivos de um parlamentar, como visto no \textit{framework} de análise do comportamento parlamentar (\ref{fig:framework}). Assim buscamos minimizar os impactos do problema das variáveis omitidas. De tal forma que esperamos que o \acrshort{al} seja uma função de características individuais dos parlamentares, dos países pelos quais os eurodeputados são eleitos e dos partidos dos quais fazem parte. 
+A variável dependente utilizada, portanto, é a \acrfull{al}, operacionalizada como o número de perguntas parlamentares que um eurodeputado ($i$) apresenta em um determinado domínio temático ($d$) e período ($t$). A escolha por focar no comportamento parlamentar, em vez de resultados de políticas públicas, reduz a complexidade da cadeia causal e aproxima a análise da ação individual do legislador.
 
-Consideremos então que:
-\begin{center}
-$AL_{1,idt}$ = o ativismo legislativo do parlamentar $i$, caso tenha recebido esforço de lobby significativo no domínio temático $d$ no tempo $t$; e
+Esta escolha é amplamente respaldada pela literatura sobre o Parlamento Europeu, que demonstra que as perguntas parlamentares são um instrumento multifacetado. Uma primeira vertente teórica, baseada na literatura de agente-principal, enxerga as perguntas como um mecanismo de fiscalização e responsabilização \cite{jensen2013parliamentary, maricut2020qa, martin2013parliamentary}. Nessa perspectiva, os legisladores (o principal) delegam poder à burocracia (o agente), mas utilizam instrumentos como as perguntas para monitorar suas ações, especialmente em temas de alta saliência política \cite{mccubbin1984congressional, saalfeld2000members, strom2000delegation, koop2011explaining}. 
 
-$AL_{0,idt}$ = o ativismo legislativo do parlamentar $i$, caso \emph{não} tenha recebido esforço de lobby significativo no domínio temático $d$ no tempo $t$.
-\end{center}
+Uma segunda vertente foca nas perguntas como um mecanismo de sinalização e posicionamento político. Nessa visão, a atividade parlamentar é menos sobre a fiscalização e mais sobre estratégia: os parlamentares utilizam as perguntas para expressar preferências, sinalizar seus interesses para a liderança partidária, eleitores e grupos de interesse, sendo uma ferramenta valiosa especialmente para a oposição \cite{martin2013parliamentary, otjes2017parliamentary, proksch2010parliamentary, bevan2023do, navarro2022banking}. Por serem uma forma de baixo custo para demonstrar atividade e engajamento em temas específicos, as perguntas tornam-se um indicador sensível da alocação de atenção e esforço de um parlamentar, funcionando como uma excelente proxy para medir mudanças no ativismo legislativo em resposta a estímulos externos, como o lobby.
 
-% tem um salto lógico grande aqui.... usar Angrist e Pischke
-Esses resultados são, contudo, potenciais, isto é, não observamos $AL_{1idt}$ e $AL_{0idt}$ ao mesmo tempo, apenas um ou outro. Partindo do \textit{framework} de análise do comportamento parlamentares, esperamos que:
-
-%% Reformular ..... o domínio temático não pode ser um grupo.... um mep tá em domínios diferentes ao mesmo tempo
-% VERSÃO 3
-\begin{equation}
-    \label{eq:esperanca}
-    E(AL_{0,idt} \vert c,p,d,t,X) = \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it} \delta
-\end{equation}
-
-A equação \ref{eq:esperanca} denota que, na ausência de pressão significativa de lobby, a \acrshort{al} é determinada pela soma dos efeitos:
-\begin{itemize}
-    \item $\gamma_{ct}$: captura o efeito específico do país no tempo $t$. Ele leva em conta fatores que podem influenciar o ativismo legislativo em todos os partidos dentro de um determinado país em um momento específico (por exemplo, sistema eleitoral, características do eleitorado, condições econômicas de longo prazo, etc.);
-    \item $\lambda_{pt}$: representa o efeito específico do partido no tempo $t$. Ele leva em conta fatores que podem influenciar o ativismo legislativo em todos os países para um determinado partido em um momento específico (por exemplo, ideologia do partido.);
-    \item $\theta_{dt}$: captura o efeito do domínio temático no tempo $t$, tais como a competitividade, saliência, etc.
-    \item $X'_{cpt} \delta$: este termo leva em conta os efeitos de outros fatores relevantes (variáveis de controle) capturados no vetor $X$ específicos de cada parlamentar, como expertise, experiência, gênero, etc.
-\end{itemize}
+A variável de tratamento, ou esforço de lobby ($L$), é mensurada pelo número de reuniões que o eurodeputado $i$ teve com grupos de interesse sobre o domínio $d$ no período $t$. Os dados são extraídos dos registros públicos do Parlamento Europeu.
 
 
-% γ 
-% ct
-% ​
-%  : This fixed effect absorbs any unobserved shocks or characteristics that affect all parliamentarians within a specific country at a given time. For example, a major national event or a change in a country's economic policy.
-
-% τ 
-% pt
-% ​
-%  : This fixed effect accounts for trends or common behaviors that are specific to a particular political party over time. For instance, a party's shift in ideology or a change in its leadership.
-
-% λ 
-% dt
-% ​
-%  : This fixed effect controls for factors that influence parliamentary behavior within a specific policy domain (e.g., healthcare, defense) at a given time. This could include a new international agreement or a major technological advancement in that field.
-
-Esperamos que os efeitos de interação entre país e partido seja zero, uma vez que os grupos políticos se organizam transnacionalmente. Por conta disso, não incluí um termo que capturasse um efeito do partido no ativismo legislativo que variasse em diferentes países. 
-
-Considerando que o esforço de lobby varia de acordo com o domínio temático, podemos utilizar o método da \acrfull{ddd}, cuja especificação se daria por:
+A relação entre o esforço de lobby e o ativismo legislativo é estimada por meio de um modelo de \acrfull{ppml}. O método, popularizado por Silva e Tenreyro (\citeyear{silva2006log}) para modelos de gravidade no comércio internacional, cuja fundamentação teórica remonta a Anderson (\citeyear{anderson1979theoretical}), é uma forma de \acrfull{glm} robusto para dados de contagem, especialmente na presença de muitos zeros. O modelo é estimado por meio de uma distribuição quasi-Poisson com uma função de ligação logarítmica, o que evita os vieses que podem surgir da transformação logarítmica da variável dependente em modelos de \acrfull{mqo}, uma questão comum com dados de contagem. Para a estimação, será utilizada a linguagem de programação estatística R, especificamente a função `fepois` do pacote `fixest`, que é altamente eficiente para estimar modelos Poisson com efeitos fixos de alta dimensão. A especificação do modelo, baseada no \textit{framework} teórico, é a seguinte:
 
 \begin{equation}
-    \begin{split}
-        AL_{idt} &= \gamma_{ct} + \lambda_{pt} + \theta_{dt}\\
-        &+ \beta_1 L_{idt}\\
-        &+ \beta_2 (L_{idt} * T_{dt})\\
-        &+ \beta_3 (L_{idt} * D_d)\\
-        &+ \beta_4 (L_{idt} * T_{dt} * D_d)\\
-        &+ X'_{idt} \delta
-    \end{split}
+    \label{eq:modelo_final}
+    E[AL_{idt} | \cdot] = \beta L_{idt} + \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it}\delta
 \end{equation}
 
 Onde:
 \begin{itemize}
-    \item $AL_{idt}$: denota o ativismo legislativo esperado do parlamentar $i$, no domínio $d$ no tempo $t$;
-    \item $L_{idt}$: o esforço de lobby sobre o parlamentar $i$ no domínio $d$ no tempo $t$;
-    \item $T_{dt}$: variável \textit{dummy} que recebe o valor 1 a partir do momento em que o esforço do lobby é realizado no domínio $d$; e
-    \item $D_d$: variável \textit{dummy} que recebe o valor 1 nos temas em que houve esforço significativo de lobby.
+    \item $AL_{idt}$ é a contagem de perguntas do eurodeputado $i$ no domínio $d$ no mês $t$;
+    \item $L_{idt}$ é a contagem de reuniões de lobby do eurodeputado $i$ no domínio $d$ no mês $t$;
+    \item $\beta$ é o coeficiente de interesse, que captura o efeito médio de uma reunião adicional sobre a produção de perguntas;
+    \item $\gamma_{ct}$, $\lambda_{pt}$ e $\theta_{dt}$ são efeitos fixos de alta dimensão;
+    \item $X'_{it}$ é um vetor de controles individuais.
 \end{itemize}
 
-De tal forma que $\beta_1$ representa o efeito médio do lobby no ativismo legislativo em todos os domínios e períodos, independente do tratamento (receber ou não lobby); $\beta_2$ captura o efeito do lobby após o tratamento; $\beta_3$ mensura a diferença no efeito do lobby entre tratados e grupo de controle antes do tratamento; e $\beta_4$ é estimador principal do \acrshort{ddd}, pois captura o efeito médio do tratamento sobre os tratados.
+O componente central da estratégia de identificação reside nos efeitos fixos, que absorvem uma vasta gama de fatores de confusão observáveis e não observáveis, alinhando-se diretamente às três dimensões do comportamento parlamentar identificadas no \textit{framework} teórico:
+\begin{itemize}
+    \item \textbf{Efeito fixo de país-tempo ($\gamma_{ct}$)}: Captura qualquer choque ou tendência comum a todos os parlamentares de um mesmo país $c$ em um dado período $t$. Isso controla por fatores como eleições nacionais, mudanças na opinião pública do país ou estratégias de política externa que poderiam afetar o ativismo de seus representantes.
+    \item \textbf{Efeito fixo de partido-tempo ($\lambda_{pt}$)}: Absorve choques comuns a todos os membros de um partido político europeu $p$ no tempo $t$, como mudanças na liderança do partido, alterações na plataforma ideológica ou estratégias coordenadas de atuação.
+    \item \textbf{Efeito fixo de domínio-tempo ($\theta_{dt}$)}: Controla por fatores que afetam a saliência de um domínio temático $d$ no tempo $t$ para todos os parlamentares, como crises políticas, novas diretivas da Comissão Europeia ou eventos de grande repercussão midiática.
+\end{itemize}
 
-Ocorre, porém, dois problemas com essa especificação. Primeiro, o efeito do lobby não é binário, mas contínuo. Estabelcer limiares para o efeito do lobby pode gerar vieses. Segundo, as reuniões ocorrem a todo momento, tornando impossível definir um período de tratamento. Cada parlamentar pode receber lobby em qualquer momento.  % desenvovler... para chegar em
+Ao incluir essa estrutura de efeitos fixos, a identificação do coeficiente $\beta$ se dá a partir da variação do número de reuniões \textit{dentro} de um mesmo parlamentar ao longo do tempo, após controlar por todas as fontes de variação comuns ao seu país, partido e aos temas em que atua.
 
+A especificação econométrica adotada permite mitigar os principais desafios metodológicos da literatura. Primeiramente, a abordagem lida com o \textbf{viés de seleção e o problema das variáveis omitidas}, considerados os desafios mais críticos. Os lobistas não escolhem seus alvos aleatoriamente; a seleção baseia-se em alinhamento prévio, posição em comitês ou influência. A estratégia de efeitos fixos controla grande parte desses critérios de seleção: fatores não observáveis e estáveis do parlamentar (como sua ideologia ou competência intrínseca) são absorvidos, enquanto fatores variantes no tempo são capturados pelos efeitos fixos de país-tempo, partido-tempo e domínio-tempo. A premissa de identificação é que, uma vez controlados esses fatores, a variação residual no número de reuniões que um parlamentar recebe é exógena à sua produção legislativa.
 
-\begin{equation}
-    \begin{split}
-        AL_{idt} &= \gamma_{ct} + \lambda_{pt} + \theta_{dt}\\
-        &+ \beta_1 L_{idt}\\
-        &+ X'_{idt} \delta
-    \end{split}
-\end{equation}
+Para além dos efeitos fixos, o modelo inclui um vetor de variáveis de controle ($X'_{it}$) que capturam características individuais e variantes no tempo do parlamentar, com especial atenção para os cargos que ocupa. Variáveis \textit{dummy} indicam se o eurodeputado exerce funções de liderança, como a presidência de comissões, delegações ou grupos de trabalho. A inclusão desses controles é crucial para a estratégia de identificação, pois tais posições de poder são um critério central na seleção de alvos pelos lobistas e, ao mesmo tempo, podem influenciar diretamente o ativismo legislativo do parlamentar. Ao controlar por essas posições, isolamos o efeito do lobby de um importante fator de confusão, fortalecendo a premissa de que a variação residual no número de reuniões é exógena.
 
+Adicionalmente, o modelo contorna o problema da \textbf{persistência temporal}. Como a estimação utiliza apenas a variação intra-parlamentar, o fato de alguns parlamentares receberem consistentemente mais lobby do que outros não enviesa a estimativa de $\beta$. O efeito é identificado a partir de parlamentares que alteram seu nível de engajamento com lobistas ao longo do tempo. A questão do \textbf{lobby contra-ativo} também é endereçada, uma vez que a variável de tratamento ($L_{idt}$) representa o volume total de reuniões, sem distinguir a direção da pressão. Assim, o coeficiente $\beta$ estimado representa o efeito \textit{líquido} de uma reunião adicional. Para explorar a heterogeneidade desse efeito, o modelo é também estimado separadamente para diferentes tipos de lobistas (e.g., empresariais, ONGs), permitindo analisar se a natureza do grupo de interesse altera o resultado.
 
+Finalmente, em relação às múltiplas \textbf{faces do poder e canais de influência}, esta pesquisa delimita seu escopo para um canal (lobby direto via reuniões) e um tipo de resultado (ativismo legislativo). Essa delimitação é uma escolha metodológica deliberada para obter maior validade interna e uma identificação causal mais crível, ainda que se reconheça que o lobby opera por múltiplos canais e visa a diferentes resultados.
 
-
-
-
-Para operacionalização, irei mensurar o $AL$ por meio de um indicador de ativismo legislativo, o qual levará em consideração a autoria de requisições, discursos e emendas realizadas pelo parlamentar por domínio temático. Para a captação de dados, utilizarei a API disponibilizada pelo próprio Parlamento e, adicionalmente, lançarei mão de \textit{scraper} em Python a fim de pegar os dados mais detalhados dos trâmites que não estão disponíveis na API, porém estão no site da \acrshort{pe}.
-
-Os esforços de lobby ($L$) será mensurado pela quantidade de reuniões que determinado parlamentar realizou com representantes de grupos de pressão. Os eurodeputados são obrigados a publicizá-las, quando forem relatores. Esses dados também são possíveis de serem extraídos por meio de \textit{scraper}. Com isso, teremos o registro de quem se reuniu com quem e a data do encontro%, o que permitirá calcular as variáveis \textit{dummy} ($T$ e $D$).
-
-Para encontrar o domínio em que o lobby foi realizado, faremos uma inferência a partir do representante de interesse lobista. Ou seja, partiremos do pressuposto que as organizações tem interesses específicos em temas específicos, que tem relação com a sua natureza, de tal modo que, por exemplo, uma associação comercial tem interesses em temas comerciais e econômicos, já uma organização da sociedade civil de defesa do meio ambiente tem interesses no domínio de meio ambiente. O Registro de Transparência da \acrshort{ue} nos permite saber quem são os atores registrados, bem como suas áreas de interesse. Assim, ao cruzarmos com os dados dos encontros publicados, poderemos saber em qual área determinado parlamentar recebeu pressão de lobby. Demais dados podem ser obtidos pela API, tais como grupo político, gênero, ocupação, país eleito de um eurodeputado. 
-
-
-
-% Justificar questions como proxy
-
-% Justificar meetings como proxy
+Em suma, a estratégia de identificação se baseia em um modelo de painel com efeitos fixos de alta dimensão que exploram a estrutura de variação dos dados (parlamentar, país, partido, domínio e tempo) para isolar o efeito do lobby de inúmeros fatores de confusão, conforme fundamentado pelo \textit{framework} de análise do comportamento parlamentar.
