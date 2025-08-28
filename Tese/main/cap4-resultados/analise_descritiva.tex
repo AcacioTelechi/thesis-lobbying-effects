@@ -13,10 +13,10 @@ A \autoref{fig:time_series} apresenta a evolução temporal das variáveis princ
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig2_time_series_analysis.pdf}
+\includegraphics[width=\textwidth]{figures/fig1_time_series_meetings_questions.pdf}
 \caption{Evolução temporal da atividade parlamentar e de lobbying}
 \label{fig:time_series}
-\note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
+% \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
 \end{figure}
 
 A análise temporal revela quatro padrões empiricamente relevantes. Primeiro, observa-se uma \textbf{tendência crescente} em ambas as variáveis ao longo do período, sugerindo intensificação tanto da atividade parlamentar quanto do lobbying. Segundo, existe clara \textbf{sazonalidade} relacionada ao calendário parlamentar, com reduções sistemáticas durante períodos de recesso. Terceiro, identificam-se \textbf{picos de atividade} que coincidem com discussões de legislação relevante em domínios específicos, indicando resposta coordenada do sistema político. Quarto, a \textbf{correlação contemporânea} entre perguntas e reuniões permanece relativamente estável ao longo do tempo, sugerindo estabilidade estrutural na relação entre as variáveis.
@@ -30,19 +30,48 @@ Estes padrões temporais têm implicações metodológicas importantes. A presen
 
 Complementando a análise temporal, é fundamental examinar os padrões de participação no nível individual dos deputados. Esta perspectiva agregada revela a distribuição da atividade de lobbying entre os parlamentares e fornece insights sobre a concentração e heterogeneidade dos fenômenos estudados.
 
-\subsubsection{Distribuição do tratamento entre deputados}
 
-A \autoref{fig:mep_aggregated} apresenta uma análise abrangente dos padrões de participação agregados por deputado, revelando aspectos fundamentais da distribuição da atividade de lobbying no Parlamento Europeu.
+
+As \autoref{fig:proportion_meetings}, \autoref{fig:correlation_meetings_questions} e \autoref{fig:meetings_hist} apresentam uma análise dos padrões de participação agregados por deputado, revelando aspectos da distribuição da atividade de lobbying no Parlamento Europeu que impactam a identificação causal.
+
+% \begin{figure}[htbp]
+% \centering
+% \includegraphics[width=\textwidth]{figures/fig6_mep_aggregated_analysis.pdf}
+% \caption{Análise agregada por MEP: distribuição e intensidade do tratamento}
+% \label{fig:mep_aggregated}
+% \note{O painel superior esquerdo mostra a proporção de deputados que receberam pelo menos uma reunião de lobbying durante todo o período. O painel superior direito apresenta a distribuição da intensidade total de reuniões entre deputados tratados. O painel inferior esquerdo examina a relação agregada entre reuniões e perguntas totais por deputado. O painel inferior direito identifica os deputados mais ativos em termos de recepção de lobbying.}
+% \end{figure}
+
+
+
+% \subsubsection{Distribuição do tratamento entre deputados}
 
 \begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig6_mep_aggregated_analysis.pdf}
-\caption{Análise agregada por MEP: distribuição e intensidade do tratamento}
-\label{fig:mep_aggregated}
-\note{O painel superior esquerdo mostra a proporção de deputados que receberam pelo menos uma reunião de lobbying durante todo o período. O painel superior direito apresenta a distribuição da intensidade total de reuniões entre deputados tratados. O painel inferior esquerdo examina a relação agregada entre reuniões e perguntas totais por deputado. O painel inferior direito identifica os deputados mais ativos em termos de recepção de lobbying.}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig2_proportion_meetings.pdf}
+    \caption{Evolução temporal da proporção de \acrshort{mpe}s que participaram de reuniões de lobbying}
+    \label{fig:proportion_meetings}
+    % \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
 \end{figure}
 
-A análise revela três características fundamentais da distribuição de tratamento. Primeiro, existe \textbf{participação substancial mas não universal}: 46,3\% dos deputados (627 de 1.353) receberam pelo menos uma reunião de lobbying durante o período estudado. Esta proporção indica que o lobbying é um fenômeno disseminado mas não ubíquo no sistema parlamentar europeu.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig3_correlation_meetings_questions.pdf}
+    \caption{Evolução temporal da correlação entre reuniões e perguntas}
+    \label{fig:correlation_meetings_questions}
+    % \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig3.1_meetings_hist.pdf}
+    \caption{Distribuição de reuniões por \acrshort{mpe}}
+    \label{fig:meetings_hist}
+    % \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
+\end{figure}
+
+
+A análise revela três características fundamentais da distribuição de tratamento. Primeiro, existe \textbf{participação substancial mas não universal}: 46,3\% dos deputados (XXX de X.XXX) receberam pelo menos uma reunião de lobbying durante o período estudado. Esta proporção indica que o lobbying é um fenômeno disseminado mas não ubíquo no sistema parlamentar europeu.
 
 Segundo, observa-se \textbf{concentração extrema} na intensidade de tratamento. Entre os deputados que receberam lobbying, a distribuição é altamente assimétrica: enquanto a mediana é de 105 reuniões por deputado, a média é de 288,2 reuniões, indicando que uma minoria de parlamentares concentra uma proporção desproporcional da atividade lobista. O caso extremo de um deputado com 4.274 reuniões ilustra esta concentração.
 
