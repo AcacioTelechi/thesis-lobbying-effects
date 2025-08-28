@@ -42,14 +42,18 @@
 \end{frame}
 
 % ========================================
-% SEÇÃO 1: INTRODUÇÃO E CONTEXTO
+% SEÇÃO 1: INTRODUÇÃO E HIPÓTESES
 % ========================================
 
-\section{Introdução e Contexto}
+\section{Introdução e Hipóteses}
 
-\begin{frame}{Pergunta de Pesquisa}
-\begin{block}{Hipótese Principal}
-\textbf{H1:} A intensidade de lobbying está positivamente associada à atividade parlamentar de fiscalização (perguntas parlamentares)
+\begin{frame}{Pergunta de Pesquisa e Hipóteses}
+\begin{block}{Hipóteses a Testar}
+\begin{enumerate}
+\item \textbf{H1:} MEPs com maior pressão de lobby exibem maior atividade legislativa (AL) no domínio específico
+\item \textbf{H2:} Lobbying empresarial é mais eficaz em aumentar a AL dos MEPs
+\item \textbf{H3:} Em temas mais salientes, lobbying não-empresarial supera o empresarial na eficácia
+\end{enumerate}
 \end{block}
 
 \vspace{0.5cm}
@@ -68,16 +72,16 @@
 \textbf{Variável Dependente:}
 \begin{itemize}
 \item \textbf{Questions:} Número de perguntas parlamentares por MEP-domínio-mês
+\item Proxy para Atividade Legislativa (AL)
 \item Natureza: Contagem discreta
 \item Característica: Alta incidência de zeros
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
-\textbf{Variável de Tratamento:}
+\textbf{Variáveis de Tratamento:}
 \begin{itemize}
-\item \textbf{Meetings:} Número de reuniões de lobbying por MEP-domínio-mês
-\item Natureza: Contagem discreta
-\item Característica: Distribuição assimétrica
+\item \textbf{Meetings:} Intensidade de lobbying (H1)
+\item \textbf{Categorias:} Business vs. NGOs vs. Other (H2, H3)
 \end{itemize}
 \end{column}
 \end{columns}
@@ -244,15 +248,23 @@ Agricultura & 40,9 \\
 \end{frame}
 
 % ========================================
-% SEÇÃO 4: RESULTADOS PRINCIPAIS
+% SEÇÃO 4: TESTAGEM DAS HIPÓTESES
 % ========================================
 
-\section{Resultados Principais}
+\section{Testagem das Hipóteses}
 
-\begin{frame}{Resultados dos Modelos PPML}
+\begin{frame}{Hipótese 1: Efeito Geral do Lobbying}
+\begin{block}{H1: MEPs com maior pressão de lobby exibem maior AL}
+\begin{itemize}
+\item \textbf{Teste:} Coeficiente de \textit{meetings} > 0
+\item \textbf{Especificação:} PPML linear e quadrático
+\item \textbf{Controles:} Efeitos fixos completos
+\end{itemize}
+\end{block}
+
 \begin{table}
 \centering
-\caption{Estimativas principais: efeito de reuniões sobre perguntas}
+\caption{Teste da H1: Efeito de reuniões sobre perguntas}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{.22\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
     \toprule
       & PPML & PPML (Quad.) \\
@@ -267,14 +279,14 @@ Agricultura & 40,9 \\
     \end{tabularx}
 \end{table}
 
-\textbf{Interpretação:} Coeficiente positivo e significativo indica associação positiva entre lobbying e atividade parlamentar
+\textbf{Resultado:} H1 confirmada - coeficiente positivo e significativo
 \end{frame}
 
-\begin{frame}{Interpretação dos Resultados}
+\begin{frame}{Interpretação da H1}
 \begin{block}{Modelo Linear}
 \begin{itemize}
 \item \textbf{Efeito marginal:} $\frac{\partial \mathbb{E}[y]}{\partial x} = \beta_1 \exp(X\beta)$
-\item \textbf{Interpretação:} Aumento de 1 reunião → variação de $100 \times (e^{0.066} - 1) = 6.8\%$ nas perguntas
+\item \textbf{Interpretação:} Aumento de 1 reunião → variação de $100 \times (e^{0.025} - 1) = 2.5\%$ nas perguntas
 \end{itemize}
 \end{block}
 
@@ -282,57 +294,122 @@ Agricultura & 40,9 \\
 \begin{itemize}
 \item \textbf{Efeito marginal:} $\frac{\partial \mathbb{E}[y]}{\partial x} = (\beta_1 + 2\beta_2 x) \exp(X\beta)$
 \item \textbf{Retornos decrescentes:} $\beta_2 < 0$ indica saturação de agenda
-\item \textbf{Magnitude:} $\beta_2 = -0.002$ sugere retornos decrescentes pequenos
+\item \textbf{Magnitude:} $\beta_2 = -0.004$ sugere retornos decrescentes moderados
+\end{itemize}
+\end{block}
+
+\textbf{Conclusão H1:} Lobbying aumenta significativamente a atividade parlamentar
+\end{frame}
+
+
+\begin{frame}{Curvas de Efeito: Visualização dos Resultados}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+    \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig8_effect_linear_ppml.pdf}
+    \caption{Especificação linear}
+    \end{figure}
+  \end{column}
+    \begin{column}{0.5\textwidth}
+    \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig9_effect_quadratic_ppml.pdf}
+    \caption{Especificação quadrática}
+    \end{figure}
+    \end{column}
+  \end{columns}
+  
+  \textbf{Comparação:} Modelo quadrático captura retornos marginais decrescentes, porém pequeno
+\end{frame}
+
+\begin{frame}{Hipótese 2: Eficácia do Lobbying Empresarial}
+\begin{block}{H2: Lobbying empresarial é mais eficaz em aumentar a AL}
+\begin{itemize}
+\item \textbf{Teste:} Comparar coeficientes entre categorias organizacionais
+\item \textbf{Especificação:} PPML com diferentes tratamentos
+\item \textbf{Hipótese:} $\beta_{Business} > \beta_{NGOs}, \beta_{Other}$
 \end{itemize}
 \end{block}
 \end{frame}
 
-\begin{frame}{Efeitos por Domínio}
+\begin{frame}{Hipótese 2: Eficácia do Lobbying Empresarial}
 \begin{figure}
 \centering
-\includegraphics[width=0.9\textwidth]{figures/fig_coeff_domains.pdf}
-\caption{Efeito do lobbying por domínio de política pública}
-\end{figure}
-
-\textbf{Resultado:} Efeito positivo consistente em todos os domínios, com variação na magnitude
-\end{frame}
-
-\begin{frame}{Efeitos por Tipo de Tratamento}
-\begin{figure}
-\centering
-\includegraphics[width=0.9\textwidth]{figures/fig_coeff_treatments_overall.pdf}
+\includegraphics[width=0.6\textwidth]{figures/fig_coeff_treatments_overall.pdf}
 \caption{Efeito do lobbying por categoria de organização}
 \end{figure}
 
-\textbf{Análise:} Heterogeneidade nos efeitos por tipo de organização lobista
+\textbf{Análise:} Comparar magnitude dos coeficientes entre categorias
 \end{frame}
 
-\begin{frame}{Curvas de Efeito}
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{figures/fig8_effect_linear_ppml.pdf}
-\caption{Especificação linear}
-\end{figure}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{figures/fig9_effect_quadratic_ppml.pdf}
-\caption{Especificação quadrática}
-\end{figure}
-\end{column}
-\end{columns}
+\begin{frame}{Teste da H2: Análise por Categoria - RESULTADOS}
+\begin{block}{Comparação de Eficácia - Evidência Empírica}
+\begin{itemize}
+\item \textbf{Geral:} Coeficiente base para comparação
+\item \textbf{NGOs:} Efeito superior ao empresarial
+\end{itemize}
+\end{block}
 
-\textbf{Comparação:} Modelo quadrático captura retornos marginais decrescentes
+\vspace{0.3cm}
+
+\textbf{Resultado H2:} 
+\begin{itemize}
+\item \textbf{Status:} Rejeitada
+\item \textbf{Evidência:} Empresas não são mais eficazes que NGOs. Contudo, retornos marginais descrescentes são pequenos, favorecendo atores com mais recursos
+\item \textbf{Interpretação:} Lobbying empresarial é eficaz, mas não exclusivamente superior
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Hipótese 3: Eficácia em Temas Salientes}
+\begin{block}{H3: Em temas mais salientes, lobbying não-empresarial supera o empresarial}
+\begin{itemize}
+\item \textbf{Teste:} Interação entre categoria organizacional e saliência do domínio
+\item \textbf{Especificação:} PPML com efeitos heterogêneos por domínio
+\item \textbf{Hipótese:} $\beta_{NGOs}^{Saliente} > \beta_{Business}^{Saliente}$
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Hipótese 3: Eficácia em Temas Salientes}
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig_coeff_treatments_by_domain.pdf}
+\caption{Efeito do lobbying por categoria e domínio}
+\end{figure}
+
+\textbf{Análise:} Comparar eficácia entre categorias em domínios de alta saliência
+\end{frame}
+
+\begin{frame}{Teste da H3: Análise por Domínio e Categoria - RESULTADOS}
+\begin{block}{Domínios de Alta Saliência - Evidência Empírica}
+\begin{itemize}
+\item \textbf{Ambiente e Clima:} Alta visibilidade política - NGOs têm vantagem
+\item \textbf{Direitos Humanos:} Relevância normativa - NGOs mais eficazes
+\item \textbf{Saúde:} Impacto direto na população - Padrão misto
+\end{itemize}
+\end{block}
+
+\begin{block}{Domínios de Baixa Saliência}
+\begin{itemize}
+\item \textbf{Agricultura:} Especialização técnica - Business mantém vantagem
+\item \textbf{Infraestrutura:} Menor visibilidade pública - Business mais eficaz
+\end{itemize}
+\end{block}
+
+\textbf{Resultado H3:} 
+\begin{itemize}
+\item \textbf{Status:} Confirmada
+\item \textbf{Evidência:} Em domínios salientes, NGOs superam Business
+\item \textbf{Interpretação:} Saliência temática favorece organizações não-empresariais
+\end{itemize}
 \end{frame}
 
 % ========================================
-% SEÇÃO 5: ROBUSTEZ E IMPLICAÇÕES
+% SEÇÃO 5: CURVAS DE EFEITO E ROBUSTEZ
 % ========================================
 
-\section{Robustez e Implicações}
+\section{Curvas de Efeito e Robustez}
 
 \begin{frame}{Testes de Robustez}
 \begin{block}{Especificações Alternativas}
@@ -341,6 +418,8 @@ Agricultura & 40,9 \\
 \item \textbf{Diferentes tratamentos:} Categorias organizacionais, orçamento, experiência
 \item \textbf{Análise por domínio:} Efeito positivo em todas as áreas temáticas
 \item \textbf{Clustering robusto:} Erros-padrão em múltiplas dimensões
+\item \textbf{Endogeneidade:} Utilização de PSM para controle de endogeneidade
+\item \textbf{Defasagens:} Testes de event study
 \end{itemize}
 \end{block}
 
@@ -349,36 +428,43 @@ Agricultura & 40,9 \\
 \textbf{Conclusão:} Resultados robustos a múltiplas especificações
 \end{frame}
 
-\begin{frame}{Implicações Teóricas e Políticas}
-\begin{block}{Implicações Teóricas}
+% ========================================
+% SEÇÃO 6: IMPLICAÇÕES E LIMITAÇÕES
+% ========================================
+
+\section{Implicações e Limitações}
+
+\begin{frame}{Implicações das Hipóteses Testadas}
+\begin{block}{H1 Confirmada: Efeito Geral do Lobbying}
 \begin{itemize}
-\item \textbf{Confirmação da H1:} Lobbying aumenta atividade parlamentar
-\item \textbf{Retornos decrescentes:} Eficácia diminui com intensidade excessiva
-\item \textbf{Heterogeneidade setorial:} Efeitos variam por domínio de política
+\item \textbf{Evidência:} Lobbying aumenta atividade parlamentar
+\item \textbf{Implicação:} Mecanismos de influência política operam efetivamente
+\item \textbf{Política:} Importância da transparência e regulação
 \end{itemize}
 \end{block}
 
-\begin{block}{Implicações Políticas}
+% TODO: REVER
+\begin{block}{H2 Rejeitada: Heterogeneidade Organizacional}
 \begin{itemize}
-\item \textbf{Transparência:} Importância do registro de lobbying
-\item \textbf{Regulação:} Necessidade de equilibrar acesso e influência
-\item \textbf{Monitoramento:} Vigilância sobre concentração de esforços lobistas
+\item \textbf{Evidência:} Empresas não são mais eficazes que NGOs
+\item \textbf{Implicação:} Diferentes estratégias de lobbying por tipo de organização
+\item \textbf{Política:} Necessidade de equilibrar acesso e influência
+\end{itemize}
+\end{block}
+
+\begin{block}{H3 Confirmada: Eficácia em Temas Salientes}
+\begin{itemize}
+\item \textbf{Evidência:} ONGs superam Empresas em domínios salientes
+\item \textbf{Implicação:} Saliência temática afeta eficácia do lobbying
+\item \textbf{Política:} Importância do contexto político para estratégias lobistas
 \end{itemize}
 \end{block}
 \end{frame}
 
-% ========================================
-% SEÇÃO 6: LIMITAÇÕES E FUTURAS PESQUISAS
-% ========================================
-
-\section{Limitações e Futuras Pesquisas}
-
 \begin{frame}{Limitações do Estudo}
 \begin{block}{Desafios Metodológicos}
 \begin{itemize}
-\item \textbf{Endogeneidade:} Possível seleção não aleatória de reuniões
 \item \textbf{Medição:} Captura apenas reuniões registradas oficialmente
-\item \textbf{Defasagens:} Efeitos podem operar com timing diferente
 \item \textbf{Generalização:} Resultados específicos ao contexto europeu
 \end{itemize}
 \end{block}
@@ -392,7 +478,6 @@ Agricultura & 40,9 \\
 \begin{block}{Extensões Metodológicas}
 \begin{itemize}
 \item \textbf{Instrumentação:} Identificação de choques exógenos no lobbying
-\item \textbf{Análise de defasagens:} Estrutura temporal dos efeitos
 \item \textbf{Mecanismos:} Canais específicos de influência
 \end{itemize}
 \end{block}
@@ -410,50 +495,33 @@ Agricultura & 40,9 \\
 % SEÇÃO 7: CONCLUSÕES
 % ========================================
 
-\section{Conclusões}
+% \section{Conclusões}
 
-\begin{frame}{Principais Conclusões}
-\begin{block}{Evidências Empíricas}
-\begin{enumerate}
-\item \textbf{Associação positiva:} Lobbying aumenta atividade parlamentar de fiscalização
-\item \textbf{Retornos decrescentes:} Efeito marginal diminui com intensidade
-\item \textbf{Robustez:} Resultados consistentes em múltiplas especificações
-\item \textbf{Heterogeneidade:} Efeitos variam por domínio e tipo de organização
-\end{enumerate}
-\end{block}
 
-\vspace{0.3cm}
+% \begin{frame}{Implicações para a Literatura}
+% \begin{block}{Contribuições Principais}
+% \begin{itemize}
+% \item \textbf{Metodológica:} Aplicação de PPML com efeitos fixos de alta dimensão
+% \item \textbf{Empírica:} Comparação entre domínios com dados em painel
+% \item \textbf{Teórica:} Confirmação de mecanismos de influência política e heterogeneidade organizacional
+% \item \textbf{Política:} Base para discussões sobre regulação do lobbying e equilíbrio de influência
+% \end{itemize}
+% \end{block}
 
-\textbf{Contribuição:} Evidência quantitativa robusta sobre efeitos do lobbying no Parlamento Europeu
-\end{frame}
+% \vspace{0.3cm}
 
-\begin{frame}{Implicações para a Literatura}
-\begin{block}{Contribuições Principais}
-\begin{itemize}
-\item \textbf{Metodológica:} Aplicação de PPML com efeitos fixos de alta dimensão
-\item \textbf{Empírica:} Primeira análise sistemática do lobbying europeu
-\item \textbf{Teórica:} Confirmação de mecanismos de influência política
-\item \textbf{Política:} Base para discussões sobre regulação do lobbying
-\end{itemize}
-\end{block}
+% \textbf{Relevância:} Estudo pioneiro que abre caminho para pesquisas futuras sobre lobbying organizacional
+% \end{frame}
 
-\vspace{0.3cm}
+% % Slide final
+% \begin{frame}
+% \begin{center}
+% \Large \textbf{Obrigado!}
 
-\textbf{Relevância:} Estudo pioneiro que abre caminho para pesquisas futuras
-\end{frame}
-
-% Slide final
-\begin{frame}
-\begin{center}
-\Large \textbf{Obrigado!}
-
-\vspace{1cm}
-\textbf{Perguntas e Discussão}
-
-\vspace{1cm}
-\small
-\textit{Efeitos do Lobbying na Atividade Parlamentar: \\ Modelagem PPML e Análise Causal}
-\end{center}
-\end{frame}
+% \vspace{1cm}
+% \small
+% \textit{Efeitos do Lobbying na Atividade Parlamentar: \\ Testagem de Três Hipóteses}
+% \end{center}
+% \end{frame}
 
 \end{document}
