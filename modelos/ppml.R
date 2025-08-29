@@ -7,9 +7,6 @@ library(fixest)
 library(modelsummary)
 library(ggplot2)
 
-# --- Assume your data.frame is `df` with columns:
-# questions (y), meetings (T), member_id, domain, time, plus controls (e.g., x1, x2, ...)
-# Make sure types are appropriate (factors/integers for IDs, numeric for y/T/controls).
 df <- read.csv("./data/gold/df_long_v2.csv", stringsAsFactors = TRUE)
 
 # # filter by domain
