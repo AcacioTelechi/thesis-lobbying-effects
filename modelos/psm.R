@@ -10,9 +10,6 @@ library(ggplot2)
 
 df <- read.csv("./data/gold/df_long_v2.csv", stringsAsFactors = TRUE)
 
-# # filter by domain
-# df <- df_raw[df_raw$domain == "agriculture", ]
-
 # 1) Build the three FE identifiers (member×domain, member×time, domain×time)
 df$fe_i <- df$member_id # μ_id
 df$fe_ct <- interaction(df$meps_country, df$Y.m, drop = TRUE) # μ_ct: country × time fixed effect
@@ -24,7 +21,13 @@ df$cl_dt <- interaction(df$domain, df$Y.m, drop = TRUE)
 
 
 # 3) Build variables
-# df$treated <- df$meetings > 0
+# treated
+tmp_has_meeting <- df$meetings > 0 & !is.na(df$meetings)
+by_member_any <- aggregate(tmp_has_meeting ~ member_id, data = df, FUN = function(x) any(x, na.rm = TRUE))
+by_member_any$member_id <- as.character(by_member_any$member_id)
+treated_ids <- by_member_any$member_id[by_member_any$tmp_has_meeting]
+df$treated <- df$member_id %in% treated_ids
+
 # Controls
 controls <- c(
     "meps_POLITICAL_GROUP_5148.0",
@@ -113,9 +116,6 @@ controls_str <- paste(controls, collapse = " + ")
 
 dir.create("Tese/figures", showWarnings = FALSE, recursive = TRUE)
 dir.create("Tese/tables", showWarnings = FALSE, recursive = TRUE)
-
-# Binary treatment indicator
-df$treated <- as.integer(df$meetings > 0)
 
 # Propensity score model: include domain, time and observed covariates
 psm_covariates <- c("domain", "Y.m", controls)
