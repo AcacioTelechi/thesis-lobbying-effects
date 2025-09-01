@@ -100,8 +100,9 @@ if (!dir.exists(tables_dir)) dir.create(tables_dir, recursive = TRUE)
 if (!dir.exists(outputs_dir)) dir.create(outputs_dir, recursive = TRUE)
 
 # --- Marginal predicted meetings by category (emmeans) ---
-# Build 'at' as a named list of numeric scalars
-at_vals <- lapply(avg_controls, function(x) as.numeric(x[1]))
+# Build 'at' as a named list of numeric scalars (global means of numeric covariates)
+numeric_vars <- intersect(num_controls, names(model_df))
+at_vals <- as.list(sapply(numeric_vars, function(nm) mean(model_df[[nm]], na.rm = TRUE)))
 # Increase grid limit safely
 emm_options(rg.limit = 10000)
 
@@ -116,13 +117,13 @@ emm_meet <- emmeans(rg, ~ l_category, type = "response")
 emm_df <- as.data.frame(emm_meet)
 # Standardize column names
 setDT(emm_df)
-setnames(emm_df, old = c("emmean", "SE", "asymp.LCL", "asymp.UCL"), new = c("mean_meetings", "se", "ci_lo", "ci_hi"), skip_absent = TRUE)
+setnames(emm_df, old = c("response", "SE", "asymp.LCL", "asymp.UCL"), new = c("mean_meetings", "se", "ci_lo", "ci_hi"), skip_absent = TRUE)
 
 # Save emmeans CSV
 fwrite(emm_df, file = file.path(outputs_dir, "emmeans_meetings_by_category.csv"))
 
 # Plot: Predicted meetings by category with 95% CI
-p_pred_meet <- ggplot(emm_df, aes(x = response, y = l_category)) +
+p_pred_meet <- ggplot(emm_df, aes(x = mean_meetings, y = l_category)) +
   geom_vline(xintercept = 0, color = "gray85") +
   geom_point(color = "#1f77b4", size = 2.8) +
   geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#1f77b4") +
@@ -177,3 +178,4 @@ ggsave(file.path(figures_dir, "fig_total_effect_by_category.pdf"), p_total_effec
 #   cat(sprintf("\nRatio (Business vs NGOs) - Predicted meetings: %.2f\n", ratio_meet))
 #   cat(sprintf("Ratio (Business vs NGOs) - Total effect: %.2f\n", ratio_te))
 # }
+
