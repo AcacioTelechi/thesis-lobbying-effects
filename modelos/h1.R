@@ -477,9 +477,30 @@ df_quad <- data.frame(
   upper    = upper_quad
 )
 
+# Find the max point (maximum factor value and its corresponding meetings)
+max_idx <- which.max(df_quad$factor)
+max_meetings <- df_quad$meetings[max_idx]
+max_factor <- df_quad$factor[max_idx]
+
+# To avoid the warning about aesthetics of length 1, use annotate() for the max point instead of geom_point(aes(...))
 p_quad <- ggplot(df_quad, aes(x = meetings, y = factor)) +
   geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#d62728", alpha = 0.15) +
   geom_line(color = "#d62728", size = 1) +
+  # Add annotation for the max point using annotate (not geom_point(aes(...)))
+  annotate(
+    "point",
+    x = max_meetings,
+    y = max_factor,
+    color = "black",
+    size = 2.5
+  ) +
+  annotate(
+    "text",
+    x = max_meetings,
+    y = max_factor,
+    label = sprintf("Máx: %.1f reuniões\nFator: %.2f", max_meetings, max_factor),
+    vjust = -1, hjust = 0.5, size = 3.5, color = "black"
+  ) +
   labs(
     x = "Número de reuniões no mês",
     y = "Fator multiplicativo esperado em perguntas",
