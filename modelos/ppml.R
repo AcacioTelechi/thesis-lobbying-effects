@@ -372,52 +372,7 @@ if (nrow(df_domains_plot) > 0) {
     ggsave("Tese/figures/fig_coeff_domains.pdf", p_domains, width = 10, height = 7)
 }
 
-# ------------------------------
-# F2) Across treatments (overall)
-# ------------------------------
 
-df_treat_overall <- data.frame(treatment = character(), estimate = numeric(), se = numeric(), stringsAsFactors = FALSE)
-
-for (nm in names(results_alt_treatments)) {
-    fit <- results_alt_treatments[[nm]]
-    x <- extract_meetings(fit)
-    if (is.na(x$b)) next
-    if (nm == "Geral") next
-    df_treat_overall <- rbind(df_treat_overall, data.frame(treatment = nm, estimate = x$b, se = x$se))
-}
-
-if (nrow(df_treat_overall) > 0) {
-    df_treat_overall$ci_lo <- df_treat_overall$estimate - 1.96 * df_treat_overall$se
-    df_treat_overall$ci_hi <- df_treat_overall$estimate + 1.96 * df_treat_overall$se
-    df_treat_overall$treatment_label <- pretty_treatment_label(df_treat_overall$treatment)
-    df_treat_overall$treatment_label <- factor(df_treat_overall$treatment_label, levels = df_treat_overall$treatment_label[order(df_treat_overall$estimate)])
-
-    p_treat_overall <- ggplot(df_treat_overall, aes(x = estimate, y = treatment_label)) +
-        geom_vline(xintercept = 0, color = "gray70") +
-         {
-            if (!is.na(baseline_est) && !is.na(baseline_est_se)) {
-                b_lo <- baseline_est - 1.96 * baseline_est_se
-                b_hi <- baseline_est + 1.96 * baseline_est_se
-                list(
-                    annotate("rect", xmin = b_lo, xmax = b_hi, ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "#B45C1F"),
-                    geom_vline(xintercept = baseline_est, linetype = "dashed", color = "#B45C1F")
-                )
-            } else {
-                NULL
-            }
-        } +
-        geom_point(color = "#1f77b4", size = 2.8) +
-        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#1f77b4") +
-        labs(
-            # title = "Meetings effect across treatments (overall PPML)",
-            # subtitle = "Points are estimates; bars are 95% CIs.",
-            x = "Efeito (meetings)", y = "Tratamento"
-        ) +
-        theme_minimal()
-
-    ggsave("Tese/figures/fig_coeff_treatments_overall.png", p_treat_overall, width = 10, height = 7, dpi = 300)
-    ggsave("Tese/figures/fig_coeff_treatments_overall.pdf", p_treat_overall, width = 10, height = 7)
-}
 
 # ------------------------------
 # F3) Across treatments per domain (faceted)

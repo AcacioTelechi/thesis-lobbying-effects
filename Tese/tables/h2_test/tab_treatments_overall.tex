@@ -1,0 +1,26 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+entry=none,label=none,
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]},
+column{2-5}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{4}={1-5}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Geral & l\_category\_Business & l\_category\_NGOs & l\_category\_Other \\ \midrule %% TinyTableHeader
+meetings & \num{0.025}*** & \num{0.024}*** & \num{0.090}*** & \num{0.054}*** \\
+& (\num{0.002}) & (\num{0.003}) & (\num{0.005}) & (\num{0.007}) \\
+Num.Obs. & \num{600237} & \num{600237} & \num{600237} & \num{600237} \\
+R2 & \num{0.253} & \num{0.253} & \num{0.253} & \num{0.253} \\
+RMSE & \num{0.56} & \num{0.56} & \num{0.56} & \num{0.56} \\
+Std.Errors & by: cl\_dt & by: cl\_dt & by: cl\_dt & by: cl\_dt \\
+FE: fe\_ct & X & X & X & X \\
+FE: fe\_pt & X & X & X & X \\
+FE: fe\_dt & X & X & X & X \\
+\bottomrule
+\end{talltblr}
+\end{table}
