@@ -7,6 +7,14 @@ library(fixest)
 library(modelsummary)
 library(ggplot2)
 
+figures_dir <- file.path("Tese", "figures", "h1_test")
+tables_dir <- file.path("Tese", "tables", "h1_test")
+outputs_dir <- file.path("outputs", "h1_test")
+if (!dir.exists(figures_dir)) dir.create(figures_dir, recursive = TRUE)
+if (!dir.exists(tables_dir)) dir.create(tables_dir, recursive = TRUE)
+if (!dir.exists(outputs_dir)) dir.create(outputs_dir, recursive = TRUE)
+
+
 df <- read.csv("./data/gold/df_long_v2.csv", stringsAsFactors = TRUE)
 
 # # filter by domain
@@ -368,10 +376,9 @@ if (nrow(df_domains_plot) > 0) {
         ) +
         theme_minimal()
 
-    ggsave("Tese/figures/fig_coeff_domains.png", p_domains, width = 10, height = 7, dpi = 300)
-    ggsave("Tese/figures/fig_coeff_domains.pdf", p_domains, width = 10, height = 7)
+    ggsave(file.path(figures_dir, "fig_coeff_domains.png"), p_domains, width = 10, height = 7, dpi = 300)
+    ggsave(file.path(figures_dir, "fig_coeff_domains.pdf"), p_domains, width = 10, height = 7)
 }
-
 
 
 # ------------------------------
@@ -421,8 +428,8 @@ if (nrow(df_treat_by_domain) > 0) {
         facet_wrap(~domain_label, ncol = 3, scales = "free_y") +
         theme_minimal()
 
-    ggsave("Tese/figures/fig_coeff_treatments_by_domain.png", p_treat_by_domain, width = 12, height = 8, dpi = 300)
-    ggsave("Tese/figures/fig_coeff_treatments_by_domain.pdf", p_treat_by_domain, width = 12, height = 8)
+    ggsave(file.path(figures_dir, "fig_coeff_treatments_by_domain.png"), p_treat_by_domain, width = 12, height = 8, dpi = 300)
+    ggsave(file.path(figures_dir, "fig_coeff_treatments_by_domain.pdf"), p_treat_by_domain, width = 12, height = 8)
 }
 
 # ============================
@@ -467,8 +474,8 @@ p_lin <- ggplot(df_lin, aes(x = meetings, y = factor)) +
   ) +
   theme_minimal(base_size = 12)
 
-ggsave(file.path(fig_dir, "fig8_effect_linear_ppml.pdf"), p_lin, width = 8.5, height = 5.2)
-ggsave(file.path(fig_dir, "fig8_effect_linear_ppml.png"), p_lin, width = 8.5, height = 5.2, dpi = 200)
+ggsave(file.path(figures_dir, "fig_effect_linear_ppml.pdf"), p_lin, width = 8.5, height = 5.2)
+ggsave(file.path(figures_dir, "fig_effect_linear_ppml.png"), p_lin, width = 8.5, height = 5.2, dpi = 200)
 
 # ---- Quadratic effect curve: factor = exp(b1*x + b2*x^2)
 coefs_quad <- coef(m_ddd_ppml_squared)
@@ -530,15 +537,15 @@ p_quad <- ggplot(df_quad, aes(x = meetings, y = factor)) +
   ) +
   theme_minimal(base_size = 12)
 
-ggsave(file.path(fig_dir, "fig9_effect_quadratic_ppml.pdf"), p_quad, width = 8.5, height = 5.2)
-ggsave(file.path(fig_dir, "fig9_effect_quadratic_ppml.png"), p_quad, width = 8.5, height = 5.2, dpi = 200)
+ggsave(file.path(figures_dir, "fig_effect_quadratic_ppml.pdf"), p_quad, width = 8.5, height = 5.2)
+ggsave(file.path(figures_dir, "fig_effect_quadratic_ppml.png"), p_quad, width = 8.5, height = 5.2, dpi = 200)
 
 # ---- Export main regression table (m_ddd_ppml) to LaTeX
 msummary(
   list("DDD PPML" = m_ddd_ppml),
   gof_omit = "IC|Log|Adj|Pseudo|Within",
   stars = TRUE,
-  output = file.path(tab_dir, "tab_main_ppml.tex")
+  output = file.path(tables_dir, "tab_main_ppml.tex")
 )
 
 # ---- Export combined summary for both models (full)
@@ -553,7 +560,7 @@ msummary(
   ),
   gof_omit = "IC|Log|Adj|Pseudo|Within",
   stars = TRUE,
-  output = file.path(tab_dir, "tab_main_ppml_both_full.tex")
+  output = file.path(tables_dir, "tab_main_ppml_both_full.tex")
 )
 
 # ---- Compact core table (only key coefficients) as LaTeX
@@ -618,16 +625,15 @@ latex_core <- paste0(
   "\\end{tabular}\\n"
 )
 
-writeLines(latex_core, con = file.path(tab_dir, "tab_main_ppml_both_core.tex"))
+writeLines(latex_core, con = file.path(tables_dir, "tab_main_ppml_both_core.tex"))
 
 message("Saved figures to:")
-message(file.path(fig_dir, "fig8_effect_linear_ppml.pdf"))
-message(file.path(fig_dir, "fig9_effect_quadratic_ppml.pdf"))
+message(file.path(figures_dir, "fig_effect_linear_ppml.pdf"))
+message(file.path(figures_dir, "fig_effect_quadratic_ppml.pdf"))
 message("Saved table to:")
-message(file.path(tab_dir, "tab_main_ppml.tex"))
-message(file.path(tab_dir, "tab_main_ppml_both_full.tex"))
-message(file.path(tab_dir, "t
-ab_main_ppml_both_core.tex"))
+message(file.path(tables_dir, "tab_main_ppml.tex"))
+message(file.path(tables_dir, "tab_main_ppml_both_full.tex"))
+message(file.path(tables_dir, "tab_main_ppml_both_core.tex"))
 
 
 
