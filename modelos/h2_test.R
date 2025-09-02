@@ -209,3 +209,6 @@ if (all(c("NGOs", "Business") %in% lvls)) {
   ggsave(file.path(figures_dir, "fig_ratio_business_over_ngo_vs_budget_centered.pdf"), p_ratio, width = 9, height = 5.5)
 }
 
+#-------------------------------------------
+# Add the ppml coefficients for the interaction term
+#-------------------------------------------
