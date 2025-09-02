@@ -1,5 +1,5 @@
 # ============================================
-# DDD FE + PPML
+# H1) FE + PPML
 # ============================================
 
 # install.packages("fixest") # if needed
@@ -17,8 +17,6 @@ if (!dir.exists(outputs_dir)) dir.create(outputs_dir, recursive = TRUE)
 
 df <- read.csv("./data/gold/df_long_v2.csv", stringsAsFactors = TRUE)
 
-# # filter by domain
-# df <- df_raw[df_raw$domain == "agriculture", ]
 
 # 1) Build the three FE identifiers (member×domain, member×time, domain×time)
 df$fe_i <- df$member_id # μ_id
@@ -26,7 +24,7 @@ df$fe_ct <- interaction(df$meps_country, df$Y.m, drop = TRUE) # μ_ct: country �
 df$fe_pt <- interaction(df$meps_party, df$Y.m, drop = TRUE) # μ_pt: party × time fixed effect
 df$fe_dt <- interaction(df$domain, df$Y.m, drop = TRUE) # μ_dt: domain × time fixed effect
 
-# 2) (Recommended) build a cluster for domain×time for two-way clustering
+# 2) build a cluster for domain×time for two-way clustering
 df$cl_dt <- interaction(df$domain, df$Y.m, drop = TRUE)
 
 
@@ -118,10 +116,7 @@ controls <- c(
 controls_str <- paste(controls, collapse = " + ")
 
 
-# 4) Build the formula
-# Build the controls part of the formula as a string
-
-# Construct the full formula as a string, then convert to formula
+# 4) Build the formulas
 full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 full_formula <- as.formula(full_formula_str)
 
@@ -133,7 +128,7 @@ formula_quadratic <- as.formula(formula_quadratic_str)
 # A) DDD with OLS (feols)
 # =========================
 
-m_ddd_ols <- feols(
+m_ols <- feols(
     full_formula,
     data    = df,
     cluster = ~cl_dt # two-way clustering: by member and by domain×time
@@ -142,14 +137,14 @@ m_ddd_ols <- feols(
 # =============================
 # B) DDD with PPML (fepois) - all domains
 # =============================
-m_ddd_ppml <- fepois(
+m_ppml <- fepois(
     full_formula,
     data    = df,
     cluster = ~cl_dt
 )
 
 # Squared model
-m_ddd_ppml_squared <- fepois(
+m_ppml_squared <- fepois(
     formula_quadratic,
     data    = df,
     cluster = ~cl_dt
@@ -158,9 +153,9 @@ m_ddd_ppml_squared <- fepois(
 # Nice side-by-side table
 modelsummary::msummary(
     list(
-        "DDD OLS" = m_ddd_ols,
-        "DDD PPML" = m_ddd_ppml,
-        "DDD PPML Squared" = m_ddd_ppml_squared
+        "OLS" = m_ols,
+        "PPML" = m_ppml,
+        "PPML Squared" = m_ppml_squared
     ),
     gof_omit = "IC|Log|Adj|Pseudo|Within",
     coef_omit = "meps_",
@@ -175,77 +170,33 @@ domains <- unique(df$domain)
 
 # function to run the loop
 results_domains <- list(
-    "Geral" = m_ddd_ppml
+    "Geral" = m_ppml
 )
 
 run_domain_loop <- function(df, full_formula) {
     for (domain in domains) {
         df_domain <- df[df$domain == domain, ]
-        m_ddd_ppml_domain <- fepois(
+        m_ppml_domain <- fepois(
             full_formula,
             data    = df_domain,
             cluster = ~cl_dt
         )
-        results_domains[[domain]] <- m_ddd_ppml_domain
+        results_domains[[domain]] <- m_ppml_domain
     }
     return(results_domains)
 }
 
 results_domains <- run_domain_loop(df, full_formula)
 
-results_domains <- append(list("Geral" = m_ddd_ppml), results_domains)
+results_domains <- append(list("Geral" = m_ppml), results_domains)
 modelsummary::msummary(results_domains, gof_omit = "IC|Log|Adj|Pseudo|Within", coef_omit = "meps_", stars = TRUE)
-
-
-# ============================
-# D) Compare different treatments
-# ============================
-
-results_alt_treatments <- list("Geral" = m_ddd_ppml)
-
-alt_treatments <- c(
-    "l_category_Business",
-    "l_category_NGOs",
-    "l_category_Other",
-    "l_budget_cat_lower",
-    "l_budget_cat_middle",
-    "l_budget_cat_upper",
-    "l_days_since_registration_lower",
-    "l_days_since_registration_middle",
-    "l_days_since_registration_upper"
-)
-
-# Ignore any days_since_registration columns
-alt_treatments <- alt_treatments[!grepl("days_since_registration", alt_treatments)]
-
-run_alt_treatment_loop <- function(df) {
-    for (treatment in alt_treatments) {
-        df_copy <- df
-        df_copy$meetings <- df_copy[[treatment]]
-
-        m_ddd_ppml_treatment <- fepois(
-            full_formula,
-            data    = df_copy,
-            cluster = ~cl_dt
-        )
-        results_alt_treatments[[treatment]] <- m_ddd_ppml_treatment
-    }
-
-    return(results_alt_treatments)
-}
-
-results_alt_treatments <- run_alt_treatment_loop(df)
-
-modelsummary::msummary(results_alt_treatments, gof_omit = "IC|Log|Adj|Pseudo|Within", coef_omit = "meps_", stars = TRUE)
-
-results_alt_treatments
 
 
 # ============================
 # E) Compare different treatments in different domains
 # ============================
 
-results_alt_treatments_domains <- list("Geral" = m_ddd_ppml)
+results_alt_treatments_domains <- list("Geral" = m_ppml)
 
 for (treatment in alt_treatments) {
     df_copy <- df
@@ -253,12 +204,12 @@ for (treatment in alt_treatments) {
 
     for (domain in domains) {
         df_copy_domain <- df_copy[df_copy$domain == domain, ]
-        m_ddd_ppml_treatment_domain <- fepois(
+        m_ppml_treatment_domain <- fepois(
             full_formula,
             data    = df_copy_domain,
             cluster = ~cl_dt
         )
-        results_alt_treatments_domains[[paste(treatment, domain)]] <- m_ddd_ppml_treatment_domain
+        results_alt_treatments_domains[[paste(treatment, domain)]] <- m_ppml_treatment_domain
     }
     print(paste(treatment, "done"))
 }
@@ -290,9 +241,9 @@ extract_meetings <- function(m) {
 # Baseline estimate for reference line
 baseline_est <- NA_real_
 baseline_est_se <- NA_real_
-if ("meetings" %in% names(coef(m_ddd_ppml))) {
-    baseline_est <- unname(coef(m_ddd_ppml)["meetings"])
-    baseline_est_se <- sqrt(vcov(m_ddd_ppml)["meetings", "meetings"])
+if ("meetings" %in% names(coef(m_ppml))) {
+    baseline_est <- unname(coef(m_ppml)["meetings"])
+    baseline_est_se <- sqrt(vcov(m_ppml)["meetings", "meetings"])
 }
 
 # Pretty labels for treatments and domains
@@ -381,71 +332,71 @@ if (nrow(df_domains_plot) > 0) {
 }
 
 
-# ------------------------------
-# F3) Across treatments per domain (faceted)
-# ------------------------------
+# # ------------------------------
+# # F3) Across treatments per domain (faceted)
+# # ------------------------------
 
-df_treat_by_domain <- data.frame(domain = character(), treatment = character(), estimate = numeric(), se = numeric(), stringsAsFactors = FALSE)
+# df_treat_by_domain <- data.frame(domain = character(), treatment = character(), estimate = numeric(), se = numeric(), stringsAsFactors = FALSE)
 
-for (tr in alt_treatments) {
-    for (dm in domains) {
-        key <- paste(tr, dm)
-        if (!(key %in% names(results_alt_treatments_domains))) next
-        fit <- results_alt_treatments_domains[[key]]
-        x <- extract_meetings(fit)
-        if (is.na(x$b)) next
-        df_treat_by_domain <- rbind(df_treat_by_domain, data.frame(domain = dm, treatment = tr, estimate = x$b, se = x$se))
-    }
-}
+# for (tr in alt_treatments) {
+#     for (dm in domains) {
+#         key <- paste(tr, dm)
+#         if (!(key %in% names(results_alt_treatments_domains))) next
+#         fit <- results_alt_treatments_domains[[key]]
+#         x <- extract_meetings(fit)
+#         if (is.na(x$b)) next
+#         df_treat_by_domain <- rbind(df_treat_by_domain, data.frame(domain = dm, treatment = tr, estimate = x$b, se = x$se))
+#     }
+# }
 
-if (nrow(df_treat_by_domain) > 0) {
-    df_treat_by_domain$ci_lo <- df_treat_by_domain$estimate - 1.96 * df_treat_by_domain$se
-    df_treat_by_domain$ci_hi <- df_treat_by_domain$estimate + 1.96 * df_treat_by_domain$se
-    df_treat_by_domain$treatment_label <- pretty_treatment_label(df_treat_by_domain$treatment)
-    df_treat_by_domain$domain_label <- pretty_domain_label(df_treat_by_domain$domain)
+# if (nrow(df_treat_by_domain) > 0) {
+#     df_treat_by_domain$ci_lo <- df_treat_by_domain$estimate - 1.96 * df_treat_by_domain$se
+#     df_treat_by_domain$ci_hi <- df_treat_by_domain$estimate + 1.96 * df_treat_by_domain$se
+#     df_treat_by_domain$treatment_label <- pretty_treatment_label(df_treat_by_domain$treatment)
+#     df_treat_by_domain$domain_label <- pretty_domain_label(df_treat_by_domain$domain)
 
-    p_treat_by_domain <- ggplot(df_treat_by_domain, aes(x = estimate, y = treatment_label)) +
-        geom_vline(xintercept = 0, color = "gray70") +
-        {
-            if (!is.na(baseline_est) && !is.na(baseline_est_se)) {
-                b_lo <- baseline_est - 1.96 * baseline_est_se
-                b_hi <- baseline_est + 1.96 * baseline_est_se
-                list(
-                    annotate("rect", xmin = b_lo, xmax = b_hi, ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "#B45C1F"),
-                    geom_vline(xintercept = baseline_est, linetype = "dashed", color = "#B45C1F")
-                )
-            } else {
-                NULL
-            }
-        } +
-        geom_point(color = "#1f77b4", size = 2.6) +
-        geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.18, color = "#1f77b4") +
-        labs(
-            # title = "Meetings effect: treatments by domain (PPML)",
-            # subtitle = "Points are estimates; bars are 95% CIs.",
-            x = "Efeito (meetings)", y = "Tratamento"
-        ) +
-        facet_wrap(~domain_label, ncol = 3, scales = "free_y") +
-        theme_minimal()
+#     p_treat_by_domain <- ggplot(df_treat_by_domain, aes(x = estimate, y = treatment_label)) +
+#         geom_vline(xintercept = 0, color = "gray70") +
+#         {
+#             if (!is.na(baseline_est) && !is.na(baseline_est_se)) {
+#                 b_lo <- baseline_est - 1.96 * baseline_est_se
+#                 b_hi <- baseline_est + 1.96 * baseline_est_se
+#                 list(
+#                     annotate("rect", xmin = b_lo, xmax = b_hi, ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "#B45C1F"),
+#                     geom_vline(xintercept = baseline_est, linetype = "dashed", color = "#B45C1F")
+#                 )
+#             } else {
+#                 NULL
+#             }
+#         } +
+#         geom_point(color = "#1f77b4", size = 2.6) +
+#         geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.18, color = "#1f77b4") +
+#         labs(
+#             # title = "Meetings effect: treatments by domain (PPML)",
+#             # subtitle = "Points are estimates; bars are 95% CIs.",
+#             x = "Efeito (meetings)", y = "Tratamento"
+#         ) +
+#         facet_wrap(~domain_label, ncol = 3, scales = "free_y") +
+#         theme_minimal()
 
-    ggsave(file.path(figures_dir, "fig_coeff_treatments_by_domain.png"), p_treat_by_domain, width = 12, height = 8, dpi = 300)
-    ggsave(file.path(figures_dir, "fig_coeff_treatments_by_domain.pdf"), p_treat_by_domain, width = 12, height = 8)
-}
+#     ggsave(file.path(figures_dir, "fig_coeff_treatments_by_domain.png"), p_treat_by_domain, width = 12, height = 8, dpi = 300)
+#     ggsave(file.path(figures_dir, "fig_coeff_treatments_by_domain.pdf"), p_treat_by_domain, width = 12, height = 8)
+# }
 
 # ============================
 # G) Quadratic PPML model (meetings + meetings^2)
 # ============================
 
 # ---- Helper: build grid of meetings within observed support
-q95 <- as.numeric(quantile(df$meetings, 0.95, na.rm = TRUE))
+q95 <- as.numeric(quantile(df$meetings, 0.999, na.rm = TRUE))
 max_x <- max(5, floor(q95))
 x_grid <- seq(0, max_x, length.out = 100)
 
 # ---- Linear effect curve: factor = exp(beta1 * x)
-coefs_lin <- coef(m_ddd_ppml)
-vcov_lin  <- vcov(m_ddd_ppml)
+coefs_lin <- coef(m_ppml)
+vcov_lin  <- vcov(m_ppml)
 
-if (!"meetings" %in% names(coefs_lin)) stop("Coefficient 'meetings' not found in m_ddd_ppml.")
+if (!"meetings" %in% names(coefs_lin)) stop("Coefficient 'meetings' not found in m_ppml.")
 b1 <- unname(coefs_lin["meetings"])
 v11 <- as.numeric(vcov_lin["meetings", "meetings"]) # clustered variance
 
@@ -478,8 +429,8 @@ ggsave(file.path(figures_dir, "fig_effect_linear_ppml.pdf"), p_lin, width = 8.5,
 ggsave(file.path(figures_dir, "fig_effect_linear_ppml.png"), p_lin, width = 8.5, height = 5.2, dpi = 200)
 
 # ---- Quadratic effect curve: factor = exp(b1*x + b2*x^2)
-coefs_quad <- coef(m_ddd_ppml_squared)
-vcov_quad  <- vcov(m_ddd_ppml_squared)
+coefs_quad <- coef(m_ppml_squared)
+vcov_quad  <- vcov(m_ppml_squared)
 
 # Identify coefficient names robustly
 name_b1 <- "meetings"
@@ -540,9 +491,9 @@ p_quad <- ggplot(df_quad, aes(x = meetings, y = factor)) +
 ggsave(file.path(figures_dir, "fig_effect_quadratic_ppml.pdf"), p_quad, width = 8.5, height = 5.2)
 ggsave(file.path(figures_dir, "fig_effect_quadratic_ppml.png"), p_quad, width = 8.5, height = 5.2, dpi = 200)
 
-# ---- Export main regression table (m_ddd_ppml) to LaTeX
+# ---- Export main regression table (m_ppml) to LaTeX
 msummary(
-  list("DDD PPML" = m_ddd_ppml),
+  list("DDD PPML" = m_ppml),
   gof_omit = "IC|Log|Adj|Pseudo|Within",
   stars = TRUE,
   output = file.path(tables_dir, "tab_main_ppml.tex")
@@ -551,12 +502,12 @@ msummary(
 # ---- Export combined summary for both models (full)
 msummary(
   list(
-    # "DDD PPML (sem FEs)" = m_ddd_ppml_no_fe,
-    # "DDD PPML (FE - membro)" = m_ddd_ppml_no_fe_i,
-    # "DDD PPML (FE - país)" = m_ddd_ppml_no_fe_ct,
-    # "DDD PPML (FE - partido)" = m_ddd_ppml_no_fe_pt,
-    "DDD PPML" = m_ddd_ppml,
-    "DDD PPML (Quadrático)" = m_ddd_ppml_squared
+    # "DDD PPML (sem FEs)" = m_ppml_no_fe,
+    # "DDD PPML (FE - membro)" = m_ppml_no_fe_i,
+    # "DDD PPML (FE - país)" = m_ppml_no_fe_ct,
+    # "DDD PPML (FE - partido)" = m_ppml_no_fe_pt,
+    "PPML" = m_ppml,
+    "PPML (Quadrático)" = m_ppml_squared
   ),
   gof_omit = "IC|Log|Adj|Pseudo|Within",
   stars = TRUE,
@@ -591,12 +542,12 @@ fmt_coef <- function(est, se, p, exp_transform = FALSE) {
 }
 
 # Collect entries
-c_lin  <- tidy_coef(m_ddd_ppml, "meetings")
-c_q1   <- tidy_coef(m_ddd_ppml_squared, "meetings")
+c_lin  <- tidy_coef(m_ppml, "meetings")
+c_q1   <- tidy_coef(m_ppml_squared, "meetings")
 # Find squared term name
-sq_names <- names(coef(m_ddd_ppml_squared))[grepl("^I\\(meetings\\^2\\)$|meetings\\*\\*2|meetings\\^2|meetings2$|meetings_sq$|meetings_squared$", names(coef(m_ddd_ppml_squared)))]
+sq_names <- names(coef(m_ppml_squared))[grepl("^I\\(meetings\\^2\\)$|meetings\\*\\*2|meetings\\^2|meetings2$|meetings_sq$|meetings_squared$", names(coef(m_ppml_squared)))]
 sq_name <- if (length(sq_names) > 0) sq_names[1] else NA_character_
-c_q2   <- if (!is.na(sq_name)) tidy_coef(m_ddd_ppml_squared, sq_name) else list(est = NA_real_, se = NA_real_, p = NA_real_)
+c_q2   <- if (!is.na(sq_name)) tidy_coef(m_ppml_squared, sq_name) else list(est = NA_real_, se = NA_real_, p = NA_real_)
 
 N_obs <- function(model) tryCatch(formatC(nobs(model), big.mark = ",", format = "f", digits = 0), error = function(e) "")
 
@@ -618,7 +569,7 @@ latex_core <- paste0(
    "\\n",
   if (!is.na(c_q2$est)) paste0("Reuni\\u00F5es$^2$ &  & ", fmt_coef(c_q2$est, c_q2$se, c_q2$p, exp_transform = FALSE), " \\\\ \n") else "",
   "\\midrule\\n",
-  "Observa\\u00E7\\u00F5es & ", N_obs(m_ddd_ppml), " & ", N_obs(m_ddd_ppml_squared), " \\\\ ", "\\n",
+  "Observa\\u00E7\\u00F5es & ", N_obs(m_ppml), " & ", N_obs(m_ppml_squared), " \\\\ ", "\\n",
   "Efeitos fixos & membro; pa\\u00EDs$\u00D7$tempo; partido$\u00D7$tempo & membro; pa\\u00EDs$\u00D7$tempo; partido$\u00D7$tempo \\\\ ", "\\n",
   "Cluster & dom\\u00EDnio$\u00D7$tempo; membro & dom\\u00EDnio$\u00D7$tempo; membro \\\\ ", "\\n",
   "\\bottomrule\\n",
@@ -634,11 +585,3 @@ message("Saved table to:")
 message(file.path(tables_dir, "tab_main_ppml.tex"))
 message(file.path(tables_dir, "tab_main_ppml_both_full.tex"))
 message(file.path(tables_dir, "tab_main_ppml_both_core.tex"))
-
-
-
-
-
-
-
-
