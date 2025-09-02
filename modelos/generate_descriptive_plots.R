@@ -7,7 +7,7 @@ library(scales)
 library(gridExtra)
 
 # Set figure directory
-fig_dir <- "./Tese/figures"
+fig_dir <- "./Tese/figures/descriptive_plots"
 
 # Create directory if it doesn't exist
 if (!dir.exists(fig_dir)) {
@@ -15,7 +15,7 @@ if (!dir.exists(fig_dir)) {
 }
 
 # Load data
-df <- read.csv("../data/gold/df_long_v2.csv", stringsAsFactors = TRUE)
+df <- read.csv("./data/gold/df_long_v2.csv", stringsAsFactors = TRUE)
 
 # Data preprocessing
 # Ensure Y.m is properly formatted
