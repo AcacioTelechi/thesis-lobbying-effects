@@ -124,8 +124,17 @@ controls_str <- paste(controls, collapse = " + ")
 full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 full_formula <- as.formula(full_formula_str)
 
+full_formula_squared_str <- paste0("questions ~ meetings + I(meetings^2) + ", controls_str, " | fe_ct + fe_pt + fe_dt")
+full_formula_squared <- as.formula(full_formula_squared_str)
+
 m_ddd_ppml <- fepois(
     full_formula,
+    data    = df,
+    cluster = ~cl_dt
+)
+
+m_ddd_ppml_squared <- fepois(
+    full_formula_squared,
     data    = df,
     cluster = ~cl_dt
 )
@@ -134,7 +143,7 @@ m_ddd_ppml <- fepois(
 # 2) Compare different treatments
 # ============================
 
-results_alt_treatments <- list("Geral" = m_ddd_ppml)
+results_alt_treatments <- list("Geral" = m_ddd_ppml, "Geral Squared" = m_ddd_ppml_squared)
 
 alt_treatments <- c(
     "l_category_Business",
@@ -158,7 +167,15 @@ run_alt_treatment_loop <- function(df) {
             data    = df_copy,
             cluster = ~cl_dt
         )
+
+        m_ddd_ppml_treatment_squared <- fepois(
+            full_formula_squared,
+            data    = df_copy,
+            cluster = ~cl_dt
+        )
+
         results_alt_treatments[[treatment]] <- m_ddd_ppml_treatment
+        results_alt_treatments[[paste(treatment, "Squared")]] <- m_ddd_ppml_treatment_squared
     }
 
     return(results_alt_treatments)
@@ -170,25 +187,30 @@ modelsummary::msummary(
   results_alt_treatments, 
   gof_omit = "IC|Log|Adj|Pseudo|Within", 
   coef_omit = "meps_", 
-  stars = TRUE,
-  output = file.path(tables_dir, "tab_treatments_overall.tex")
+  stars = TRUE
+  # output = file.path(tables_dir, "tab_treatments_overall.tex")
 )
 
-df_treat_overall <- data.frame(treatment = character(), estimate = numeric(), se = numeric(), stringsAsFactors = FALSE)
+df_treat_overall <- data.frame(treatment = character(), estimate = numeric(), se = numeric(), b_squared = numeric(), se_squared = numeric(), stringsAsFactors = FALSE)
 
 # Helper to extract coefficient and SE for `meetings`
 extract_meetings <- function(m) {
     cf <- coef(m)
     if (!("meetings" %in% names(cf))) {
-        return(list(b = NA_real_, se = NA_real_))
+        return(list(b = NA_real_, se = NA_real_, b_squared = NA_real_, se_squared = NA_real_))
     }
     b <- unname(cf["meetings"])
+    b_squared <- unname(cf["I(meetings^2)"])
     V <- try(vcov(m), silent = TRUE)
     se <- NA_real_
-    if (!inherits(V, "try-error") && all(c("meetings", "meetings") %in% colnames(V))) {
+    se_squared <- NA_real_
+    if (!inherits(V, "try-error") %in% colnames(V)) {
         se <- sqrt(V["meetings", "meetings"])
+        if ("I(meetings^2)" %in% colnames(V)) {
+          se_squared <- sqrt(V["I(meetings^2)", "I(meetings^2)"])
+        }
     }
-    list(b = b, se = se)
+    list(b = b, se = se, b_squared = b_squared, se_squared = se_squared)
 }
 
 # Pretty labels for treatments and domains
@@ -234,7 +256,8 @@ for (nm in names(results_alt_treatments)) {
     x <- extract_meetings(fit)
     if (is.na(x$b)) next
     if (nm == "Geral") next
-    df_treat_overall <- rbind(df_treat_overall, data.frame(treatment = nm, estimate = x$b, se = x$se))
+    if (nm == "Geral Squared") next
+    df_treat_overall <- rbind(df_treat_overall, data.frame(treatment = nm, estimate = x$b, se = x$se, b_squared = x$b_squared, se_squared = x$se_squared))
 }
 
 # Baseline estimate for reference line
