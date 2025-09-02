@@ -1,0 +1,55 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+entry=none,label=none,
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]},
+column{2-4}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{38}={1-4}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& NB meetings model & NB meetings model interaction & NB meetings model (centered) \\ \midrule %% TinyTableHeader
+(Intercept) & \num{-1.025}* & \num{-0.516} & \num{0.978}* \\
+& (\num{0.455}) & (\num{0.455}) & (\num{0.432}) \\
+l\_categoryBusiness & \num{0.105}* & \num{-3.626}*** & \num{0.188}*** \\
+& (\num{0.044}) & (\num{0.253}) & (\num{0.044}) \\
+l\_categoryOther & \num{-0.337}*** & \num{0.881}*** & \num{-0.262}*** \\
+& (\num{0.047}) & (\num{0.203}) & (\num{0.047}) \\
+l\_ln\_max\_budget & \num{0.141}*** & \num{0.118}*** &  \\
+& (\num{0.007}) & (\num{0.011}) &  \\
+l\_agriculture & \num{-0.030} & \num{0.008} & \num{0.008} \\
+& (\num{0.036}) & (\num{0.035}) & (\num{0.035}) \\
+l\_economics\_and\_trade & \num{0.371}*** & \num{0.290}*** & \num{0.290}*** \\
+& (\num{0.043}) & (\num{0.042}) & (\num{0.042}) \\
+l\_education & \num{-0.030} & \num{-0.017} & \num{-0.017} \\
+& (\num{0.037}) & (\num{0.036}) & (\num{0.036}) \\
+l\_environment\_and\_climate & \num{0.237}*** & \num{0.200}*** & \num{0.200}*** \\
+& (\num{0.042}) & (\num{0.041}) & (\num{0.041}) \\
+l\_foreign\_and\_security\_affairs & \num{0.227}*** & \num{0.160}*** & \num{0.160}*** \\
+& (\num{0.036}) & (\num{0.035}) & (\num{0.035}) \\
+l\_health & \num{0.066}+ & \num{0.025} & \num{0.025} \\
+& (\num{0.035}) & (\num{0.034}) & (\num{0.034}) \\
+l\_human\_rights & \num{0.253}*** & \num{0.198}*** & \num{0.198}*** \\
+& (\num{0.039}) & (\num{0.037}) & (\num{0.037}) \\
+l\_infrastructure\_and\_industry & \num{0.065} & \num{0.029} & \num{0.029} \\
+& (\num{0.043}) & (\num{0.041}) & (\num{0.041}) \\
+l\_technology & \num{0.026} & \num{0.009} & \num{0.009} \\
+& (\num{0.040}) & (\num{0.039}) & (\num{0.039}) \\
+l\_categoryBusiness × l\_ln\_max\_budget &  & \num{0.301}*** &  \\
+&  & (\num{0.020}) &  \\
+l\_categoryOther × l\_ln\_max\_budget &  & \num{-0.090}*** &  \\
+&  & (\num{0.015}) &  \\
+l\_ln\_max\_budget\_c &  &  & \num{0.118}*** \\
+&  &  & (\num{0.011}) \\
+l\_categoryBusiness × l\_ln\_max\_budget\_c &  &  & \num{0.301}*** \\
+&  &  & (\num{0.020}) \\
+l\_categoryOther × l\_ln\_max\_budget\_c &  &  & \num{-0.090}*** \\
+&  &  & (\num{0.015}) \\
+Num.Obs. & \num{4647} & \num{4647} & \num{4647} \\
+RMSE & \num{14.82} & \num{16.58} & \num{16.58} \\
+\bottomrule
+\end{talltblr}
+\end{table}

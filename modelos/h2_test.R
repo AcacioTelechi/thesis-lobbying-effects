@@ -71,9 +71,18 @@ model_nb <- glm.nb(
   data = model_df
 )
 
+model_nb_interaction <- glm.nb(
+  meetings ~ l_category + l_ln_max_budget + l_category:l_ln_max_budget + l_agriculture + l_economics_and_trade + l_education + l_environment_and_climate + l_foreign_and_security_affairs + l_health + l_human_rights + l_infrastructure_and_industry + l_technology + l_head_office_country,
+  data = model_df
+)
+
 # Print model summary
-summary(model_nb)
-msummary(model_nb, stars = TRUE, gof_omit = "AIC|BIC|Log.Lik.")
+msummary(
+  list("NB meetings model" = model_nb, "NB meetings model interaction" = model_nb_interaction), 
+  stars = TRUE, 
+  gof_omit = "AIC|BIC|Log.Lik.",
+  coef_omit = "l_head_office"
+)
 
 # Export model summary to LaTeX
 msummary(
@@ -99,83 +108,104 @@ if (!dir.exists(figures_dir)) dir.create(figures_dir, recursive = TRUE)
 if (!dir.exists(tables_dir)) dir.create(tables_dir, recursive = TRUE)
 if (!dir.exists(outputs_dir)) dir.create(outputs_dir, recursive = TRUE)
 
-# --- Marginal predicted meetings by category (emmeans) ---
-# Build 'at' as a named list of numeric scalars (global means of numeric covariates)
-numeric_vars <- intersect(num_controls, names(model_df))
-at_vals <- as.list(sapply(numeric_vars, function(nm) mean(model_df[[nm]], na.rm = TRUE)))
-# Increase grid limit safely
-emm_options(rg.limit = 10000)
+# --- Center ln(max budget) for clean interpretation at average budget ---
+mean_ln_budget <- mean(model_df$l_ln_max_budget, na.rm = TRUE)
+model_df$l_ln_max_budget_c <- model_df$l_ln_max_budget - mean_ln_budget
 
-rg <- ref_grid(
-  model_nb,
-  at = at_vals,
-  nuisance = "l_head_office_country",
-  cov.reduce = mean,
-  weights = "proportional"
-)
-emm_meet <- emmeans(rg, ~ l_category, type = "response")
-emm_df <- as.data.frame(emm_meet)
-# Standardize column names
-setDT(emm_df)
-setnames(emm_df, old = c("response", "SE", "asymp.LCL", "asymp.UCL"), new = c("mean_meetings", "se", "ci_lo", "ci_hi"), skip_absent = TRUE)
-
-# Save emmeans CSV
-fwrite(emm_df, file = file.path(outputs_dir, "emmeans_meetings_by_category.csv"))
-
-# Plot: Predicted meetings by category with 95% CI
-p_pred_meet <- ggplot(emm_df, aes(x = mean_meetings, y = l_category)) +
-  geom_vline(xintercept = 0, color = "gray85") +
-  geom_point(color = "#1f77b4", size = 2.8) +
-  geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.2, color = "#1f77b4") +
-  labs(x = "Reuniões previstas (média marginal)", y = "Categoria") +
-  theme_minimal()
-
-ggsave(file.path(figures_dir, "fig_pred_meetings_by_category.png"), p_pred_meet, width = 8, height = 5.5, dpi = 300)
-
-ggsave(file.path(figures_dir, "fig_pred_meetings_by_category.pdf"), p_pred_meet, width = 8, height = 5.5)
-
-# --- Total effect calculation using PPML per-meeting coefficients ---
-ppml_coeffs_df <- data.frame(
-  l_category = factor(c("NGOs", "Business"), levels = levels(model_df$l_category)),
-  per_meeting_coef = c(0.09, 0.025)
+model_nb_interaction_c <- glm.nb(
+  meetings ~ l_category + l_ln_max_budget_c + l_category:l_ln_max_budget_c + l_agriculture + l_economics_and_trade + l_education + l_environment_and_climate + l_foreign_and_security_affairs + l_health + l_human_rights + l_infrastructure_and_industry + l_technology + l_head_office_country,
+  data = model_df
 )
 
-# Merge with emmeans
-emm_with_coef <- merge(emm_df, ppml_coeffs_df, by = "l_category", all.x = TRUE)
+# Export centered model table
+msummary(
+  list(
+    "NB meetings model" = model_nb, 
+    "NB meetings model interaction" = model_nb_interaction,
+    "NB meetings model (centered)" = model_nb_interaction_c),
+  stars = TRUE,
+  gof_omit = "AIC|BIC|Log.Lik.",
+  coef_omit = "l_head_office",
+  # output = file.path(tables_dir, "tab_meetings_nb_centered.tex")
+)
 
-# Compute total effect and CI by scaling emmean and CI by the per-meeting coefficient
-emm_with_coef$total_effect <- emm_with_coef$mean_meetings * emm_with_coef$per_meeting_coef
-emm_with_coef$total_effect_lo <- emm_with_coef$ci_lo * emm_with_coef$per_meeting_coef
-emm_with_coef$total_effect_hi <- emm_with_coef$ci_hi * emm_with_coef$per_meeting_coef
+# Build grid for centered model predictions
+budget_seq <- seq(
+  quantile(model_df$l_ln_max_budget, 0.05, na.rm = TRUE),
+  quantile(model_df$l_ln_max_budget, 0.95, na.rm = TRUE),
+  length.out = 60
+)
+newdata_center <- expand.grid(
+  l_category = droplevels(unique(model_df$l_category)),
+  l_ln_max_budget_c = budget_seq - mean_ln_budget
+)
+# Set controls at means / modal for clean predictions
+newdata_center$l_agriculture <- mean(model_df$l_agriculture, na.rm = TRUE)
+newdata_center$l_economics_and_trade <- mean(model_df$l_economics_and_trade, na.rm = TRUE)
+newdata_center$l_education <- mean(model_df$l_education, na.rm = TRUE)
+newdata_center$l_environment_and_climate <- mean(model_df$l_environment_and_climate, na.rm = TRUE)
+newdata_center$l_foreign_and_security_affairs <- mean(model_df$l_foreign_and_security_affairs, na.rm = TRUE)
+newdata_center$l_health <- mean(model_df$l_health, na.rm = TRUE)
+newdata_center$l_human_rights <- mean(model_df$l_human_rights, na.rm = TRUE)
+newdata_center$l_infrastructure_and_industry <- mean(model_df$l_infrastructure_and_industry, na.rm = TRUE)
+newdata_center$l_technology <- mean(model_df$l_technology, na.rm = TRUE)
+mode_country <- names(which.max(table(model_df$l_head_office_country)))
+newdata_center$l_head_office_country <- factor(mode_country, levels = levels(model_df$l_head_office_country))
 
-# # Save total effect CSV
-# fwrite(emm_with_coef[, c("l_category", "mean_meetings", "ci_lo", "ci_hi", "per_meeting_coef", "total_effect", "total_effect_lo", "total_effect_hi")],
-#    file = file.path(outputs_dir, "total_effect_by_category.csv")
-# )
+# Predictions with standard errors on response scale
+pred_center <- predict(model_nb_interaction_c, newdata = newdata_center, type = "link", se.fit = TRUE)
+newdata_center$mean_meetings <- exp(pred_center$fit)
+newdata_center$ci_lo <- exp(pred_center$fit - 1.96 * pred_center$se.fit)
+newdata_center$ci_hi <- exp(pred_center$fit + 1.96 * pred_center$se.fit)
+newdata_center$l_ln_max_budget <- newdata_center$l_ln_max_budget_c + mean_ln_budget
 
-# Plot: Total effect by category with 95% CI
-p_total_effect <- ggplot(emm_with_coef, aes(x = total_effect, y = l_category)) +
-  geom_vline(xintercept = 0, color = "gray85") +
-  geom_point(color = "#d62728", size = 2.8) +
-  geom_errorbarh(aes(xmin = total_effect_lo, xmax = total_effect_hi), height = 0.2, color = "#d62728") +
-  labs(x = "Efeito total estimado (reuniões previstas × coeficiente PPML)", y = "Categoria") +
+# Save CSV
+fwrite(newdata_center, file.path(outputs_dir, "pred_meetings_centered_vs_budget_by_category.csv"))
+
+# Plot expected meetings vs ln(budget) with CIs
+p_meet_vs_budget_c <- ggplot(newdata_center, aes(x = l_ln_max_budget, y = mean_meetings, color = l_category, fill = l_category)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), alpha = 0.15, color = NA) +
+  geom_vline(xintercept = mean_ln_budget, linetype = "dashed", color = "gray60") +
+  labs(x = "ln(orçamento máximo)", y = "Reuniões previstas", color = "Categoria", fill = "Categoria",
+       subtitle = "Linha pontilhada: orçamento médio (escala log)") +
   theme_minimal()
 
-ggsave(file.path(figures_dir, "fig_total_effect_by_category.png"), p_total_effect, width = 8, height = 5.5, dpi = 300)
+ggsave(file.path(figures_dir, "fig_pred_meetings_vs_budget_centered_by_category.png"), p_meet_vs_budget_c, width = 9, height = 5.5, dpi = 300)
 
-ggsave(file.path(figures_dir, "fig_total_effect_by_category.pdf"), p_total_effect, width = 8, height = 5.5)
+ggsave(file.path(figures_dir, "fig_pred_meetings_vs_budget_centered_by_category.pdf"), p_meet_vs_budget_c, width = 9, height = 5.5)
 
-# # --- Ratios and printed summary ---
-# # Ratio of predicted meetings
-# if (all(c("NGOs", "Business") %in% emm_with_coef$l_category)) {
-#   mean_NGO <- emm_with_coef$mean_meetings[emm_with_coef$l_category == "NGOs"]
-#   mean_Biz <- emm_with_coef$mean_meetings[emm_with_coef$l_category == "Business"]
-#   ratio_meet <- as.numeric(mean_Biz / mean_NGO)
-#   # Ratio of total effects
-#   te_NGO <- emm_with_coef$total_effect[emm_with_coef$l_category == "NGOs"]
-#   te_Biz <- emm_with_coef$total_effect[emm_with_coef$l_category == "Business"]
-#   ratio_te <- as.numeric(te_Biz / te_NGO)
-#   cat(sprintf("\nRatio (Business vs NGOs) - Predicted meetings: %.2f\n", ratio_meet))
-#   cat(sprintf("Ratio (Business vs NGOs) - Total effect: %.2f\n", ratio_te))
-# }
+# Ratio curve: Business / NGOs expected meetings vs ln(budget)
+lvls <- levels(model_df$l_category)
+if (all(c("NGOs", "Business") %in% lvls)) {
+  wide <- reshape(newdata_center[, c("l_category", "l_ln_max_budget", "mean_meetings", "ci_lo", "ci_hi")],
+                  idvar = "l_ln_max_budget", timevar = "l_category", direction = "wide")
+  wide$ratio_mean <- wide$mean_meetings.Business / wide$mean_meetings.NGOs
+  # Delta method for CI on ratio (approx via log scale)
+  # Here, we approximate using bounds: conservative envelope
+  wide$ratio_lo <- (wide$ci_lo.Business / wide$ci_hi.NGOs)
+  wide$ratio_hi <- (wide$ci_hi.Business / wide$ci_lo.NGOs)
+
+  # Compute crossover lnB* where ratio = 1 using coefficients
+  coefs <- coef(model_nb_interaction_c)
+  b_biz <- unname(coefs["l_categoryBusiness"])
+  b_int <- unname(coefs["l_categoryBusiness:l_ln_max_budget_c"])
+  lnB_star_c <- if (!is.na(b_biz) && !is.na(b_int) && b_int != 0) -b_biz / b_int else NA_real_
+  lnB_star <- lnB_star_c + mean_ln_budget
+
+  ratio_df <- wide
+  fwrite(ratio_df, file.path(outputs_dir, "ratio_business_over_ngo_vs_budget_centered.csv"))
+
+  p_ratio <- ggplot(ratio_df, aes(x = l_ln_max_budget, y = ratio_mean)) +
+    geom_hline(yintercept = 1, color = "gray70") +
+    geom_line(color = "#9467bd", size = 1) +
+    geom_ribbon(aes(ymin = ratio_lo, ymax = ratio_hi), fill = "#9467bd", alpha = 0.15) +
+    { if (is.finite(lnB_star)) geom_vline(xintercept = lnB_star, linetype = "dotted", color = "#B45C1F") else NULL } +
+    labs(x = "ln(orçamento máximo)", y = "Razão Business/NGOs (reuniões previstas)",
+         subtitle = "Linha horizontal: paridade (1). Linha pontilhada: ponto de cruzamento estimado") +
+    theme_minimal()
+
+  ggsave(file.path(figures_dir, "fig_ratio_business_over_ngo_vs_budget_centered.png"), p_ratio, width = 9, height = 5.5, dpi = 300)
+  ggsave(file.path(figures_dir, "fig_ratio_business_over_ngo_vs_budget_centered.pdf"), p_ratio, width = 9, height = 5.5)
+}
 
