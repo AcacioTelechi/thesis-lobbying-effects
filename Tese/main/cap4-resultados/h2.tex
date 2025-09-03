@@ -1,58 +1,57 @@
-\subsubsection{Teste da hipótese 2}
+\subsubsection{Teste da hipótese 2: Uma Análise Decomposta do Efeito do Lobby}
 
-A primeira vista, as \acrshort{ong}s parecem exercer um maior efeito. A figura \ref{fig:effect_linear_ppml_treatments} ilustra os resultados do modelo para diferentes tipos de tratamento: reuniões com \acrshort{ong}s, com empresas e com outros tipos de atores. 
-
+A avaliação da Hipótese 2, que postula uma maior influência das empresas sobre a atividade parlamentar em comparação com outros atores, exige uma análise que transcenda a simples contagem de reuniões. Uma análise preliminar do efeito marginal por reunião, apresentada na Figura \ref{fig:effect_linear_ppml_treatments}, sugere que as \acrshort{ong}s, paradoxalmente, exercem uma influência maior por encontro. Este resultado, embora contraintuitivo, destaca a necessidade de um modelo mais completo que considere a heterogeneidade dos atores de lobby.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/h2_test/fig_coeff_treatments_overall.pdf}
-    \caption{Efeito esperado \textit{ceteris paribus}: especificação linear (\acrshort{ppml}) para cada tratamento}
+    \caption{Efeito marginal por tipo de ator: especificação \acrshort{ppml}}
     \label{fig:effect_linear_ppml_treatments}
-    \note{Cada ponto azul representa a estimativa do coeficiente associado a \textit{meetings} para um tratamento específico, refletindo o efeito marginal esperado de reuniões sobre o número de perguntas parlamentares, mantidos constantes os efeitos fixos. As linhas horizontais correspondem aos intervalos de confiança de 95\% para cada estimativa, indicando a incerteza estatística. A linha tracejada vermelha indica o efeito médio estimado para todos os tratamentos, servindo como referência para comparação entre tratamentos.}
+    \note{Cada ponto representa a estimativa do coeficiente para \textit{meetings}, associado a um tipo de ator (tratamento), refletindo o efeito marginal esperado de uma única reunião sobre o número de perguntas parlamentares, mantendo os efeitos fixos constantes. As linhas horizontais indicam os intervalos de confiança de 95\%. A faixa vertical sombreada representa o intervalo de confiança do efeito médio geral, servindo como referência.}
 \end{figure}
 
-É possível identificar que o efeito de reuniões com \acrshort{ong}s é consideravelmente maior do que com empresas. Contudo, esse é o efeito marginal esperado para cada tipo de organização. Não sendo suficiente para o teste da hipótese 2, uma vez que o teste de que as empresas possuam um efeito meior do que outros tipos de agentes demanda considerar o efeito total do lobbying de cada ator.
+O efeito marginal isolado, contudo, é insuficiente para um teste robusto da hipótese. A influência total de um grupo de interesse não depende apenas da \textit{eficácia} de cada reunião, mas também da sua capacidade de assegurar \textit{acesso} -- isto é, o volume de reuniões que consegue realizar. Argumentamos que o impacto total é uma função dessas duas componentes: a frequência do acesso e a eficácia da persuasão em cada encontro.
 
-Para tanto, devemos olhar para o "estoque" de reuniões, não somente para o "fluxo". Como explicado no capítulo \ref{chapter:metodologia}, utilizamos um modelo de binomial negativo para estimar a quantidade de reuniões de um agente baseado em suas características. Os resultados desse modelo estão apresentados na tabela \ref{tab:meetings_nb_centered}.
+Para capturar essa dualidade, adotamos uma estratégia de modelagem em duas etapas que decompõe o processo de lobby da seguinte forma:
+\begin{itemize}
+    \item \textbf{Persuasão (Eficácia):} O processo pelo qual um lobista utiliza uma reunião para influenciar a atividade de um \acrshort{mpe}. Esta etapa, modelada com \acrshort{ppml}, responde à pergunta: \textit{"Quão eficaz é uma única reunião para gerar atividade parlamentar?"}
+    \item \textbf{Acesso (Frequência):} O processo pelo qual um lobista garante reuniões com os \acrshort{mpe}s. Esta etapa, modelada com uma regressão Binomial Negativa, responde à pergunta: \textit{"Quantas reuniões um determinado lobista consegue obter?"}
+\end{itemize}
 
-% \input{tables/h2_test/tab_meetings_nb_centered.tex}
+Esta abordagem permite-nos decompor e compreender os mecanismos através dos quais diferentes atores exercem influência.
 
-No modelo, utilizamos a categoria \acrshort{ong} como referência. Assim, podemos verificar que, de fato, as empresas tendem a fazer mais reuniões do que \acrshort{ong}s, já que o coeficiente  da dummy representando
-%  se o agente é o ou não empresa (\textit{l_categoryBusines}) foi signatificato e maior do que zero \(0,188\) quando consideramos o modelo centralizado. 
+Para estimar o volume de reuniões (Acesso) - Etapa 1 -, utilizamos um modelo de regressão Binomial Negativo, apropriado para dados de contagem com sobredispersão. A variável dependente é o número de reuniões que um lobista realiza, e as variáveis explicativas incluem o orçamento de lobby, a categoria do ator (\acrshort{ong}, Empresa, Outros) e um termo de interação entre orçamento e categoria, além de controlos setoriais e geográficos. Os resultados completos são apresentados na Tabela \ref{tab:meetings_nb_centered}.
 
-Além do fato de ser ou não empresa, devemos considerar a eficiência de alocação de recursos. Isto é, estimar o efeito de o aumento marginal no orçamento dedicado ao lobby. Para isso, adicionamos o fator de interção entre categoria e o orçamento 
-% (\textit{l_ln_max_budget}). Esse coeficiente nos traz o quanto o aumento percentual no orçamento de uma empresa aumenta a quantidade de reuniões relaizadas. Esse coeficiente (0,301) foi consideravelmente superior ao das ongs (0,118).
-
-Esse resultado nos indica que as empresas possuem uma eficiência alocativa maior. Conseguem, portanto, mais reuniões para cada da aumento percentual em orçamento dedicado ao lobby. A figura \ref{fig:h2_pred_meetings} demonstra a quantidade de reuniões estimada por categoria em função do orçamento em escala logarítimica.
+O coeficiente de interação entre ser uma empresa e o orçamento de lobby é particularmente revelador. Um resultado positivo e estatisticamente significativo para este termo indica que as empresas não só tendem a realizar mais reuniões em média, mas também demonstram uma "eficiência alocativa" superior: cada aumento percentual no seu orçamento se traduz num aumento maior no número de reuniões em comparação com as \acrshort{ong}s. A Figura \ref{fig:h2_pred_meetings} ilustra essa dinâmica, mostrando o número esperado de reuniões em função do orçamento.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/h2_test/fig_pred_meetings_vs_budget_centered_by_category.pdf}
-    \caption{Quantidade de reuniões estimadas \textit{ceteris paribus}}
+    \caption{Previsão do número de reuniões por categoria e orçamento}
     \label{fig:h2_pred_meetings}
-    \note{}
+    \note{O gráfico exibe o número esperado de reuniões (eixo Y) em função do logaritmo do orçamento de lobby (eixo X), com base no modelo Binomial Negativo. As curvas representam a previsão para cada categoria de ator, mantendo as demais variáveis em seus valores médios ou modais. A linha tracejada vertical indica o orçamento médio na amostra. As áreas sombreadas correspondem aos intervalos de confiança de 95\%.}
 \end{figure}
 
-Podemos verificar que, até um orçamento de aproximadamente 27.000 dólares ($\approx exp(12.5)$), esperamos um número maior de reuniões realizados por \acrshort{ong}s do que empresas. A partir desse volume, passamos a esperar mais reuniões realizadas por empresas. Essa diferença tende a aumentar de maneira exponencial, indicando que empresas com orçamentos maiores tendem a obter muito mais reuniões do que \acrshort{ong}s com o mesmo orçamento.
+Observa-se um ponto de inflexão: abaixo de um orçamento de aproximadamente \$27.000 ($\approx e^{10.2}$), as \acrshort{ong}s tendem a realizar mais reuniões. Acima desse limiar, a capacidade das empresas de converter recursos financeiros em acesso torna-se proeminente, e a disparidade cresce exponencialmente com o orçamento.
 
-% falar mais
-
-Dito isso, podemos estimar o efeito total esperado ao multiplicarmos a quantidade estimada de reuniões pelo coeficiente obtido de cada reunião por categoria. O resultado pode dessa análise está resumido na figura \ref{fig:h2_total_effects}.
+Para estimar o efeito agregado (Etapa 2), combinamos os resultados das duas etapas, multiplicando o número esperado de reuniões (o \textit{Acesso}, da Etapa 1) pelo efeito marginal por reunião (a \textit{Persuasão}, da Figura \ref{fig:effect_linear_ppml_treatments}) para cada categoria de ator e nível de orçamento. O resultado, ilustrado na Figura \ref{fig:h2_total_effects}, representa uma aproximação de primeira ordem do impacto total do lobby.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/h2_test/fig_total_effect_vs_budget_by_category.pdf}
-    \caption{Efeito total estimado por categoria \textit{ceteris paribus}}
+    \caption{Efeito total estimado por categoria e orçamento}
     \label{fig:h2_total_effects}
-    \note{}
+    \note{O gráfico representa o efeito total esperado, calculado como o produto do número previsto de reuniões (da Figura \ref{fig:h2_pred_meetings}) e do coeficiente de efeito marginal por reunião (da Figura \ref{fig:effect_linear_ppml_treatments}). O eixo Y representa o aumento esperado no número de perguntas parlamentares.}
 \end{figure}
 
-Ainda que o efeito marginal médio de uma reunião realizada por uma \acrshort{ong} seja maior, ao incluirmos os efeitos da eficiência alocativa, verificamos que as empresas com grandes recursos tendem, de fato, a conseguirem maiores resultados - mensurados pelo aumento da atividade parlamentar no tema de interesse. Com um orçamento entre, aproximadamente, 8,8 milhões de dólares ($\approx exp(16)$) e 40 milhões de dólares ($\approx exp(17,5)$) esperamos um efeito total similiar entre \acrshort{ong}s e empresas. Acima de 40 milhões, porém, esperamos um efeito maior de empresas. Abaixo de 8,8 milhões, esperamos um efeito maior de \acrshort{ong}s.
+A análise do efeito total revela uma relação complexa e não-linear. Embora uma única reunião com uma \acrshort{ong} seja, em média, mais influente, a superioridade das empresas em garantir um grande volume de acesso, especialmente quando dispõem de orçamentos elevados, reverte essa vantagem. Para orçamentos abaixo de \$8,8 milhões ($\approx e^{16}$), o efeito total das \acrshort{ong}s permanece superior. No entanto, acima de \$40 milhões ($\approx e^{17.5}$), o efeito agregado das empresas torna-se substancialmente maior.
 
-Esses resultados vão ao encontro de hipóteses levantadas na literatura, porém traz nuances que podem ser exploradas. Como indicam ...... grandes empresas tendem a conseguir mais resultado com lobby em comparação a outros tipos de entidade. Mas esse efeito não é linear e extrapolável para qualquer empresa. As pequenas e médias tendem a ter muito mais dificuldades em comparação com \acrshort{ong}s. 
+Estes resultados oferecem um suporte nuançado à Hipótese 2 e dialogam diretamente com a literatura sobre os mecanismos de influência do lobby. A influência das empresas não é incondicionalmente superior, mas torna-se dominante quando alavancada por vastos recursos financeiros, um achado que se alinha com a discussão sobre a desigualdade de representação \cite{mahoney_lobbying_2007}. A decomposição do efeito em "acesso" e "persuasão" permite-nos explorar as diferentes naturezas dos recursos mobilizados pelos atores, conforme aponta a literatura \cite{de_figueiredo_advancing_2014, Pop2013Lobbying}.
 
-Uma das exlpicações que podemos encontrar está na questão do reconhecimento da legitimidade. \acrshort{ong}s tendem a ter maior legitimidade perante os \acrshort{mpe}s em comparação com empresas em geral (CITAR). 
+A maior eficácia marginal por reunião das \acrshort{ong}s pode ser interpretada à luz do seu capital reputacional e da sua legitimidade percebida \cite{bunea2018legitimacy}. Do ponto de vista do comportamento parlamentar, interagir com \acrshort{ong}s pode ser uma estratégia de \textit{vote-seeking} para os \acrshort{mpe}s, que buscam sinalizar alinhamento com causas de interesse público e, assim, aumentar seu apelo eleitoral \cite{Ibenskas2021, mayhew2004congress}.
 
-Empresas maiores conseguem alocar mais recursos e obter mais informações de modo a subisidiar os parlamentares (CITAR), conseguindo maiores efeitos no comportamento parlamentar. Associando isso ao fato de os efeitos marginais decrecentes serem pequenos (ver ver tabela \ref{tab:ppml_h1_both}), podemos concluir que o aumento de recursos dedicados ao lobby por empresas aumenta consideravelmente os efeitos sobre o comportamento parlamentar.
+Por outro lado, a capacidade das grandes corporações de converter recursos financeiros em um volume massivo de acesso aponta para outro mecanismo de influência: a subsidiação de informação. Para atingir seus objetivos de carreira (\textit{career-seeking}) e de formulação de políticas (\textit{policy-seeking}), os parlamentares necessitam de informação técnica e especializada \cite{daniel2015career, kluver_informational_2012}. As grandes empresas, com seus recursos, estão em posição privilegiada para fornecer este subsídio informacional, estabelecendo uma relação de troca \cite{huwyler_no_2023} que lhes garante um acesso privilegiado e contínuo. Assim, a capacidade de "saturar" o ambiente informacional com interações frequentes parece ser um fator decisivo para a sua influência agregada.
 
-Esses resultados correspondem ao que na literatura se aponta como desigualdade de representação. Quanto mais recursos são aplicados no lobby, os resultados tendem a aumentar mais do que prpoporcinalmente, favorecendo grandes players.
+É importante notar que esta abordagem metodológica assenta na premissa de \textit{separabilidade} entre os processos de "acesso" e "persuasão". Esta premissa implica que, após controlarmos pelas variáveis observáveis (como o orçamento), os fatores não observados que tornam um lobista eficaz em garantir reuniões são estatisticamente independentes dos fatores não observados que o tornam influente durante essas reuniões. A suposição de separabilidade poderia ser violada se, por exemplo, uma "qualidade" ou "reputação" intrínseca do lobista, não capturada pelo modelo, afetasse simultaneamente a sua capacidade de agendar reuniões e a recetividade dos parlamentares às suas propostas. Nesse cenário, a multiplicação dos efeitos poderia levar a uma estimativa enviesada do impacto total.
+
+Em suma, os resultados indicam que, embora o discurso das \acrshort{ong}s possa ter maior ressonância por interação, a capacidade financeira das grandes empresas permite-lhes superar essa desvantagem através de uma presença quantitativamente esmagadora, confirmando a importância crítica dos recursos na determinação da influência política.

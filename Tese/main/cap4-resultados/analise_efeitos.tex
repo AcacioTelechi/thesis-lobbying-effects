@@ -24,7 +24,7 @@ Em termos de interpretação, mantidos constantes os efeitos fixos, um increment
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig8_effect_linear_ppml.pdf}
+\includegraphics[width=\textwidth]{figures/h1_test/fig_effect_linear_ppml.pdf}
 \caption{Efeito esperado ceteris paribus: especificação linear (\acrshort{ppml})}
 \label{fig:effect_linear_ppml}
 \note{A curva apresenta o fator multiplicativo esperado em perguntas como função do número de reuniões no mês, mantendo constantes os efeitos fixos (\(\exp(\hat{\beta}_1\cdot \textit{meetings})\)). A faixa sombreada corresponde ao intervalo de 95\% obtido via método delta com erros-padrão agrupados em domínio×tempo.}
@@ -32,7 +32,7 @@ Em termos de interpretação, mantidos constantes os efeitos fixos, um increment
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig9_effect_quadratic_ppml.pdf}
+\includegraphics[width=\textwidth]{figures/h1_test/fig_effect_quadratic_ppml.pdf}
 \caption{Efeito esperado ceteris paribus: especificação quadrática (\acrshort{ppml})}
 \label{fig:effect_quadratic_ppml}
 \note{A curva apresenta o fator multiplicativo esperado em perguntas como função do número de reuniões, permitindo retornos marginais decrescentes (\(\exp(\hat{\beta}_1\cdot \textit{meetings} + \hat{\beta}_2\cdot \textit{meetings}^2)\)). A faixa sombreada representa o IC de 95\% via método delta com a matriz de variância-covariância agrupada.}
@@ -42,7 +42,9 @@ Em termos de interpretação, mantidos constantes os efeitos fixos, um increment
 
 Essa interpretação decorre da forma funcional do \acrshort{ppml} (\(\mathbb{E}[y\mid X]=\exp(X\beta)\)). No modelo linear, um acréscimo de uma unidade em \textit{meetings} altera a média condicional de perguntas em \(100\times(\mathrm{e}^{\hat{\beta}_1}-1)\%\). No modelo quadrático, o efeito marginal em log-média é \(\partial\log\mathbb{E}[y\mid X]/\partial\,\textit{meetings}=\hat{\beta}_1+2\hat{\beta}_2\,\textit{meetings}\). Com \(\hat{\beta}_2<0\), esse efeito declina com o nível de \textit{meetings}, isto é, há retornos marginais decrescentes. 
 
-Em particular, a magnitude do termo quadrático é muito inferior ao efeito linear (0,002 vs. 0,066), o que indica retornos marginais decrescentes pequenos na faixa observada. Isso implica que atores com maior disponibilidade de recursos enfrentam pouca perda de eficácia ao intensificar o número de reuniões e, portanto, podem sustentar níveis muito mais altos de lobbying; tal padrão é consistente com a hipótese de que grandes players conseguem alavancar sua capacidade financeira para obter influência relativamente maior, mesmo diante de retornos marginais decrescentes.
+Em particular, a magnitude do termo quadrático é muito inferior ao efeito linear (0,098 vs. 0,004), o que indica retornos marginais decrescentes pequenos na faixa observada. Isso implica que atores com maior disponibilidade de recursos enfrentam pouca perda de eficácia ao intensificar o número de reuniões e, portanto, podem sustentar níveis muito mais altos de lobbying; tal padrão é consistente com a hipótese de que grandes players conseguem alavancar sua capacidade financeira para obter influência relativamente maior, mesmo diante de retornos marginais decrescentes.
+
+% importante mencionar que esse efeito esperado é considerando o número de reuniões com apenas um parlamentar dentro de um único mês. Não considera o efeito total das reuniões que podem ser realizadas em meses diferentes. Não captura a dinâmica de uma organização realizar diversas reuniões com diversos parlamentares em meses diferents. Essa análise foi realizada para testar as hipóteses 2 e 3.
 
 As curvas em \autoref{fig:effect_linear_ppml} e \autoref{fig:effect_quadratic_ppml} tornam essa dinâmica visual. A primeira apresenta um efeito multiplicativo crescente de forma monotônica (\(\exp(\hat{\beta}_1\,\allowbreak\textit{meetings})\)), com faixas de incerteza (IC 95\%) obtidas por método delta usando a matriz de variância-covariância com \textit{clustering} em domínio$\times$tempo e membro. A segunda permite curvatura (\(\exp(\hat{\beta}_1\,\allowbreak\textit{meetings}+\hat{\beta}_2\,\allowbreak\textit{meetings}^2)\)) e revela concavidade compatível com saturação de agenda: para níveis altos de \textit{meetings}, o ganho marginal em perguntas é menor. Em ambas as figuras, o eixo horizontal é mantido dentro do suporte observado dos dados para evitar extrapolações.
 
