@@ -388,7 +388,7 @@ msummary(
   stars = TRUE,
   gof_omit = "AIC|BIC|Log.Lik.",
   coef_omit = "l_head_office",
-  output = file.path(tables_dir, "tab_meetings_nb_centered.tex")
+  output = file.path(tables_dir, "tab_meetings_nb_centered.csv")
 )
 
 # Build grid for centered model predictions
