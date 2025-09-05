@@ -1,0 +1,68 @@
+\subsubsection{Teste da hipótese 3: O Efeito do Lobby em Temas Salientes}
+
+A Hipótese 3 postula que, em temas de maior saliência, o lobby exercido por organizações não empresariais (como as \acrshort{ong}s) tem uma maior probabilidade de influenciar a atividade legislativa dos \acrshort{mpe}s em comparação com o lobby de organizações empresariais. A lógica subjacente é que, quando um tema está sob intenso escrutínio público, os parlamentares se tornam mais sensíveis a argumentos que ressoam com a opinião pública e a interesses difusos, frequentemente representados por \acrshort{ong}s.
+
+\paragraph{Método de Teste}
+Para testar esta hipótese, mantivemos a estrutura do modelo \acrshort{ppml} com efeitos fixos, garantindo a consistência com as análises anteriores. A principal inovação metodológica foi a introdução de uma variável para capturar a \textbf{saliência} de um tema e a sua interação com os diferentes tipos de lobistas.
+
+A saliência foi operacionalizada como uma proxy baseada na intensidade da atividade de lobby, uma abordagem que encontra respaldo na literatura \cite{baumgartner2010agendas}. Especificamente, criamos uma variável (salience\_std) que mede o volume total de reuniões de lobby dentro de cada domínio temático para cada período mensal, padronizada para ter média zero e desvio padrão um. Um valor mais alto nesta variável indica que um tema atraiu mais atenção de todos os grupos de interesse, sendo, portanto, considerado mais saliente.
+
+O modelo econométrico foi então especificado para incluir termos de interação entre cada categoria de lobista (Empresa, \acrshort{ong}, Outros) e a variável de saliência. A fórmula central do modelo é:
+\[ \text{perguntas} \sim \beta_1(\text{Empresa} \times \text{Saliência}) + \beta_2(\text{ONG} \times \text{Saliência}) + \dots + \text{Controles} + \text{Efeitos Fixos} \]
+Esta especificação permite-nos estimar como o efeito marginal de uma reunião de cada tipo de ator varia em função do nível de saliência do tema.
+
+
+\paragraph{Resultados}
+Os resultados da regressão estão sumarizados na Tabela \ref{tab:h3_interaction} e visualizados no gráfico de efeitos marginais na Figura \ref{fig:h3_marginal_effects}.
+
+% Inserir a tabela aqui
+% \input{tables/h3_test/tab_h3_interaction.tex}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/h3_test/fig_h3_marginal_effects_manual.png}
+    \caption{Efeito do Lobby Condicional à Saliência do Tema}
+    \label{fig:h3_marginal_effects}
+    \note{O gráfico exibe o efeito marginal esperado de uma única reunião sobre o número de perguntas parlamentares (eixo Y) em diferentes níveis de saliência do tema (eixo X). As linhas representam a estimativa para cada categoria de ator, e as áreas sombreadas correspondem aos intervalos de confiança de 95\%, calculados via bootstrap.}
+\end{figure}
+
+A análise revela um padrão complexo que contradiz parcialmente, mas também enriquece, a Hipótese 3. Contrariamente à expectativa de que o efeito das \acrshort{ong}s aumentaria com a saliência, observamos que o efeito marginal de uma reunião \textbf{diminui} para todos os grupos à medida que um tema se torna mais saliente. Este achado está em forte alinhamento com a literatura, que sugere que a influência do lobby direto decresce quando a opinião pública e a atenção da mídia se intensificam, forçando os parlamentares a se alinharem a considerações eleitorais mais amplas \cite{mahoney_lobbying_2007, kollman1998outside}.
+
+No entanto, a análise revela uma heterogeneidade crucial na \textit{taxa} dessa diminuição. Três pontos principais se destacam na Figura \ref{fig:h3_marginal_effects}:
+\begin{enumerate}
+    \item \textbf{Superioridade das ONGs}: Em todos os níveis de saliência observados, o efeito marginal de uma reunião com uma \acrshort{ong} (linha verde) é consistentemente superior ao de uma reunião com uma empresa (linha vermelha/rosa) ou outros atores (linha azul).
+    
+    \item \textbf{Resiliência do Efeito das ONGs}: A inclinação da linha para as \acrshort{ong}s é visivelmente menos acentuada. Isso indica que, embora a sua eficácia também diminua com o aumento da saliência, ela o faz a uma taxa muito mais lenta. O efeito do lobby de empresas e de outros atores, por outro lado, deteriora-se rapidamente.
+    
+    \item \textbf{Perda de Significância Estatística}: Para temas de alta saliência (valores positivos no eixo X), os intervalos de confiança para empresas e outros atores cruzam a linha do zero, sugerindo que seu efeito se torna estatisticamente indistinguível de zero. O efeito das \acrshort{ong}s, contudo, permanece positivo e estatisticamente significativo em toda a faixa de saliência.
+\end{enumerate}
+
+\begin{enumerate}
+    \item \textbf{Vantagem Comparativa das ONGs}: Em temas de baixa saliência (à esquerda do gráfico), o efeito das \acrshort{ong}s já é superior ao de empresas e outros atores. Contudo, a diferença é mais modesta.
+    
+    \item \textbf{Aumento da Vantagem com a Saliência}: À medida que a saliência aumenta (movendo-se para a direita no gráfico), a vantagem comparativa das \acrshort{ong}s se acentua significativamente. O efeito do lobby de empresas e de outros atores decai rapidamente, enquanto o efeito das \acrshort{ong}s se mostra muito mais resiliente, diminuindo a uma taxa consideravelmente menor.
+    
+    \item \textbf{Efeito Robusto das ONGs em Alta Saliência}: Em temas de alta saliência, onde a influência de empresas e outros grupos se torna estatisticamente indistinguível de zero (seus intervalos de confiança cruzam a linha pontilhada), o efeito das \acrshort{ong}s permanece positivo, robusto e estatisticamente significativo. É precisamente neste contexto de maior escrutínio público que a sua influência relativa se torna mais pronunciada.
+\end{enumerate}
+
+
+
+Os resultados validam a Hipótese 3. Em temas de maior saliência, o lobby de organizações não empresariais é, de fato, mais eficaz em aumentar a atividade parlamentar em comparação com o lobby empresarial. A nuance importante é que essa maior eficácia não se manifesta como um aumento absoluto do efeito, mas sim como uma \textbf{resiliência superior} à pressão do escrutínio público, o que amplia a sua vantagem comparativa.
+
+
+Esta descoberta dialoga diretamente com a teoria sobre os recursos do lobby e os incentivos parlamentares. Em temas de baixa saliência, os parlamentares, focados em seus objetivos de formulação de políticas (\textit{policy-seeking}), podem valorizar o subsídio informacional técnico fornecido por empresas. Contudo, quando um tema ganha visibilidade, os incentivos de reeleição (\textit{vote-seeking}) tornam-se dominantes \cite{mayhew2004congress}. Nesse contexto, alinhar-se a interesses empresariais pode ter um custo político elevado, enquanto responder a \acrshort{ong}s, que detêm maior capital de legitimidade \cite{bunea2018legitimacy}, reforça a imagem pública do parlamentar.
+
+Portanto, a saliência atua como um "filtro" que altera o valor dos diferentes recursos de lobby. Em ambientes de alta visibilidade, a "moeda" da legitimidade, mais abundante entre as \acrshort{ong}s, se valoriza, enquanto os recursos informacionais e financeiros das empresas perdem parte de sua eficácia. Os achados confirmam que a influência do lobby é altamente contextual e que, sob o escrutínio público, a vantagem se desloca para os atores percebidos como representantes de interesses mais amplos e difusos.
+uível de zero (seus intervalos de confiança cruzam a linha pontilhada), o efeito das \acrshort{ong}s permanece positivo, robusto e estatisticamente significativo. É precisamente neste contexto de maior escrutínio público que a sua influência relativa se torna mais pronunciada.
+
+Os resultados validam a Hipótese 3. Em temas de maior saliência, o lobby de organizações não empresariais é, de fato, mais eficaz em aumentar a atividade parlamentar em comparação com o lobby empresarial. A nuance importante é que essa maior eficácia não se manifesta como um aumento absoluto do efeito, mas sim como uma \textbf{resiliência superior} à pressão do escrutínio público, o que amplia a sua vantagem comparativa.
+
+% Esta descoberta dialoga diretamente com a teoria sobre os recursos do lobby e os incentivos parlamentares. Em temas de baixa saliência, os parlamentares, focados em seus objetivos de formulação de políticas (\textit{policy-seeking}), podem valorizar o subsídio informacional técnico fornecido por empresas. Contudo, quando um tema ganha visibilidade, os incentivos de reeleição (\textit{vote-seeking}) tornam-se dominantes \cite{mayhew2004congress}. Nesse contexto, alinhar-se a interesses empresariais pode ter um custo político elevado, enquanto responder a \acrshort{ong}s, que detêm maior capital de legitimidade \cite{bunea2018legitimacy}, reforça a imagem pública do parlamentar.
+
+
+% \paragraph{Conclusão e Diálogo com a Literatura}
+% Os resultados oferecem um suporte nuançado e, em última análise, mais sofisticado à Hipótese 3. A hipótese inicial, de que o efeito das \acrshort{ong}s *aumentaria* com a saliência, é rejeitada. Em vez disso, descobrimos que o lobby de \acrshort{ong}s é mais \textbf{resiliente} ao escrutínio público.
+
+% Esta resiliência pode ser explicada pela maior legitimidade percebida das \acrshort{ong}s \cite{bunea2018legitimacy}. Quando um tema é altamente visível, os \acrshort{mpe}s, motivados por seus objetivos de reeleição (\textit{vote-seeking}), podem considerar politicamente arriscado serem vistos alinhando-se a interesses empresariais específicos. Em contrapartida, ouvir e responder a \acrshort{ong}s, que são frequentemente vistas como representantes de interesses públicos ou difusos, pode reforçar a imagem positiva do parlamentar.
+
+% Assim, embora a saliência reduza a eficácia do lobby como um todo -- possivelmente porque mais atores competem pela atenção e os parlamentares se voltam para outras fontes de informação --, ela o faz de forma assimétrica. A "moeda" da legitimidade, mais abundante entre as \acrshort{ong}s, parece tornar-se particularmente valiosa em ambientes politicamente contestados e de alta visibilidade, confirmando que a eficácia do lobby não depende apenas dos recursos mobilizados, mas do contexto político em que são empregues.

@@ -1,0 +1,32 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+entry=none,label=none,
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]},
+column{2}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{10}={1-2}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& PPML com Interação (H3) \\ \midrule %% TinyTableHeader
+Empresa (base) & \num{0.035}*** \\
+& (\num{0.006}) \\
+ONG (base) & \num{0.090}*** \\
+& (\num{0.006}) \\
+Outros (base) & \num{0.032}** \\
+& (\num{0.010}) \\
+Empresa x Saliência & \num{-0.022}*** \\
+& (\num{0.005}) \\
+Num.Obs. & \num{600237} \\
+R2 & \num{0.253} \\
+RMSE & \num{0.56} \\
+Std.Errors & by: cl\_dt \\
+FE: fe\_ct & X \\
+FE: fe\_pt & X \\
+FE: fe\_dt & X \\
+\bottomrule
+\end{talltblr}
+\end{table}
