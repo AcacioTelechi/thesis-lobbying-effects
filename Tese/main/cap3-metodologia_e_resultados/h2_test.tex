@@ -1,0 +1,38 @@
+
+% Como foi testada a segunda hipótese?
+Para testar a segunda hipótese (H2) — de que as empresas exercem influência agregada superior sobre a \acrfull{al} quando comparadas a outras categorias de atores — adotamos uma estratégia em duas etapas que espelha os dois mecanismos centrais do lobby: (i) \textit{persuasão por reunião} e (ii) \textit{acesso via volume de reuniões}. Essa decomposição permite separar a eficácia marginal de cada encontro do poder de garantir encontros em maior quantidade.
+
+Primeiro, estimamos a eficácia marginal de uma reunião por tipo de ator com um modelo \acrfull{ppml}, compatível com a especificação base (Seção \ref{section:identificacao}). Depois, modelamos o volume de acesso com uma regressão Binomial Negativa sobre dados de contagem de reuniões por lobista. Por fim, aproximamos o efeito agregado multiplicando o efeito marginal por reunião previsto pelo \acrshort{ppml} pelo número esperado de reuniões previsto pelo modelo de acesso.
+
+% \paragraph{Etapa 1 — Persuasão: comparação de tratamentos com PPML.}
+Reutilizamos a especificação central do \acrshort{ppml} (pacote \texttt{fixest}, função \texttt{fepois}), incluindo efeitos fixos de alta dimensão de país-tempo, partido-tempo e domínio-tempo, e o mesmo vetor de controlos individuais $X'_{it}$ utilizado em H1. Para comparar a eficácia por tipo de ator, substituímos a variável de tratamento $L_{idt}$ por versões alternativas que isolam o número de reuniões atribuíveis a cada categoria: Empresas, \acrshort{ong}s e Outros. A especificação estimada é
+
+\begin{equation}
+    AL_{idt} = \beta^{(k)} L_{idt}^{(k)} + \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it}\delta + \epsilon_{idt}, \quad k \in \{\text{Business},\ \text{NGOs},\ \text{Other}\}
+\end{equation}
+
+onde $\beta^{(k)}$ é o coeficiente de interesse para o tratamento $k$. Os erros padrão são clusterizados em domínio-tempo, mitigando correlações intracluster ao longo do tempo dentro de cada área temática. A evidência a favor de maior eficácia marginal por reunião para um dado tipo de ator decorre de um $\beta^{(k)}$ maior e estatisticamente significativo. Os resultados desta etapa subsidiam a Figura de comparação de tratamentos e a Tabela de coeficientes.
+
+% \paragraph{Justificativa.}
+O \acrshort{ppml} é apropriado para dados de contagem com muitos zeros e evita vieses de transformações logarítmicas em \acrshort{mqo}. A estrutura de efeitos fixos (país-tempo, partido-tempo e domínio-tempo) aborda choques comuns e heterogeneidade não observada correlacionada com a variável de tratamento, preservando identificação na variação intra-parlamentar ao longo do tempo, conforme discutido na Seção \ref{section:identificacao}.
+
+% \paragraph{Etapa 2 — Acesso: frequência de reuniões com Binomial Negativo.}
+Para captar o componente de acesso, estimamos o número de reuniões por lobista com um modelo Binomial Negativo (\texttt{MASS::glm.nb}), apropriado para contagens com sobredispersão. A variável dependente é o total de reuniões realizadas pelo lobista, explicada por: (i) categoria do ator (\acrshort{ong}, Empresa, Outros), (ii) orçamento máximo de lobby em log, (iii) interação entre categoria e orçamento, e (iv) controlos setoriais de atuação do lobista e país da sede. Para interpretação limpa, recentramos o orçamento em seu valor médio. Em termos funcionais:
+
+\begin{equation}
+    \mathbb{E}[\text{meetings}_\ell\,|\,Z_\ell] = \exp\big(\alpha_0 + \alpha_1\,\mathbb{1}\{\text{Business}\} + \alpha_2\,\ln B_\ell + \alpha_3\,\mathbb{1}\{\text{Business}\}\cdot\ln B_\ell + W_\ell'\eta\big),
+\end{equation}
+
+onde $\ell$ indexa lobistas, $B_\ell$ é o orçamento, $W_\ell$ agrega os controlos e a interação permite que o efeito do orçamento sobre o número de reuniões varie por categoria. Este modelo gera previsões de reuniões esperadas por categoria e nível de orçamento, que embasam as figuras e tabelas correspondentes.
+
+Combinamos as duas etapas para aproximar o impacto total do lobby por categoria e orçamento:
+
+\begin{equation}
+    \text{Efeito total}_{(k,\,B)} \;\approx\; \underbrace{\mathbb{E}[\text{reuniões}\,|\,k,\,B]}_{\text{Acesso}}\;\times\; \underbrace{\beta^{(k)}}_{\text{Persuasão por reunião (PPML)}}.
+\end{equation}
+
+Essa métrica captura a ideia de que influência política depende tanto da eficácia marginal de cada encontro quanto da capacidade de produzir muitos encontros. A interpretação requer a premissa de \textit{separabilidade} entre os processos de acesso e persuasão: condicionais às variáveis observadas (e aos efeitos fixos na Etapa 1), os fatores não observados que afetam a capacidade de agendar reuniões não devem enviesar sistematicamente a eficácia por reunião. Discutimos essa premissa e suas implicações na seção de resultados.
+
+% \paragraph{Implementação e reprodutibilidade.}
+Toda a estimação foi conduzida em R. A Etapa 1 utiliza \texttt{fixest::fepois} com efeitos fixos de país-tempo, partido-tempo e domínio-tempo, controlos individuais detalhados e \textit{cluster} de erros em domínio-tempo. A Etapa 2 utiliza \texttt{MASS::glm.nb} com controles setoriais e geográficos, além da interação categoria $\times$ orçamento. As figuras e tabelas foram exportadas para \texttt{Tese/figures/h2\_test} e \texttt{Tese/tables/h2\_test}, respeitando o padrão do projeto. A discussão substantiva dos resultados e sua interpretação estão em \texttt{Tese/main/cap4-resultados/h2.tex}.
+

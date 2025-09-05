@@ -102,8 +102,8 @@ msummary(
     "l_category_Other" = "Outros (base)",
     "salience_std" = "Saliência",
     "l_category_Business:salience_std" = "Empresa x Saliência",
-    "l_category_NGOs:salience_std" = "ONG x Saliência",
-    "l_category_Other:salience_std" = "Outros x Saliência"
+    "salience_std:l_category_NGOs" = "ONG x Saliência",
+    "salience_std:l_category_Other" = "Outros x Saliência"
   ),
   stars = TRUE,
   output = file.path(tables_dir, "tab_h3_interaction.tex")
