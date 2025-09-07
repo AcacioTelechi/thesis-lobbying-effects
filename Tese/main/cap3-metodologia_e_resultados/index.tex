@@ -1,20 +1,84 @@
-\chapter{Metodologia}
+\chapter{Metodologia e Estratégia Empírica}
 \label{chapter:metodologia}
-Este capítulo dedica-se a apresentar a proposta metodológica da tese. Como vimos, estudar os efeitos do lobby apresenta desafios metodológicos importantes. Primeiro, sistematizemos os seis principais complicadores para identificar os efeitos do lobby; em seguida, apresento a proposta de desenho metodológico para buscar essa identificação.
 
-O primeiro desafio, que podemos chamar de "o problema da persistência temporal", relaciona-se com o fato de que o montante dos esforços de lobby ao longo do tempo tende a ser constante \cite{de_figueiredo_advancing_2014}. Por conta disso, alguns métodos de análise de dados em painel, que exigem variação nas variáveis de interesse, cujo objetivo seja medir os efeitos do esforço de lobby, pode não obter a variabilidade necessária.
+Este capítulo apresenta a proposta metodológica e estratégia empírica da tese, abordando desde a operacionalização dos dados até os métodos de estimação e validação dos resultados. Como discutido no capítulo anterior, estudar os efeitos do lobby apresenta desafios metodológicos importantes que devem ser cuidadosamente endereçados para assegurar identificação causal crível.
 
-A segunda complicação metodológica, ou "o problema do viés de seleção", refere-se ao fato de que a escolha dos alvos dos lobistas não é aleatória. Os lobistas tendem a escolher como alvos prioritários parlamentares aliados \cite{kollman1998outside, caldeira2000lobbying, hojnacki2001pac} ou neutros \cite{holyoke2003choosing, kelleher2009political, bertrand2014whom, gawande2012lobbying} que tenham posições importantes na tramitação de determinado projeto \cite{marshall2010lobby}.
+\section{Desafios Metodológicos na Literatura}
 
-O terceiro desafio, que pode ser denominado de "o problema do lobby contra-ativo", diz respeito a possibilidade de que, mesmo que um grupo não obtenha sucesso, não quer dizer que ele não tenha influência. Pode significar que houve um esforço de lobby no sentido contrário que obteve sucesso \cite{austen1996theory}.
+A identificação dos efeitos do lobby enfrenta seis principais complicações metodológicas que orientam a estratégia empírica desta pesquisa:
 
-O quarto obstáculo, ou "o problema das faces do poder", dispõe que o lobby pode agir em diferentes etapas do processo de decisão, seja na formação da agenda \cite{bachrach1962two}, seja na sua implementação.
+O \textbf{primeiro desafio}, denominado "problema da persistência temporal", relaciona-se com o fato de que o montante dos esforços de lobby ao longo do tempo tende a ser constante \cite{de_figueiredo_advancing_2014}. Por conta disso, métodos de análise de dados em painel que exigem variação temporal nas variáveis de interesse podem não obter a variabilidade necessária para identificação causal.
 
-A quinta dificuldade, ou "o problema das variáveis omitidas" \cite{de_figueiredo_advancing_2014}, está relacionado a possibilidade de que variáveis importantes podem não ser observadas. Como exemplo, podemos citar a habilidade de negociação de cada lobista. Outra possibilidade relacionada a esse desafio é caso os lobistas queiram pressionar de maneira não transparente.
+A \textbf{segunda complicação}, ou "problema do viés de seleção", refere-se ao fato de que a escolha dos alvos pelos lobistas não é aleatória. Os lobistas tendem a escolher como alvos prioritários parlamentares aliados \cite{kollman1998outside, caldeira2000lobbying, hojnacki2001pac} ou neutros \cite{holyoke2003choosing, kelleher2009political, bertrand2014whom, gawande2012lobbying} que tenham posições importantes na tramitação de determinado projeto \cite{marshall2010lobby}.
 
-Por fim, a sexta complicação, que chamemos de "o problema dos canais de influência", refere-se a capacidade de que os lobistas tem de agir em diferentes canais \cite{dur_measuring_2008}. Eles podem optar desde lobby direto a campanhas de pressão perante a opinião pública, ou \textit{outside lobbying} \cite{kollman1998outside}. Além disso podem mesmo agir na própria seleção dos tomadores de decisão \cite{fordham2003selection}. A seguir, analisemos a proposta para a identificação do efeito do lobby no comportamento parlamentar.
+O \textbf{terceiro desafio}, denominado "problema do lobby contra-ativo", diz respeito à possibilidade de que, mesmo quando um grupo não obtém sucesso visível, isso não significa ausência de influência. Pode significar que houve um esforço de lobby no sentido contrário que obteve sucesso \cite{austen1996theory}.
 
+O \textbf{quarto obstáculo}, ou "problema das faces do poder", reconhece que o lobby pode agir em diferentes etapas do processo decisório, seja na formação da agenda \cite{bachrach1962two}, seja na sua implementação.
+
+A \textbf{quinta dificuldade}, ou "problema das variáveis omitidas" \cite{de_figueiredo_advancing_2014}, está relacionada à possibilidade de que variáveis importantes podem não ser observadas, como a habilidade de negociação de cada lobista ou esforços de pressão não transparentes.
+
+Por fim, a \textbf{sexta complicação}, denominada "problema dos canais de influência", refere-se à capacidade dos lobistas de agir através de diferentes canais \cite{dur_measuring_2008}, desde lobby direto até campanhas de pressão perante a opinião pública (\textit{outside lobbying}) \cite{kollman1998outside}, podendo inclusive influenciar a própria seleção dos tomadores de decisão \cite{fordham2003selection}.
+
+\section{Estratégia Metodológica Geral}
+
+Para endereçar esses desafios, esta tese adota uma estratégia metodológica multifacetada que combina:
+
+\textbf{(1) Operacionalização cuidadosa dos dados:} Processo rigoroso de extração, tratamento e harmonização de múltiplas fontes de dados públicos, com controles de qualidade extensivos.
+
+\textbf{(2) Identificação por efeitos fixos de alta dimensão:} Modelo econométrico que explora variação temporal intra-parlamentar após controlar por choques comuns em múltiplas dimensões.
+
+\textbf{(3) Testes de robustez abrangentes:} Validação dos resultados através de especificações alternativas, amostras restringidas, e testes placebo.
+
+\textbf{(4) Análise de heterogeneidade:} Investigação de efeitos diferenciados por tipo de ator, área temática, e contexto político.
+
+Os próximos seções detalham cada componente desta estratégia, começando pela operacionalização dos dados e seguindo para a estratégia de identificação e métodos de estimação específicos para cada hipótese testada.
+
+\input{main/cap3-metodologia_e_resultados/operacionzalizacao}
 \input{main/cap3-metodologia_e_resultados/identificacao}
 \input{main/cap3-metodologia_e_resultados/h1_test}
 \input{main/cap3-metodologia_e_resultados/h2_test}
 \input{main/cap3-metodologia_e_resultados/h3_test}
+
+\section{Validação e Testes de Robustez}
+
+A credibilidade das inferências causais desta pesquisa repousa não apenas na adequação da estratégia de identificação, mas também na robustez dos resultados a diferentes especificações metodológicas. Por essa razão, esta tese implementa uma bateria abrangente de testes de robustez que incluem:
+
+\subsection{Especificações Alternativas}
+\begin{itemize}
+    \item Comparação entre PPML e OLS
+    \item Variações na estrutura de efeitos fixos
+    \item Diferentes estruturas de clustering dos erros padrão
+    \item Especificações com e sem controles individuais
+\end{itemize}
+
+\subsection{Sensibilidade Amostral}
+\begin{itemize}
+    \item Exclusão de observações extremas (\textit{outliers})
+    \item Análise por período legislativo
+    \item Testes \textit{jackknife} por país e partido político
+    \item Estabilidade temporal dos efeitos
+\end{itemize}
+
+\subsection{Definições Alternativas das Variáveis}
+\begin{itemize}
+    \item Diferentes operacionalizações da variável de tratamento
+    \item Transformações alternativas da variável dependente
+    \item Especificações binárias e categóricas
+\end{itemize}
+
+\subsection{Testes de Validação}
+\begin{itemize}
+    \item Testes placebo com tratamentos falsos
+    \item Análise de \textit{leads} e \textit{lags}
+    \item Verificação de pressupostos do modelo
+\end{itemize}
+
+Os resultados detalhados de todos esses testes são apresentados no Apêndice~\ref{appendix:robustness}, onde demonstramos que as conclusões principais da tese são robustas a uma ampla gama de decisões metodológicas e especificações alternativas.
+
+\section{Considerações sobre Replicabilidade}
+
+Seguindo as melhores práticas de transparência acadêmica, todos os códigos de análise, procedimentos de operacionalização dos dados, e especificações econométricas estão totalmente documentados e disponíveis. A estrutura modular dos scripts permite replicação completa de todos os resultados, desde a extração dos dados brutos até a geração das tabelas e figuras finais.
+
+O processo de operacionalização foi desenhado para ser completamente reproduzível, com controles automatizados de qualidade e validações cruzadas entre diferentes fontes. As decisões metodológicas são explicitamente justificadas e, quando apropriado, comparadas com abordagens alternativas para demonstrar a robustez das escolhas realizadas.
+
+Esta abordagem de transparência e replicabilidade não apenas fortalece a credibilidade científica da pesquisa, mas também facilita futuras extensões e aplicações da metodologia desenvolvida a outros contextos institucionais e temporais.
