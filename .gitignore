@@ -187,3 +187,9 @@ questions_details*
 mep_membership_timeline.csv
 
 
+# R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Ruserdata
