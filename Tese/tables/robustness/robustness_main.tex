@@ -1,0 +1,33 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+entry=none,label=none,
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2-16}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{10}={1-16}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\hline
+& Baseline PPML & OLS & PPML (no domain×time FE) & PPML (no country×time FE) & PPML (no party×time FE) & PPML (individual FE only) & No outliers & Recent period (2019-2024) & Early period (2014-2019) & Binary treatment & Cluster: member & Cluster: two-way & Robust SE & Placebo: lead & Placebo: random \\ \hline %% TinyTableHeader
+meetings & \num{0.025}*** & \num{0.007}*** & \num{0.025}*** & \num{0.025}*** & \num{0.024}*** & \num{0.014}*** & \num{0.052}*** & \num{0.025}*** & \num{0.112}*** &  & \num{0.025}*** & \num{0.025}*** & \num{0.025}*** &  &  \\
+& (\num{0.002}) & (\num{0.001}) & (\num{0.002}) & (\num{0.002}) & (\num{0.002}) & (\num{0.003}) & (\num{0.003}) & (\num{0.002}) & (\num{0.012}) &  & (\num{0.005}) & (\num{0.006}) & (\num{0.005}) &  &  \\
+meetings\_binary &  &  &  &  &  &  &  &  &  & \num{0.327}*** &  &  &  &  &  \\
+&  &  &  &  &  &  &  &  &  & (\num{0.013}) &  &  &  &  &  \\
+meetings\_lead &  &  &  &  &  &  &  &  &  &  &  &  &  & \num{0.024}*** &  \\
+&  &  &  &  &  &  &  &  &  &  &  &  &  & (\num{0.002}) &  \\
+meetings\_random &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \num{-0.000} \\
+&  &  &  &  &  &  &  &  &  &  &  &  &  &  & (\num{0.003}) \\
+Num.Obs. & \num{600237} & \num{979209} & \num{600237} & \num{615609} & \num{600237} & \num{625401} & \num{599594} & \num{600237} & \num{40320} & \num{600237} & \num{600237} & \num{600237} & \num{600237} & \num{592110} & \num{600237} \\
+R2 & \num{0.253} & \num{0.194} & \num{0.199} & \num{0.239} & \num{0.243} & \num{0.257} & \num{0.254} & \num{0.253} & \num{0.211} & \num{0.254} & \num{0.253} & \num{0.253} & \num{0.253} & \num{0.254} & \num{0.252} \\
+RMSE & \num{0.56} & \num{0.45} & \num{0.58} & \num{0.56} & \num{0.56} & \num{0.56} & \num{0.56} & \num{0.56} & \num{0.52} & \num{0.56} & \num{0.56} & \num{0.56} & \num{0.56} & \num{0.55} & \num{0.56} \\
+Std.Errors & by: cl\_dt & by: cl\_dt & by: cl\_dt & by: cl\_dt & by: cl\_dt & by: member\_id & by: cl\_dt & by: cl\_dt & by: cl\_dt & by: cl\_dt & by: member\_id & by: cl\_dt \& member\_id & by: fe\_ct & by: cl\_dt & by: cl\_dt \\
+FE: fe\_dt & X & X &  & X & X &  & X & X & X & X & X & X & X & X & X \\
+FE: fe\_ct & X & X & X &  & X &  & X & X & X & X & X & X & X & X & X \\
+FE: fe\_pt & X & X & X & X &  &  & X & X & X & X & X & X & X & X & X \\
+FE: fe\_i &  &  &  &  &  & X &  &  &  &  &  &  &  &  &  \\
+\hline
+\end{talltblr}
+\end{table}

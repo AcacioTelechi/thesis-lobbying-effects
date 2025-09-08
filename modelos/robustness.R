@@ -438,13 +438,13 @@ main_robustness <- robustness_summary[!grepl("Placebo", robustness_summary$Model
 
 p_robustness <- ggplot(main_robustness, aes(x = Estimate, y = reorder(Model, Estimate))) +
     geom_vline(xintercept = 0, color = "gray70", linetype = "solid") +
-    geom_vline(xintercept = baseline_estimate, color = "#B45C1F", linetype = "dashed") +
-    geom_rect(
-        aes(xmin = baseline_estimate - 1.96 * baseline_se, 
-            xmax = baseline_estimate + 1.96 * baseline_se),
+    annotate("rect",
+        xmin = baseline_estimate - 1.96 * baseline_se, 
+        xmax = baseline_estimate + 1.96 * baseline_se,
         ymin = -Inf, ymax = Inf, 
         alpha = 0.15, fill = "#B45C1F"
     ) +
+    geom_vline(xintercept = baseline_estimate, color = "#B45C1F", linetype = "dashed") +
     geom_point(color = "#1f77b4", size = 2.8) +
     geom_errorbarh(aes(xmin = CI_Lower, xmax = CI_Upper), height = 0.2, color = "#1f77b4") +
     labs(
@@ -468,13 +468,13 @@ if (length(jackknife_country_results) > 0) {
     jackknife_country_df$ci_upper <- jackknife_country_df$estimate + 1.96 * jackknife_country_df$std_error
     
     p_jackknife_country <- ggplot(jackknife_country_df, aes(x = estimate, y = reorder(excluded, estimate))) +
-        geom_vline(xintercept = baseline_estimate, color = "#B45C1F", linetype = "dashed") +
-        geom_rect(
-            aes(xmin = baseline_estimate - 1.96 * baseline_se, 
-                xmax = baseline_estimate + 1.96 * baseline_se),
-            ymin = -Inf, ymax = Inf, 
-            alpha = 0.15, fill = "#B45C1F"
+        annotate("rect",
+            xmin = baseline_estimate - 1.96 * baseline_se, 
+            xmax = baseline_estimate + 1.96 * baseline_se,
+            ymin = -Inf, ymax = Inf,
+            alpha = .15, fill = "#B45C1F"
         ) +
+        geom_vline(xintercept = baseline_estimate, color = "#B45C1F", linetype = "dashed") +
         geom_point(color = "#2ca02c", size = 2.5) +
         geom_errorbarh(aes(xmin = ci_lower, xmax = ci_upper), height = 0.2, color = "#2ca02c") +
         labs(

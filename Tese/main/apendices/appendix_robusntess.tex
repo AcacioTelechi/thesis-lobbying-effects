@@ -27,7 +27,7 @@ A estratégia de robustez adotada segue múltiplas dimensões complementares:
 
 O modelo baseline utiliza PPML com estrutura completa de efeitos fixos (país×tempo, partido×tempo, domínio×tempo). A Tabela~\ref{tab:robustness_specifications} apresenta os resultados para diferentes métodos de estimação.
 
-O modelo OLS produz estimativa similar (coeficiente = 0.0243) mas com maior magnitude, consistente com a literatura que documenta viés para cima em modelos lineares quando a variável dependente apresenta sobredispersão \citep{silva2006log}. A manutenção da significância estatística através de diferentes métodos reforça a robustez do resultado principal.
+O modelo OLS produz estimativa similar (coeficiente = 0.0243) mas com maior magnitude, consistente com a literatura que documenta viés para cima em modelos lineares quando a variável dependente apresenta sobredispersão \cite{silva2006log}. A manutenção da significância estatística através de diferentes métodos reforça a robustez do resultado principal.
 
 \input{tables/robustness/robustness_key}
 
@@ -159,12 +159,10 @@ A evidência apresentada neste apêndice oferece suporte robusto às conclusões
 
 A convergência de evidências de diferentes especificações, amostras, e definições conceituais constitui evidência persuasiva de que o lobbying exerce efeito causal positivo na atividade parlamentar, medida através de perguntas ao executivo. Esta conclusão é robusta a uma ampla gama de decisões metodológicas e especificações alternativas, conferindo alta credibilidade aos resultados principais da pesquisa.
 
-\clearpage
-
-\begin{table}[htbp]
-    \centering
-    \caption{Testes de Robustez - Especificações Principais}
+% \begin{table}[htbp]
+%     \centering
+%     \caption{Testes de Robustez - Especificações Principais}
     \label{tab:robustness_specifications}
     \input{tables/robustness/robustness_main}
     \note{A tabela apresenta os coeficientes estimados para a variável \texttt{meetings} em diferentes especificações do modelo. Erros padrão clustered por domínio×tempo entre parênteses. *** p<0.001, ** p<0.01, * p<0.05, † p<0.1. Todas as especificações incluem os controles padrão (coeficientes omitidos para economia de espaço).}
-\end{table}
+% \end{table}

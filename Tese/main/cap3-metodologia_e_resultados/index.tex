@@ -39,41 +39,9 @@ Os próximos seções detalham cada componente desta estratégia, começando pel
 
 \section{Validação e Testes de Robustez}
 
-A credibilidade das inferências causais desta pesquisa repousa não apenas na adequação da estratégia de identificação, mas também na robustez dos resultados a diferentes especificações metodológicas. Por essa razão, esta tese implementa uma bateria abrangente de testes de robustez que incluem:
-
-\subsection{Especificações Alternativas}
-\begin{itemize}
-    \item Comparação entre PPML e OLS
-    \item Variações na estrutura de efeitos fixos
-    \item Diferentes estruturas de clustering dos erros padrão
-    \item Especificações com e sem controles individuais
-\end{itemize}
-
-\subsection{Sensibilidade Amostral}
-\begin{itemize}
-    \item Exclusão de observações extremas (\textit{outliers})
-    \item Análise por período legislativo
-    \item Testes \textit{jackknife} por país e partido político
-    \item Estabilidade temporal dos efeitos
-\end{itemize}
-
-\subsection{Definições Alternativas das Variáveis}
-\begin{itemize}
-    \item Diferentes operacionalizações da variável de tratamento
-    \item Transformações alternativas da variável dependente
-    \item Especificações binárias e categóricas
-\end{itemize}
-
-\subsection{Testes de Validação}
-\begin{itemize}
-    \item Testes placebo com tratamentos falsos
-    \item Análise de \textit{leads} e \textit{lags}
-    \item Verificação de pressupostos do modelo
-\end{itemize}
+A credibilidade das inferências causais desta pesquisa repousa não apenas na adequação da estratégia de identificação, mas também na robustez dos resultados a diferentes especificações metodológicas. Por essa razão, esta tese implementa uma bateria abrangente de testes de robustez que incluem: comparação entre \acrshort{ppml} e \acrshort{mqo}, variações na estrutura de efeitos fixos, diferentes estruturas de clustering dos erros padrão, especificações com e sem controles individuais, exclusão de observações extremas (\textit{outliers}), análise por período legislativo, testes \textit{jackknife} por país e partido político, estabilidade temporal dos efeitos, diferentes operacionalizações da variável de tratamento, transformações alternativas da variável dependente, especificações binárias e categóricas, testes placebo com tratamentos falsos, análise de \textit{leads} e \textit{lags}, verificação de pressupostos do modelo.
 
 Os resultados detalhados de todos esses testes são apresentados no Apêndice~\ref{appendix:robustness}, onde demonstramos que as conclusões principais da tese são robustas a uma ampla gama de decisões metodológicas e especificações alternativas.
-
-\section{Considerações sobre Replicabilidade}
 
 Seguindo as melhores práticas de transparência acadêmica, todos os códigos de análise, procedimentos de operacionalização dos dados, e especificações econométricas estão totalmente documentados e disponíveis. A estrutura modular dos scripts permite replicação completa de todos os resultados, desde a extração dos dados brutos até a geração das tabelas e figuras finais.
 
