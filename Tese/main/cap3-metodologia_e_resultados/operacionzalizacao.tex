@@ -1,11 +1,9 @@
 \section{Operacionalização dos Dados}
 \label{sec:operacionalizacao}
 
-Esta seção descreve detalhadamente o processo de operacionalização dos dados utilizados na presente pesquisa, desde a extração das fontes primárias até a construção final dos painéis de dados utilizados nas análises econométricas. A transparência e replicabilidade deste processo são fundamentais para assegurar a confiabilidade dos resultados obtidos.
+Esta seção descreve o processo de operacionalização dos dados utilizados na presente pesquisa, desde a extração das fontes primárias até a construção final dos painéis de dados utilizados nas análises econométricas. A transparência e replicabilidade deste processo são fundamentais para assegurar a confiabilidade dos resultados obtidos.
 
-\subsection{Fontes de Dados}
-
-A pesquisa baseia-se em três principais fontes de dados, todas públicas e oficiais:
+A pesquisa utiliza três principais fontes de dados, todas públicas e oficiais:
 
 \textbf{(1) API do Parlamento Europeu:} Utilizada para extrair dados sobre perguntas parlamentares e reuniões com representantes de interesse. A API fornece dados estruturados em formato JSON sobre atividades parlamentares desde 2009, incluindo metadados como datas, participantes, e identificadores únicos.
 
@@ -13,9 +11,6 @@ A pesquisa baseia-se em três principais fontes de dados, todas públicas e ofic
 
 \textbf{(3) Base de Dados de Membros do Parlamento Europeu (MEPs):} Informações sobre os parlamentares europeus, incluindo filiação partidária, país de origem, comissões de participação e períodos de mandato.
 
-\subsection{Processo de Extração de Dados}
-
-\subsubsection{Extração de Reuniões}
 
 O processo de extração de dados sobre reuniões foi implementado através de um sistema de \textit{web scraping} paralelo (\textit{script} \texttt{1\_extraction.ipynb}). O sistema utiliza a classe \texttt{ParliamentDataHandler} para realizar requisições à API do Parlamento Europeu com controle de taxa de requisições para evitar sobrecarga do servidor.
 
@@ -29,8 +24,6 @@ A extração cobriu o período de janeiro de 2024 a outubro de 2024 inicialmente
 
 Cada reunião extraída contém informações sobre: data, parlamentar(es) envolvido(s), representantes presentes, capacidade do parlamentar na reunião, e identificadores únicos.
 
-\subsubsection{Extração de Perguntas Parlamentares}
-
 A extração de perguntas parlamentares seguiu processo similar, mas com etapas adicionais devido à necessidade de acessar o conteúdo textual completo (\textit{script} \texttt{1.2\_extraction\_questions\_data.ipynb}). O processo envolveu:
 
 \textbf{Fase 1 - Metadados:} Extração dos metadados das perguntas através da API, obtendo identificadores únicos, autores, datas de publicação e tipos de pergunta.
@@ -39,11 +32,7 @@ A extração de perguntas parlamentares seguiu processo similar, mas com etapas 
 
 \textbf{Fase 3 - Processamento Textual:} Extração e limpeza do conteúdo textual dos PDFs utilizando a biblioteca \texttt{PyPDF2}, com foco na seção "Subject" de cada pergunta para análise temática posterior.
 
-\subsection{Tratamento e Harmonização dos Dados}
-
-\subsubsection{Matching de Organizações}
-
-Um dos desafios centrais foi o \textit{matching} entre os nomes das organizações presentes nas reuniões e aquelas registradas no Registro de Transparência (\textit{script} \texttt{2.0\_treat\_fuzzy.ipynb}). Este processo utilizou técnicas de correspondência \textit{fuzzy} devido a variações na grafia e denominações oficiais.
+Um dos desafios centrais foi o \textit{matching} entre os nomes das organizações presentes nas reuniões e aquelas registradas no Registro de Transparência (\textit{script} \texttt{2.0\_treat\_fuzzy.ipynb}). Como, na grande maioria dos casos, não havia um identificador único do lobista na base de dados de reuniões, mas apenas o nome e organização representada, foi preciso uma estratégia de parear o nome da organização dessa base de dados com a do Registro de Transparência. Este processo utilizou técnicas de correspondência \textit{fuzzy} devido a variações na grafia e denominações oficiais.
 
 O algoritmo implementado utiliza múltiplas métricas de similaridade:
 \begin{itemize}
@@ -55,11 +44,7 @@ O algoritmo implementado utiliza múltiplas métricas de similaridade:
 
 O processo foi paralelizado em lotes de 10 organizações, processando 99.370 correspondências potenciais em 5 horas e 40 minutos. Foram consideradas correspondências de alta confiança aquelas com score $\geq 85\%$, resultando em 2.166 matches confirmados.
 
-\subsubsection{Classificação Temática}
-
-A classificação temática das perguntas parlamentares foi realizada utilizando técnicas de processamento de linguagem natural (\textit{script} \texttt{2.6\_analyze\_questions\_docs.ipynb}). O processo empregou o modelo \texttt{facebook/bart-large-mnli} para classificação \textit{zero-shot} multi-rótulo.
-
-\textbf{Desenvolvimento da Taxonomia:} Após iterações exploratórias com diferentes conjuntos de categorias, definiu-se uma taxonomia final de 9 domínios temáticos:
+A classificação temática das perguntas parlamentares foi realizada utilizando técnicas de processamento de linguagem natural (\textit{script} \texttt{2.6\_analyze\_questions\_docs.ipynb}). O processo empregou o modelo \texttt{facebook/bart-large-mnli} para classificação \textit{zero-shot} multi-rótulo. Após iterações exploratórias com diferentes conjuntos de categorias baseados nos interesses declarados pelos lobistas no Registro de Transparência, definiu-se uma taxonomia final de 9 domínios temáticos:
 \begin{enumerate}
     \item Assuntos Externos e Segurança
     \item Economia e Comércio  
@@ -74,8 +59,6 @@ A classificação temática das perguntas parlamentares foi realizada utilizando
 
 O processo classificou 72.155 perguntas em lotes de 8 documentos, executado em GPU durante 28 horas e 58 minutos. Cada pergunta recebeu scores de probabilidade para todos os domínios, permitindo análises tanto de classificação única (domínio mais provável) quanto multi-rótulo.
 
-\subsubsection{Tratamento de Dados dos Parlamentares}
-
 O tratamento dos dados dos parlamentares envolveu a criação de um \textit{timeline} temporal para capturar mudanças em filiações partidárias, participação em comissões e outros aspectos institucionais (\textit{script} \texttt{2.3\_treat\_meps.ipynb}).
 
 Para cada parlamentar e data relevante, o sistema determina:
@@ -88,8 +71,6 @@ Para cada parlamentar e data relevante, o sistema determina:
 
 Este processo gerou um dataset temporal com 1.353 parlamentares únicos ao longo de todas as datas relevantes do período de análise.
 
-\subsubsection{Categorização de Lobistas}
-
 Os lobistas registrados foram categorizados em três grupos principais com base em sua natureza organizacional (\textit{script} \texttt{2.1\_treatment\_meetings\_orgs.ipynb}):
 
 \textbf{Business:} Empresas, grupos empresariais e associações comerciais e de negócios.
@@ -98,22 +79,11 @@ Os lobistas registrados foram categorizados em três grupos principais com base 
 
 \textbf{Other:} Demais categorias incluindo sindicatos, think tanks, instituições acadêmicas, consultorias, entidades públicas mistas, e representações de terceiros países.
 
-Adicionalmente, foram criadas variáveis de classificação orçamentária (baixo, médio, alto) baseadas na distribuição dos orçamentos declarados e de tempo desde registro (em dias).
+Adicionalmente, foram criadas variáveis de classificação orçamentária (baixo, médio, alto) baseadas na distribuição dos orçamentos declarados e de tempo desde registro (em dias). Para ambas as variáveis, a categorização foi feita com base em quartis. As organizações no primeiro quartil (os 25\% menores valores) foram classificadas como 'baixo'. As que se encontravam entre o primeiro e o terceiro quartil (valores entre 25\% e 75\% da distribuição) foram classificadas como 'médio', e as no quartil superior (os 25\% maiores valores) como 'alto'. Para a variável de orçamento, foi utilizado o logaritmo natural do valor máximo do orçamento declarado para suavizar a distribuição antes da categorização.
 
-\subsection{Construção do Painel de Dados}
+A construção do painel de dados envolveu decisões importantes sobre a agregação temporal. Testaram-se três níveis: diário, semanal e mensal. A agregação mensal foi selecionada como padrão por (\textit{i}) reduzir esparsidade excessiva dos dados diários, (\textit{ii}) manter granularidade suficiente para capturar variações temporais, e (\textit{iii}) facilitar a identificação econométrica com maior variabilidade.
 
-\subsubsection{Estrutura Temporal}
-
-A construção do painel de dados envolveu decisões importantes sobre a agregação temporal. Testaram-se três níveis: diário, semanal e mensal. A agregação mensal foi selecionada como padrão por:
-\begin{itemize}
-    \item Reduzir esparsidade excessiva dos dados diários
-    \item Manter granularidade suficiente para capturar variações temporais
-    \item Facilitar a identificação econométrica com maior variabilidade
-\end{itemize}
-
-\subsubsection{Estrutura de Painel Tridimensional}
-
-O painel final possui estrutura tridimensional (parlamentar × tempo × domínio temático), permitindo análises sofisticadas dos efeitos heterogêneos por área temática. A construção envolveu (\textit{scripts} \texttt{2.4\_panel\_data.ipynb} e \texttt{2.7\_panel\_data\_w\_topics.ipynb}):
+O painel final possui estrutura tridimensional (parlamentar × tempo × domínio temático), permitindo análises dos efeitos heterogêneos por área temática. A construção envolveu (\textit{scripts} \texttt{2.4\_panel\_data.ipynb} e \allowbreak\texttt{2.7\_panel\_data\_w\_topics.ipynb}):
 
 \textbf{Passo 1 - Agregação Temporal:} Contagem de perguntas e reuniões por parlamentar-mês-domínio, considerando múltiplas classificações temáticas quando aplicável.
 
@@ -122,8 +92,6 @@ O painel final possui estrutura tridimensional (parlamentar × tempo × domínio
 \textbf{Passo 3 - Preenchimento de Missings:} Criação de observações com valor zero para todas as combinações parlamentar-tempo-domínio não observadas, assegurando painel balanceado.
 
 \textbf{Passo 4 - Construção de Variáveis de Controle:} Criação de variáveis \textit{dummy} para grupos políticos, países, e funções em comissões, utilizando categorias de referência (França para país, não especificado).
-
-\subsubsection{Dataset Final}
 
 O dataset final (\texttt{df\_long\_v2.csv}) contém:
 \begin{itemize}
@@ -134,7 +102,6 @@ O dataset final (\texttt{df\_long\_v2.csv}) contém:
     \item \textbf{Identificadores:} \texttt{member\_id}, \texttt{Y.m} (ano-mês), \texttt{domain} (domínio temático)
 \end{itemize}
 
-\subsection{Validação e Controle de Qualidade}
 
 Durante todo o processo de operacionalização, foram implementados múltiplos controles de qualidade:
 
@@ -145,5 +112,3 @@ Durante todo o processo de operacionalização, foram implementados múltiplos c
 \textbf{Validação Temática:} Avaliação qualitativa de classificações temáticas através de amostras aleatórias, confirmando adequação das categorias desenvolvidas.
 
 \textbf{Verificações de Consistência:} Testes de integridade referencial entre datasets, verificação de períodos de mandato dos parlamentares, e consistência temporal das observações.
-
-Este processo rigoroso de operacionalização assegurou a qualidade e confiabilidade dos dados utilizados nas análises subsequentes, fornecendo base sólida para as inferências causais propostas na tese.
