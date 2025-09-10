@@ -1,0 +1,147 @@
+Balance Measures
+                                           Type Diff.Un Diff.Adj
+distance                               Distance  1.6098   0.0011
+y_mean_pre                              Contin.  0.4261   0.3300
+y_sd_pre                                Contin.  0.5344   0.3570
+y_last_pre                              Contin.  0.3084   0.2302
+y_slope_pre                             Contin.  0.1258   0.1454
+meps_country_0                           Binary -0.0099   0.0390
+meps_country_meps_COUNTRY_0              Binary -0.6070  -0.0125
+meps_country_meps_COUNTRY_AUT            Binary  0.0177   0.0184
+meps_country_meps_COUNTRY_BEL            Binary  0.0169   0.0131
+meps_country_meps_COUNTRY_BGR            Binary  0.0120  -0.0372
+meps_country_meps_COUNTRY_CYP            Binary  0.0034   0.0024
+meps_country_meps_COUNTRY_CZE            Binary  0.0145  -0.0071
+meps_country_meps_COUNTRY_DEU            Binary  0.0678   0.0607
+meps_country_meps_COUNTRY_DNK            Binary  0.0129   0.0129
+meps_country_meps_COUNTRY_ESP            Binary  0.0626   0.0348
+meps_country_meps_COUNTRY_EST            Binary  0.0002  -0.0018
+meps_country_meps_COUNTRY_FIN            Binary  0.0154   0.0154
+meps_country_meps_COUNTRY_FRA            Binary  0.0499   0.0105
+meps_country_meps_COUNTRY_GBR            Binary  0.0014   0.0014
+meps_country_meps_COUNTRY_GRC            Binary  0.0064   0.0059
+meps_country_meps_COUNTRY_HRV            Binary  0.0110   0.0012
+meps_country_meps_COUNTRY_HUN            Binary  0.0257  -0.3704
+meps_country_meps_COUNTRY_IRL            Binary  0.0175   0.0053
+meps_country_meps_COUNTRY_ITA            Binary  0.0994   0.0560
+meps_country_meps_COUNTRY_LTU            Binary  0.0049   0.0024
+meps_country_meps_COUNTRY_LUX            Binary  0.0067   0.0067
+meps_country_meps_COUNTRY_LVA            Binary  0.0063   0.0065
+meps_country_meps_COUNTRY_MLT            Binary  0.0051   0.0051
+meps_country_meps_COUNTRY_NLD            Binary  0.0251   0.0251
+meps_country_meps_COUNTRY_POL            Binary  0.0323   0.0210
+meps_country_meps_COUNTRY_PRT            Binary  0.0282   0.0247
+meps_country_meps_COUNTRY_ROU            Binary  0.0262   0.0150
+meps_country_meps_COUNTRY_SVK            Binary  0.0179   0.0160
+meps_country_meps_COUNTRY_SVN            Binary  0.0071   0.0071
+meps_country_meps_COUNTRY_SWE            Binary  0.0223   0.0223
+meps_party_0                             Binary -0.0099   0.0390
+meps_party_meps_POLITICAL_GROUP_0.0      Binary -0.6037  -0.0091
+meps_party_meps_POLITICAL_GROUP_5148.0   Binary  0.0327   0.0125
+meps_party_meps_POLITICAL_GROUP_5151.0   Binary  0.0111   0.0111
+meps_party_meps_POLITICAL_GROUP_5152.0   Binary  0.0133   0.0131
+meps_party_meps_POLITICAL_GROUP_5153.0   Binary  0.1431   0.0192
+meps_party_meps_POLITICAL_GROUP_5154.0   Binary  0.1183  -0.2867
+meps_party_meps_POLITICAL_GROUP_5155.0   Binary  0.0366   0.0366
+meps_party_meps_POLITICAL_GROUP_5588.0   Binary  0.0344   0.0291
+meps_party_meps_POLITICAL_GROUP_5704.0   Binary  0.0714  -0.0028
+meps_party_meps_POLITICAL_GROUP_6259.0   Binary  0.0220   0.0075
+meps_party_meps_POLITICAL_GROUP_6561.0   Binary  0.0032   0.0032
+meps_party_meps_POLITICAL_GROUP_7018.0   Binary  0.0360   0.0360
+meps_party_meps_POLITICAL_GROUP_7028.0   Binary  0.0067   0.0067
+meps_party_meps_POLITICAL_GROUP_7035.0   Binary  0.0271   0.0271
+meps_party_meps_POLITICAL_GROUP_7036.0   Binary  0.0117   0.0117
+meps_party_meps_POLITICAL_GROUP_7037.0   Binary  0.0105   0.0105
+meps_party_meps_POLITICAL_GROUP_7038.0   Binary  0.0225   0.0225
+meps_party_meps_POLITICAL_GROUP_7150.0   Binary  0.0121   0.0121
+meps_party_meps_POLITICAL_GROUP_7151.0   Binary  0.0010   0.0010
+domain_agriculture                       Binary -0.0105   0.0000
+domain_economics_and_trade               Binary  0.0041   0.0000
+domain_education                         Binary -0.0052   0.0000
+domain_environment_and_climate           Binary  0.0027   0.0000
+domain_foreign_and_security_affairs      Binary  0.0032   0.0000
+domain_health                            Binary  0.0027   0.0000
+domain_human_rights                      Binary -0.0074   0.0000
+domain_infrastructure_and_industry       Binary  0.0040   0.0000
+domain_technology                        Binary  0.0064   0.0000
+                                              M.Threshold
+distance                                   Balanced, <0.1
+y_mean_pre                             Not Balanced, >0.1
+y_sd_pre                               Not Balanced, >0.1
+y_last_pre                             Not Balanced, >0.1
+y_slope_pre                            Not Balanced, >0.1
+meps_country_0                             Balanced, <0.1
+meps_country_meps_COUNTRY_0                Balanced, <0.1
+meps_country_meps_COUNTRY_AUT              Balanced, <0.1
+meps_country_meps_COUNTRY_BEL              Balanced, <0.1
+meps_country_meps_COUNTRY_BGR              Balanced, <0.1
+meps_country_meps_COUNTRY_CYP              Balanced, <0.1
+meps_country_meps_COUNTRY_CZE              Balanced, <0.1
+meps_country_meps_COUNTRY_DEU              Balanced, <0.1
+meps_country_meps_COUNTRY_DNK              Balanced, <0.1
+meps_country_meps_COUNTRY_ESP              Balanced, <0.1
+meps_country_meps_COUNTRY_EST              Balanced, <0.1
+meps_country_meps_COUNTRY_FIN              Balanced, <0.1
+meps_country_meps_COUNTRY_FRA              Balanced, <0.1
+meps_country_meps_COUNTRY_GBR              Balanced, <0.1
+meps_country_meps_COUNTRY_GRC              Balanced, <0.1
+meps_country_meps_COUNTRY_HRV              Balanced, <0.1
+meps_country_meps_COUNTRY_HUN          Not Balanced, >0.1
+meps_country_meps_COUNTRY_IRL              Balanced, <0.1
+meps_country_meps_COUNTRY_ITA              Balanced, <0.1
+meps_country_meps_COUNTRY_LTU              Balanced, <0.1
+meps_country_meps_COUNTRY_LUX              Balanced, <0.1
+meps_country_meps_COUNTRY_LVA              Balanced, <0.1
+meps_country_meps_COUNTRY_MLT              Balanced, <0.1
+meps_country_meps_COUNTRY_NLD              Balanced, <0.1
+meps_country_meps_COUNTRY_POL              Balanced, <0.1
+meps_country_meps_COUNTRY_PRT              Balanced, <0.1
+meps_country_meps_COUNTRY_ROU              Balanced, <0.1
+meps_country_meps_COUNTRY_SVK              Balanced, <0.1
+meps_country_meps_COUNTRY_SVN              Balanced, <0.1
+meps_country_meps_COUNTRY_SWE              Balanced, <0.1
+meps_party_0                               Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_0.0        Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_5148.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_5151.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_5152.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_5153.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_5154.0 Not Balanced, >0.1
+meps_party_meps_POLITICAL_GROUP_5155.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_5588.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_5704.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_6259.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_6561.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_7018.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_7028.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_7035.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_7036.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_7037.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_7038.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_7150.0     Balanced, <0.1
+meps_party_meps_POLITICAL_GROUP_7151.0     Balanced, <0.1
+domain_agriculture                         Balanced, <0.1
+domain_economics_and_trade                 Balanced, <0.1
+domain_education                           Balanced, <0.1
+domain_environment_and_climate             Balanced, <0.1
+domain_foreign_and_security_affairs        Balanced, <0.1
+domain_health                              Balanced, <0.1
+domain_human_rights                        Balanced, <0.1
+domain_infrastructure_and_industry         Balanced, <0.1
+domain_technology                          Balanced, <0.1
+
+Balance tally for mean differences
+                   count
+Balanced, <0.1        58
+Not Balanced, >0.1     6
+
+Variable with the greatest mean difference
+                      Variable Diff.Adj        M.Threshold
+ meps_country_meps_COUNTRY_HUN  -0.3704 Not Balanced, >0.1
+
+Sample sizes
+                     Control Treated
+All                  8679.      5057
+Matched (ESS)          43.52    5057
+Matched (Unweighted)  308.      5057
+Unmatched            8371.         0
