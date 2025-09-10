@@ -21,11 +21,12 @@ if (!dir.exists(figures_dir)) dir.create(figures_dir, recursive = TRUE)
 if (!dir.exists(tables_dir)) dir.create(tables_dir, recursive = TRUE)
 if (!dir.exists(outputs_dir)) dir.create(outputs_dir, recursive = TRUE)
 
+df <- read.csv("./data/silver/df_meetings_lobbyists.csv", stringsAsFactors = TRUE)
+
 #===========================================
-# 1) Estimate using the PPML from H1
+# 1) Budget
 #===========================================
 
-df <- read.csv("./data/silver/df_meetings_lobbyists.csv", stringsAsFactors = TRUE)
 
 # Group by lobbyist_id, count meetings, max "l_ln_max_budget"
 # Remove -Inf values from l_ln_max_budget before aggregation
