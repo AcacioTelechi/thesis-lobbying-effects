@@ -373,7 +373,7 @@ results_summary <- list(
 saveRDS(results_summary, file.path(outputs_dir, "leads_lags_results.rds"))
 
 # Print summary
-cat("\n" %=% "LEADS AND LAGS ANALYSIS COMPLETED" %=% "\n")
+cat("\nLEADS AND LAGS ANALYSIS COMPLETED\n")
 cat("Key findings:\n")
 if (nrow(event_study_data) > 0) {
     cat("- Event study coefficients estimated for", nrow(event_study_data), "periods\n")

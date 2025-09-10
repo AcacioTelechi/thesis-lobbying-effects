@@ -294,16 +294,22 @@ message("Matching sample size: ", nrow(match_df), " (treated: ", sum(match_df$tr
 # Run nearest-neighbor matching on pre-trend features
 # -------------------------------------------------------------
 set.seed(123)
+match_df <- match_df %>%
+  mutate(y_mean_pre_bin = round(y_mean_pre, 1))
+
 form <- treated ~ y_mean_pre + y_sd_pre + y_last_pre + y_slope_pre + meps_country + meps_party
+# Use Mahalanobis distance with numeric pre-trend features to avoid GLM separation
+form_mah <- treated ~ y_mean_pre + y_sd_pre + y_last_pre + y_slope_pre
+
 
 m.out <- matchit(
   formula = form,
   data = match_df,
   method = "nearest",
-  distance = "glm",
+  distance = "mahalanobis",
   replace = TRUE,
   ratio = 1,
-  exact = ~ domain
+  exact = ~ domain + y_mean_pre_bin + y_sd_pre + y_last_pre + y_slope_pre
 )
 
 message("MatchIt finished. Creating diagnostics ...")
@@ -314,14 +320,14 @@ capture.output(print(bal), file = file.path(tables_dir, "pretrend_balance.txt"))
 
 # Love plot
 png(file.path(figures_dir, "pretrend_love_plot.png"), width = 1200, height = 1600, res = 150)
+pdf(file.path(figures_dir, "pretrend_love_plot.pdf"), width = 12, height = 16)
 print(love.plot(m.out, stats = c("m"), abs = TRUE, var.order = "unadjusted",
                 thresholds = c(m = .1), var.names = c(
                   y_mean_pre = "Mean (pre)",
                   y_sd_pre = "SD (pre)",
                   y_last_pre = "Level at -1",
-                  y_slope_pre = "Slope (pre)",
-                  meps_country = "Country",
-                  meps_party = "Party"
+                  y_slope_pre = "Slope (pre)"
+
                 )))
 dev.off()
 
