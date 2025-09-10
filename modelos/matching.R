@@ -172,13 +172,27 @@ treated_covs <- df %>%
   select(member_id, domain, meps_country, meps_party)
 
 treated_pre <- treated_units %>%
-  mutate(
-    data_pre = pmap(list(member_id, domain, pre_months), function(i, d, months_vec) {
-      df %>% filter(member_id == i, domain == d, Y.m %in% months_vec)
-    }),
-    feats = map(data_pre, compute_pretrend)
+  tidyr::unnest_longer(pre_months) %>%
+  rename(Y.m = pre_months) %>%
+  left_join(df %>% select(member_id, domain, Y.m, questions), by = c("member_id", "domain", "Y.m")) %>%
+  group_by(member_id, domain) %>%
+  arrange(Y.m, .by_group = TRUE) %>%
+  mutate(t_idx = row_number()) %>%
+  summarise(
+    y_mean_pre = mean(questions, na.rm = TRUE),
+    y_sd_pre   = sd(questions, na.rm = TRUE),
+    y_last_pre = dplyr::last(questions),
+    y_slope_pre = {
+      ok <- !is.na(questions) & is.finite(questions)
+      n_ok <- sum(ok)
+      if (n_ok >= min_non_missing) {
+        x <- seq_len(n_ok)
+        y <- questions[ok]
+        if (var(x) > 0) cov(x, y) / var(x) else NA_real_
+      } else NA_real_
+    },
+    .groups = "drop"
   ) %>%
-  unnest(feats) %>%
   left_join(treated_covs, by = c("member_id", "domain")) %>%
   mutate(treated = 1L)
 
@@ -225,11 +239,27 @@ control_anchors <- df %>%
 
 control_pre <- control_anchors %>%
   mutate(pre_months = map(anchor, ~ seq_months(add_months(.x, -1), pre_window_months))) %>%
-  mutate(data_pre = pmap(list(member_id, domain, pre_months), function(i, d, months_vec) {
-    df %>% filter(member_id == i, domain == d, Y.m %in% months_vec)
-  })) %>%
-  mutate(feats = map(data_pre, compute_pretrend)) %>%
-  unnest(feats)
+  tidyr::unnest_longer(pre_months) %>%
+  rename(Y.m = pre_months) %>%
+  left_join(df %>% select(member_id, domain, Y.m, questions), by = c("member_id", "domain", "Y.m")) %>%
+  group_by(member_id, domain) %>%
+  arrange(Y.m, .by_group = TRUE) %>%
+  mutate(t_idx = row_number()) %>%
+  summarise(
+    y_mean_pre = mean(questions, na.rm = TRUE),
+    y_sd_pre   = sd(questions, na.rm = TRUE),
+    y_last_pre = dplyr::last(questions),
+    y_slope_pre = {
+      ok <- !is.na(questions) & is.finite(questions)
+      n_ok <- sum(ok)
+      if (n_ok >= min_non_missing) {
+        x <- seq_len(n_ok)
+        y <- questions[ok]
+        if (var(x) > 0) cov(x, y) / var(x) else NA_real_
+      } else NA_real_
+    },
+    .groups = "drop"
+  )
 
 # Attach covariates at anchor-1
 control_covs <- df %>%
@@ -318,14 +348,18 @@ plot_pretrend <- function(sample_ids, label) {
           mutate(t_rel = -rev(seq_len(n())))
       })) %>% tidyr::unnest(cols = data_pre, names_sep = "_")
   } else {
-    tmp <- control_pre %>% semi_join(sample, by = c("member_id", "domain")) %>%
-      transmute(member_id, domain, pre_months) %>%
+    tmp <- control_anchors %>% semi_join(sample, by = c("member_id", "domain")) %>%
+      mutate(pre_months = map(anchor, ~ seq_months(add_months(.x, -1), pre_window_months))) %>%
       mutate(data_pre = pmap(list(member_id, domain, pre_months), function(i, d, months_vec) {
         df %>% filter(member_id == i, domain == d, Y.m %in% months_vec) %>% arrange(Y.m) %>%
           mutate(t_rel = -rev(seq_len(n())))
       })) %>% tidyr::unnest(cols = data_pre, names_sep = "_")
   }
-  tmp %>% group_by(t_rel) %>% summarize(y = mean(questions, na.rm = TRUE), .groups = "drop") %>% mutate(group = label)
+  tmp %>%
+    rename(t_rel = data_pre_t_rel, questions = data_pre_questions) %>%
+    group_by(t_rel) %>%
+    summarize(y = mean(questions, na.rm = TRUE), .groups = "drop") %>%
+    mutate(group = label)
 }
 
 treated_ids <- matched %>% filter(treated == 1) %>% distinct(member_id, domain)

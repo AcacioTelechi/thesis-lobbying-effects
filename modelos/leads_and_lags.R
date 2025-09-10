@@ -385,3 +385,151 @@ cat("- Figures saved to:", figures_dir, "\n")
 cat("- Tables saved to:", tables_dir, "\n")
 
 print("Analysis completed successfully!")
+
+# ============================================
+# USE MATCHED SAMPLE (from MatchIt output)
+# ============================================
+
+print("Estimating leads and lags models on matched sample...")
+
+# Load matched pairs and prepare keys with factors aligned to df
+matched_pairs <- read.csv("./outputs/matching/pretrend_match_pairs.csv", stringsAsFactors = FALSE)
+matched_keys <- matched_pairs %>%
+    select(member_id, domain, treated, weights) %>%
+    distinct() %>%
+    mutate(
+        member_id = factor(member_id, levels = levels(df$member_id)),
+        domain = factor(domain, levels = levels(df$domain))
+    )
+
+# Filter main panel to matched units and attach match weights and treated flag
+df_m <- df %>%
+    semi_join(matched_keys %>% select(member_id, domain), by = c("member_id", "domain")) %>%
+    left_join(matched_keys, by = c("member_id", "domain"))
+
+# Ensure weights present; if missing (rare), set to 1
+df_m$weights[is.na(df_m$weights)] <- 1
+
+# Reuse already-created leads/lags columns (computed earlier on df)
+# Build formulas as before
+formula_full_leads_lags_m <- formula_full_leads_lags
+formula_limited_leads_lags_m <- formula_limited_leads_lags
+formula_leads_only_m <- formula_leads_only
+formula_lags_only_m <- formula_lags_only
+
+# Fit weighted PPML models on matched sample
+m_leads_lags_full_matched <- fepois(
+    formula_full_leads_lags_m,
+    data = df_m,
+    cluster = ~cl_dt,
+    weights = ~weights
+)
+
+m_leads_lags_limited_matched <- fepois(
+    formula_limited_leads_lags_m,
+    data = df_m,
+    cluster = ~cl_dt,
+    weights = ~weights
+)
+
+m_leads_only_matched <- fepois(
+    formula_leads_only_m,
+    data = df_m,
+    cluster = ~cl_dt,
+    weights = ~weights
+)
+
+m_lags_only_matched <- fepois(
+    formula_lags_only_m,
+    data = df_m,
+    cluster = ~cl_dt,
+    weights = ~weights
+)
+
+# Extract coefficients for matched event study
+event_study_data_matched <- data.frame(
+    period = c(-3, -2, -1, 0, 1, 2, 3),
+    coefficient = rep(NA, 7),
+    se = rep(NA, 7),
+    ci_lower = rep(NA, 7),
+    ci_upper = rep(NA, 7)
+)
+
+for (i in 1:7) {
+    if (!is.na(coef_names[i])) {
+        result <- extract_coef_se(m_leads_lags_full_matched, coef_names[i])
+        event_study_data_matched$coefficient[i] <- result[1]
+        event_study_data_matched$se[i] <- result[2]
+        if (!is.na(result[2])) {
+            event_study_data_matched$ci_lower[i] <- result[1] - 1.96 * result[2]
+            event_study_data_matched$ci_upper[i] <- result[1] + 1.96 * result[2]
+        }
+    }
+}
+
+event_study_data_matched <- event_study_data_matched[!is.na(event_study_data_matched$coefficient), ]
+
+if (nrow(event_study_data_matched) > 0) {
+    p_event_study_matched <- ggplot(event_study_data_matched, aes(x = period, y = coefficient)) +
+        geom_hline(yintercept = 0, color = "gray70", linetype = "dashed") +
+        geom_vline(xintercept = -0.5, color = "red", linetype = "dashed", alpha = 0.5) +
+        geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper), fill = "#2ca02c", alpha = 0.2, na.rm = TRUE) +
+        geom_line(color = "#2ca02c", size = 1, na.rm = TRUE) +
+        geom_point(color = "#2ca02c", size = 3, na.rm = TRUE) +
+        scale_x_continuous(breaks = seq(-3, 3, 1), labels = c("-3", "-2", "-1", "0", "+1", "+2", "+3"), name = "Períodos relativos ao tratamento") +
+        scale_y_continuous(name = "Coeficiente (log points)") +
+        labs(
+            title = "Event Study (Matched Sample): Efeitos Dinâmicos do Lobbying",
+            subtitle = "PPML ponderado pelos pesos de pareamento",
+            caption = "Nota: IC 95% com clustering por domínio×tempo"
+        ) +
+        theme_minimal(base_size = 12) +
+        theme(
+            plot.title = element_text(size = 14, face = "bold"),
+            plot.subtitle = element_text(size = 10),
+            axis.title = element_text(size = 11),
+            legend.position = "none",
+            panel.grid.minor = element_blank()
+        )
+
+    ggsave(file.path(figures_dir, "event_study_leads_lags_matched.pdf"), p_event_study_matched, width = 10, height = 6)
+    ggsave(file.path(figures_dir, "event_study_leads_lags_matched.png"), p_event_study_matched, width = 10, height = 6, dpi = 300)
+}
+
+# Summary tables for matched sample
+models_list_matched <- list(
+    "Leads Only (Matched)" = m_leads_only_matched,
+    "Lags Only (Matched)" = m_lags_only_matched,
+    "Full Model (Matched)" = m_leads_lags_full_matched
+)
+
+msummary(
+    models_list_matched,
+    coef_omit = "meps_",
+    gof_omit = "IC|Log|Adj|Pseudo|Within",
+    stars = TRUE,
+    title = "Leads and Lags (Matched Sample) - PPML Results"
+)
+
+msummary(
+    models_list_matched,
+    coef_omit = "meps_",
+    gof_omit = "IC|Log|Adj|Pseudo|Within",
+    stars = TRUE,
+    output = file.path(tables_dir, "leads_lags_main_matched.tex"),
+    title = "Leads and Lags (Matched Sample) - PPML Results"
+)
+
+# Save matched results
+results_summary_matched <- list(
+    event_study_data = event_study_data_matched,
+    models = models_list_matched,
+    n_obs = nobs(m_leads_lags_full_matched),
+    n_members = length(unique(df_m$member_id)),
+    n_domains = length(unique(df_m$domain)),
+    time_range = paste(min(df_m$Y.m), "to", max(df_m$Y.m))
+)
+
+saveRDS(results_summary_matched, file.path(outputs_dir, "leads_lags_results_matched.rds"))
+
+print("Matched-sample analysis completed. Figures and tables saved.")
