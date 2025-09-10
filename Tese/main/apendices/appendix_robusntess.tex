@@ -169,119 +169,133 @@ onde $k$ representa períodos relativos ao tratamento: $k < 0$ corresponde a lea
 
 \subsection{Resultados dos Leads e Lags}
 
-A Tabela~\ref{tab:leads_lags_main} apresenta os resultados da análise de leads e lags. A Figura~\ref{fig:event_study_leads_lags} visualiza os coeficientes estimados em formato de \emph{event study}.
+A Tabela~\ref{tab:leads_lags_main} apresenta os resultados da análise de leads e lags. A Figura~\ref{fig:event_study_leads_lags} visualiza os coeficientes estimados em formato de \emph{event study}, revelando um padrão preocupante em forma de V.
 
-\begin{table}[htbp]
-    \centering
-    \caption{Análise de Leads e Lags - Resultados PPML}
-    \label{tab:leads_lags_main}
-    \begin{tabular}{lccc}
-        \toprule
-        & \multicolumn{3}{c}{Perguntas Parlamentares (log)} \\
-        \cmidrule(lr){2-4}
-        & Apenas Leads & Apenas Lags & Modelo Completo \\
-        \midrule
-        \textbf{Leads (Antecipação)} & & & \\
-        Meetings$_{t+3}$ & 0.0149 & & 0.0149 \\
-        & (0.018) & & (0.018) \\
-        Meetings$_{t+2}$ & -0.0025 & & -0.0025 \\
-        & (0.012) & & (0.012) \\
-        Meetings$_{t+1}$ & 0.0145 & & 0.0145 \\
-        & (0.008) & & (0.008) \\
-        \midrule
-        \textbf{Contemporâneo} & & & \\
-        Meetings$_{t}$ & 0.0772*** & 0.0772*** & 0.0772*** \\
-        & (0.015) & (0.015) & (0.015) \\
-        \midrule
-        \textbf{Lags (Persistência)} & & & \\
-        Meetings$_{t-1}$ & & 0.0254** & 0.0254** \\
-        & & (0.012) & (0.012) \\
-        Meetings$_{t-2}$ & & 0.0257** & 0.0257** \\
-        & & (0.010) & (0.010) \\
-        Meetings$_{t-3}$ & & 0.0007 & 0.0007 \\
-        & & (0.008) & (0.008) \\
-        \midrule
-        Observações & 64,000 & 64,000 & 64,000 \\
-        Efeitos Fixos & \multicolumn{3}{c}{Membro; País$\times$Tempo; Partido$\times$Tempo; Domínio$\times$Tempo} \\
-        Clustering & \multicolumn{3}{c}{Domínio$\times$Tempo} \\
-        \bottomrule
-    \end{tabular}
-    \note{Erros padrão robustos com clustering por domínio$\times$tempo entre parênteses. *** p<0.001, ** p<0.01, * p<0.05. Todas as especificações incluem controles para grupos políticos, países e cargos em comitês (coeficientes omitidos).}
-\end{table}
+\input{tables/leads_lags/leads_lags_main}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/leads_lags/event_study_leads_lags.pdf}
     \caption{Event Study: Efeitos Dinâmicos do Lobbying}
     \label{fig:event_study_leads_lags}
-    \note{A figura apresenta os coeficientes estimados (pontos) e intervalos de confiança de 95\% (áreas sombreadas) para diferentes períodos relativos ao tratamento. Período 0 corresponde ao efeito contemporâneo; períodos negativos testam antecipação; períodos positivos testam persistência. A linha vertical tracejada separa os períodos pré e pós-tratamento.}
+    \note{A figura apresenta os coeficientes estimados (pontos) e intervalos de confiança de 95\% (áreas sombreadas) para diferentes períodos relativos ao tratamento. Período 0 corresponde ao efeito contemporâneo; períodos negativos testam antecipação; períodos positivos testam persistência. O padrão em V observado levanta preocupações sobre endogeneidade e seleção temporal.}
 \end{figure}
 
-\subsection{Interpretação dos Resultados}
+\subsection{Interpretação Crítica dos Resultados}
 
-Os resultados revelam três padrões importantes:
+Os resultados revelam padrões que desafiam a interpretação causal simples e requerem análise cuidadosa:
 
-\textbf{(1) Ausência de Efeitos de Antecipação:} Nenhum dos coeficientes de leads ($t+1$, $t+2$, $t+3$) é estatisticamente significativo. Isto é crucial para a validade da identificação causal, pois a presença de efeitos significativos antes do tratamento sugeriria tendências pré-existentes ou causalidade reversa. A ausência destes efeitos fortalece a interpretação de que as reuniões de lobbying causam o aumento nas perguntas parlamentares, e não o contrário.
+\textbf{(1) Efeitos de Antecipação Significativos:} Contrariamente ao esperado para uma identificação causal válida, observamos coeficientes positivos e estatisticamente significativos nos leads (meetings\_lead3 = 0.017***, meetings\_lead2 = 0.015***, meetings\_lead1 = 0.014***). Este padrão é \textbf{altamente problemático} pois sugere que reuniões futuras predizem comportamento presente, violando a lógica temporal da causalidade.
 
-\textbf{(2) Efeito Contemporâneo Robusto:} O coeficiente contemporâneo ($\beta_0 = 0.0772$, p < 0.001) confirma o resultado principal, indicando que cada reunião adicional de lobbying aumenta o número esperado de perguntas em aproximadamente 8.0\%.
+\textbf{(2) Padrão em V Teoricamente Inconsistente:} A Figura~\ref{fig:event_study_leads_lags} mostra um padrão em forma de V, com coeficientes elevados tanto nos leads quanto nos lags, e valores menores no período contemporâneo. Este padrão é inconsistente com mecanismos causais plausíveis do lobbying identificados na literatura.
 
-\textbf{(3) Persistência dos Efeitos:} Os coeficientes de lag1 ($\beta_{-1} = 0.0254$, p < 0.01) e lag2 ($\beta_{-2} = 0.0257$, p < 0.01) são estatisticamente significativos, sugerindo que os efeitos do lobbying persistem por pelo menos dois períodos após o tratamento. Este padrão é consistente com teorias de \cite{baumgartner2009lobbying} sobre a persistência informacional do lobbying, onde informações transmitidas em reuniões influenciam o comportamento parlamentar além do período imediato.
+\textbf{(3) Magnitude Similar entre Leads e Lags:} Os coeficientes dos leads têm magnitudes comparáveis aos dos lags, o que não possui fundamentação teórica sólida. Se as reuniões de lobbying tivessem efeito causal genuíno, esperaríamos efeitos nulos ou muito pequenos nos leads e efeitos decrescentes nos lags.
 
-\subsection{Testes de Hipóteses Formais}
+\subsection{Diagnóstico de Problemas de Identificação}
 
-Conduzimos três testes de Wald para avaliar formalmente diferentes aspectos da dinâmica temporal:
+À luz da literatura sobre lobbying e inferência causal, os resultados sugerem problemas fundamentais de identificação:
 
-\textbf{Teste 1 - Ausência de Antecipação:} $H_0: \beta_{+1} = \beta_{+2} = \beta_{+3} = 0$
-\begin{itemize}
-    \item Estatística Wald: $W = 4.03$
-    \item Valor crítico ($\chi^2_3$, 5\%): $7.82$
-    \item Resultado: Não rejeitamos $H_0$ (p > 0.05)
-    \item Interpretação: Ausência de efeitos de antecipação, fortalecendo a identificação causal
-\end{itemize}
+\textbf{Endogeneidade Temporal:} A significância dos leads indica que fatores não observados afetam simultaneamente o timing das reuniões de lobbying e a atividade parlamentar. Isto é consistente com \cite{baumgartner2009lobbying}, que enfatiza que lobistas escolhem estrategicamente quando e com quem se reunir baseado em sinais de oportunidade política.
 
-\textbf{Teste 2 - Ausência de Persistência:} $H_0: \beta_{-1} = \beta_{-2} = \beta_{-3} = 0$
-\begin{itemize}
-    \item Estatística Wald: $W = 11.05$
-    \item Valor crítico ($\chi^2_3$, 5\%): $7.82$ 
-    \item Resultado: Rejeitamos $H_0$ (p < 0.05)
-    \item Interpretação: Evidência de persistência dos efeitos do lobbying
-\end{itemize}
+\textbf{Seleção Estratégica:} Os resultados sugerem que lobistas antecipam aumentos futuros na atividade parlamentar e ajustam o timing de suas reuniões em conformidade. Esta seleção estratégica é bem documentada na literatura \cite{hall1996institutional}, onde lobistas concentram esforços em parlamentares que já demonstram interesse em temas específicos.
 
-\textbf{Teste 3 - Ausência de Dinâmica:} $H_0: \beta_{+3} = \beta_{+2} = \beta_{+1} = \beta_{-1} = \beta_{-2} = \beta_{-3} = 0$
-\begin{itemize}
-    \item Estatística Wald: $W = 15.09$
-    \item Valor crítico ($\chi^2_6$, 5\%): $12.59$
-    \item Resultado: Rejeitamos $H_0$ (p < 0.05)
-    \item Interpretação: Presença de efeitos dinâmicos significativos
-\end{itemize}
+\textbf{Causalidade Reversa:} O padrão observado é consistente com parlamentares sinalizando interesse futuro em determinados temas, atraindo subsequentemente atenção de grupos de interesse. \cite{wright1996contributions} documenta como parlamentares podem sinalizar receptividade ao lobbying através de suas ações legislativas.
 
-\subsection{Implicações Teóricas}
+\subsection{Limitações da Especificação PPML}
 
-Os resultados dos leads e lags têm importantes implicações para a compreensão dos mecanismos causais do lobbying:
+A análise revela limitações importantes da especificação PPML com efeitos fixos para este contexto:
 
-\textbf{Validação da Identificação Causal:} A ausência de efeitos de antecipação elimina a principal preocupação sobre causalidade reversa. Se parlamentares antecipam futuras reuniões de lobbying ajustando seu comportamento atual, esperaríamos coeficientes positivos e significativos nos leads. A ausência destes efeitos fortalece substantivamente a interpretação causal dos resultados principais.
+\textbf{Insuficiência dos Efeitos Fixos:} Embora os efeitos fixos controlem por heterogeneidade não observada constante no tempo, eles não resolvem problemas de endogeneidade que variam temporalmente. A complexidade das interações entre lobistas e parlamentares requer estratégias de identificação mais sofisticadas.
 
-\textbf{Persistência Informacional:} A significância dos lags é consistente com a teoria de \cite{hall1996institutional} sobre o papel informacional do lobbying. As informações transmitidas durante reuniões não influenciam apenas o comportamento contemporâneo, mas criam \emph{stock} de conhecimento que afeta decisões futuras. Este padrão sugere que o lobbying opera através de mecanismos informativos de longo prazo, não apenas através de influência momentânea.
+\textbf{Necessidade de Variação Exógena:} Os resultados destacam a necessidade de fonte de variação exógena no timing ou intensidade do lobbying. Possíveis abordagens incluem mudanças regulamentares, choques externos, ou variáveis instrumentais que afetem o acesso de lobistas mas não diretamente a atividade parlamentar.
 
-\textbf{Ausência de Fadiga ou Saturação:} Os coeficientes de persistência (lag1 e lag2) são de magnitude similar ao efeito contemporâneo, sugerindo ausência de fadiga nos efeitos informativos. Isto contrasta com modelos de influência baseados em reciprocidade, onde esperaríamos decaimento monotônico dos efeitos \cite{grossman2001special}.
+\textbf{Comparação com Literatura Metodológica:} \cite{bertrand2004much} enfatizam que a presença de efeitos de antecipação em estudos de event study frequentemente indica problemas fundamentais de identificação que não podem ser resolvidos através de ajustes econométricos simples.
 
-\subsection{Robustez dos Resultados Dinâmicos}
+\subsection{Implicações Teóricas e Metodológicas}
 
-Para validar os resultados dinâmicos, conduzimos verificações de robustez adicionais:
+Os resultados têm importantes implicações para a compreensão dos mecanismos de lobbying:
 
-\textbf{Especificações Alternativas de Clustering:} Os resultados permanecem qualitativamente similares com clustering por parlamentar individual ou clustering bidirecional (parlamentar e domínio×tempo).
+\textbf{Complexidade das Interações Lobista-Parlamentar:} Os padrões observados são consistentes com modelos teóricos que enfatizam a natureza estratégica e multidirecional das interações entre grupos de interesse e parlamentares \cite{grossman2001special}. O lobbying não é um tratamento exógeno aplicado a parlamentares passivos, mas sim resultado de um processo de matching estratégico bilateral.
 
-\textbf{Janelas Temporais Diferentes:} Testamos janelas de ±2 e ±4 períodos. Os resultados centrais (ausência de antecipação, efeito contemporâneo, persistência limitada) são consistentes através das especificações.
+\textbf{Timing Estratégico:} A evidência sugere que o timing das reuniões de lobbying é endógeno à atividade parlamentar esperada. Isto é consistente com \cite{hall1996institutional}, que argumenta que lobistas são atores sofisticados que otimizam o timing de suas intervenções.
 
-\textbf{Comparação OLS-PPML:} A especificação OLS produz padrão similar de coeficientes, embora com magnitudes ligeiramente diferentes, confirmando que os resultados dinâmicos não são artefatos da especificação PPML.
+\textbf{Necessidade de Abordagens Alternativas:} Os resultados indicam que a identificação causal dos efeitos do lobbying requer estratégias metodológicas mais rigorosas, possivelmente incluindo desenhos de descontinuidade regressiva, experimentos naturais, ou variáveis instrumentais baseadas em choques institucionais.
+
+\subsection{Robustez e Verificações Adicionais}
+
+A Tabela~\ref{tab:leads_lags_robustness} apresenta verificações de robustez que confirmam a persistência dos problemas identificados:
+
+\input{tables/leads_lags/leads_lags_robustness}
+
+\textbf{Consistência entre Especificações:} Os problemas de antecipação persistem através de diferentes estruturas de clustering e métodos de estimação, indicando que não são artefatos de decisões econométricas específicas.
+
+\textbf{Comparação OLS-PPML:} Embora as magnitudes difiram, o padrão temporal problemático é consistente entre especificações OLS e PPML, confirmando que a escolha do método de estimação não resolve os problemas de identificação.
+
+\subsection{Implicações para Interpretação dos Resultados Principais}
+
+Os resultados dos leads e lags têm implicações importantes para a interpretação dos achados principais da tese:
+
+\textbf{Cautela na Interpretação Causal:} A presença de efeitos de antecipação sugere que os resultados principais podem refletir seleção estratégica e endogeneidade temporal ao invés de efeitos causais puros do lobbying.
+
+\textbf{Natureza Correlacional:} Os achados são melhor interpretados como evidência de correlações temporais complexas entre atividade de lobbying e comportamento parlamentar, ao invés de relações causais unidirecionais.
+
+\textbf{Necessidade de Investigação Adicional:} Futuras pesquisas devem explorar estratégias de identificação alternativas que possam resolver os problemas de endogeneidade temporal identificados nesta análise.
 
 \section{Conclusões}
 
-A evidência apresentada neste apêndice oferece suporte robusto às conclusões principais da tese. A consistência dos resultados através de múltiplas dimensões de análise aumenta substancialmente a confiança nas inferências causais realizadas. Os testes placebo e de estabilidade temporal são particularmente importantes para validar a estratégia de identificação empregada.
+A evidência apresentada neste apêndice oferece uma avaliação rigorosa da robustez dos resultados principais da tese, revelando tanto forças quanto limitações significativas da estratégia de identificação empregada.
 
-A análise de leads e lags constitui evidência especialmente convincente da natureza causal dos efeitos identificados. A ausência de efeitos de antecipação elimina preocupações sobre causalidade reversa, enquanto a persistência dos efeitos confirma a importância dos mecanismos informativos do lobbying destacados na literatura teórica.
+\subsection{Forças da Análise de Robustez}
 
-A convergência de evidências de diferentes especificações, amostras, e definições conceituais constitui evidência persuasiva de que o lobbying exerce efeito causal positivo na atividade parlamentar, medida através de perguntas ao executivo. Esta conclusão é robusta a uma ampla gama de decisões metodológicas e especificações alternativas, conferindo alta credibilidade aos resultados principais da pesquisa.
+A bateria de testes implementada demonstra várias qualidades importantes dos resultados:
+
+\textbf{Consistência Metodológica:} Os efeitos principais persistem através de diferentes métodos de estimação (OLS, PPML), estruturas de efeitos fixos, e especificações de erros padrão, indicando que não são artefatos de decisões econométricas específicas.
+
+\textbf{Estabilidade Amostral:} A exclusão de outliers, análise por períodos legislativos diferentes, e testes jackknife mostram que os resultados não dependem de observações específicas ou grupos particulares de países/partidos.
+
+\textbf{Robustez a Definições Alternativas:} Diferentes operacionalizações do tratamento (binário, categórico, contínuo) e da variável dependente produzem padrões qualitativamente similares.
+
+\subsection{Limitações Críticas Reveladas}
+
+Contudo, a análise de leads e lags revela problemas fundamentais que questionam a interpretação causal dos resultados:
+
+\textbf{Violação da Precedência Temporal:} A presença de efeitos de antecipação estatisticamente significativos viola um princípio fundamental da inferência causal. Reuniões futuras não podem causar comportamento presente, indicando problemas sérios de endogeneidade temporal.
+
+\textbf{Insuficiência da Estratégia de Identificação:} Os efeitos fixos, embora controlem por heterogeneidade não observada constante no tempo, são insuficientes para resolver a endogeneidade temporal complexa que caracteriza as interações entre lobistas e parlamentares.
+
+\textbf{Padrão Teoricamente Inconsistente:} O padrão em V observado nos leads e lags é incompatível com mecanismos causais plausíveis documentados na literatura de lobbying, sugerindo que os resultados refletem seleção estratégica bilateral ao invés de efeitos causais unidirecionais.
+
+\subsection{Implicações para Interpretação dos Resultados}
+
+À luz desta análise crítica, os resultados principais devem ser interpretados com cautela:
+
+\textbf{Evidência Correlacional Robusta:} Os achados constituem evidência sólida de correlações temporais sistemáticas entre atividade de lobbying e comportamento parlamentar. Esta correlação é robusta, estável, e teoricamente plausível.
+
+\textbf{Limitações da Interpretação Causal:} A presença de efeitos de antecipação sugere que a relação observada reflete processos de seleção estratégica e matching bilateral entre lobistas e parlamentares, ao invés de efeitos causais simples do lobbying sobre o comportamento parlamentar.
+
+\textbf{Complexidade dos Mecanismos:} Os resultados são consistentes com modelos teóricos sofisticados que enfatizam a natureza endógena e estratégica das interações políticas, onde tanto lobistas quanto parlamentares respondem a sinais mútuos de oportunidade e interesse.
+
+\subsection{Direções para Pesquisas Futuras}
+
+Os achados destacam direções importantes para avanços metodológicos na literatura:
+
+\textbf{Estratégias de Identificação Alternativas:} Futuras pesquisas devem explorar fontes de variação exógena no timing ou intensidade do lobbying, possivelmente através de choques institucionais, mudanças regulamentares, ou experimentos naturais.
+
+\textbf{Abordagens Metodológicas Sofisticadas:} Métodos como descontinuidade regressiva, variáveis instrumentais, ou matching temporal podem oferecer identificação mais convincente dos efeitos causais do lobbying.
+
+\textbf{Modelos Teóricos Dinâmicos:} O desenvolvimento de modelos teóricos que incorporem explicitamente a endogeneidade temporal e o matching estratégico pode informar estratégias empíricas mais apropriadas.
+
+\subsection{Contribuição para o Campo}
+
+Apesar das limitações identificadas, a análise contribui significativamente para o campo:
+
+\textbf{Honestidade Metodológica:} A identificação clara dos problemas de endogeneidade temporal estabelece padrão importante de rigor metodológico para a literatura de lobbying.
+
+\textbf{Evidência Descritiva Valiosa:} Os achados fornecem evidência descritiva rica sobre padrões temporais nas interações entre lobistas e parlamentares no contexto europeu.
+
+\textbf{Base para Avanços Futuros:} A documentação cuidadosa das limitações metodológicas fornece fundação sólida para o desenvolvimento de abordagens mais sofisticadas.
+
+Em suma, enquanto os resultados não permitem inferências causais definitivas, eles constituem evidência correlacional robusta e teoricamente informativa sobre a natureza complexa das interações entre grupos de interesse e parlamentares no Parlamento Europeu. Esta evidência, interpretada apropriadamente, contribui para nossa compreensão dos mecanismos políticos subjacentes ao funcionamento da democracia representativa na União Europeia.
 
 % \begin{table}[htbp]
 %     \centering

@@ -1,5 +1,5 @@
 % como foi testa a da primeira hipotese?
-Para testar a primeira hipótese (H1) — de que \acrshort{mpe}s sujeitos a maior pressão de lobby exibem maior \acrfull{al} — foi empregada a estratégia de identificação detalhada na Seção \ref{section:identificacao}. O teste empírico baseia-se na estimação do modelo de \acrfull{ppml} apresentado na Equação \ref{eq:modelo_final}, que utiliza o número de perguntas parlamentares como variável dependente e o número de reuniões com lobistas como a principal variável de tratamento.
+Para testar a primeira hipótese (H1) — de que \acrshort{mpe}s sujeitos a maior pressão de lobby exibem maior \acrshort{al} — foi empregada a estratégia de identificação detalhada na Seção \ref{section:identificacao}. O teste empírico baseia-se na estimação do modelo de \acrshort{ppml} apresentado na Equação \ref{eq:modelo_final}, que utiliza o número de perguntas parlamentares como variável dependente e o número de reuniões com lobistas como a principal variável de tratamento.
 
 A escolha pelo \acrshort{ppml}, estimado com a função `fepois` do pacote \texttt{fixest} em R, justifica-se pela natureza da variável dependente (dados de contagem com excesso de zeros), evitando os vieses de modelos lineares com transformações logarítmicas. A hipótese H1 é corroborada se o coeficiente de interesse, $\beta$, associado à variável de reuniões de lobby ($L_{idt}$), for positivo e estatisticamente significativo. Os erros padrão foram clusterizados no nível de domínio-tempo para corrigir a possível autocorrelação nos resíduos dentro de cada área temática ao longo do tempo.
 
@@ -13,3 +13,4 @@ Adicionalmente, para investigar a possibilidade de retornos marginais decrescent
 Um coeficiente $\beta_2$ negativo e significativo indicaria que, embora reuniões adicionais aumentem a atividade legislativa, o impacto de cada nova reunião é progressivamente menor. Isso sugere a existência de um ponto de saturação, a partir do qual o esforço de lobby adicional perde eficácia.
 
 Por fim, para explorar a heterogeneidade do efeito entre diferentes áreas de política pública, o modelo \acrshort{ppml} principal foi estimado separadamente para cada um dos domínios temáticos. Essa análise permite avaliar se a influência do lobby é um fenômeno homogêneo ou se sua magnitude e significância variam conforme o contexto temático em que o \acrshort{mpe} atua.
+

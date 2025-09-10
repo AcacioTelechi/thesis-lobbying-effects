@@ -8,6 +8,8 @@ Key Features:
 - Parallelize scraping across multiple months for efficiency.
 """
 
+from datetime import datetime, timedelta
+import time
 import requests
 import csv
 from io import StringIO
@@ -205,3 +207,23 @@ class ParliamentDataHandler:
                     print(f"Scraping failed for {start} to {end}: {exc}")
 
         return results
+
+class RateLimiter:
+    def __init__(self, max_requests, time_window):
+        self.max_requests = max_requests
+        self.time_window = time_window  # in seconds
+        self.requests = []
+        
+    def wait_if_needed(self):
+        now = datetime.now()
+        # Remove requests older than time window
+        self.requests = [t for t in self.requests if now - t < timedelta(seconds=self.time_window)]
+        
+        if len(self.requests) >= self.max_requests:
+            # Wait until oldest request is outside time window
+            sleep_time = (self.requests[0] + timedelta(seconds=self.time_window) - now).total_seconds()
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+            self.requests = self.requests[1:]
+        
+        self.requests.append(now)

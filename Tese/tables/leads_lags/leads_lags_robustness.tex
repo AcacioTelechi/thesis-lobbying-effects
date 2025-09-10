@@ -1,0 +1,38 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Leads and Lags - Robustness Checks},
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]},
+column{2-4}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{16}={1-4}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\hline
+& PPML Baseline & PPML (Member Cluster) & OLS \\ \hline %% TinyTableHeader
+meetings\_lead2 & \num{0.012}*** & \num{0.009}** & \num{0.002}*** \\
+& (\num{0.002}) & (\num{0.003}) & (\num{0.001}) \\
+meetings\_lead1 & \num{0.012}*** & \num{0.007}* & \num{0.003}*** \\
+& (\num{0.002}) & (\num{0.003}) & (\num{0.001}) \\
+meetings\_current & \num{0.008}*** & \num{0.004} & \num{0.003}*** \\
+& (\num{0.002}) & (\num{0.003}) & (\num{0.001}) \\
+meetings\_lag1 & \num{0.018}*** & \num{0.012}*** & \num{0.004}*** \\
+& (\num{0.002}) & (\num{0.003}) & (\num{0.001}) \\
+meetings\_lag2 & \num{0.019}*** & \num{0.018}*** & \num{0.004}*** \\
+& (\num{0.002}) & (\num{0.004}) & (\num{0.001}) \\
+meetings\_lead3 &  & \num{0.013}*** &  \\
+&  & (\num{0.002}) &  \\
+meetings\_lag3 &  & \num{0.014}*** &  \\
+&  & (\num{0.004}) &  \\
+Num.Obs. & \num{561294} & \num{545490} & \num{917037} \\
+R2 & \num{0.251} & \num{0.251} & \num{0.193} \\
+RMSE & \num{0.56} & \num{0.56} & \num{0.46} \\
+Std.Errors & by: cl\_dt & by: member\_id & by: cl\_dt \\
+FE: fe\_ct & X & X & X \\
+FE: fe\_pt & X & X & X \\
+FE: fe\_dt & X & X & X \\
+\hline
+\end{talltblr}
+\end{table}

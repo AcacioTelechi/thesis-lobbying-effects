@@ -39,12 +39,13 @@ Temporalmente, observa-se aceleração do registro de entidades após meados da 
 
 O padrão visual sugere crescimento estrutural recente do ecossistema de representação de interesses, possivelmente associado às agendas de transição digital e verde e à recomposição pós-pandemia.
 
-As incidências por domínio destacam \textit{Infraestrutura e Indústria} (68,3\%), \textit{Tecnologia} (67,9\%) e \textit{Economia e Comércio} (67,4\%), seguidas por \textit{Ambiente e Clima} (64,7\%) e \textit{Assuntos Externos e Segurança} (51,3\%). Temas como \textit{Saúde} (43,7\%) e \textit{Educação} (41,2\%) são intermediários; \textit{Agricultura} (35,3\%) e \textit{Direitos Humanos} (25,3\%) têm menor incidência relativa.
+As incidências por domínio (Figura \ref{fig:theme_coverage}) destacam \textit{Infraestrutura e Indústria} (68,3\%), \textit{Tecnologia} (67,9\%) e \textit{Economia e Comércio} (67,4\%), seguidas por \textit{Ambiente e Clima} (64,7\%) e \textit{Assuntos Externos e Segurança} (51,3\%). Temas como \textit{Saúde} (43,7\%) e \textit{Educação} (41,2\%) são intermediários; \textit{Agricultura} (35,3\%) e \textit{Direitos Humanos} (25,3\%) têm menor incidência relativa.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/theme_coverage.png}
 \caption{Cobertura temática (proporção de entidades)}
+\label{fig:theme_coverage}
 \end{figure}
 
 O ordenamento por proporção sugere centralidade de agendas de competitividade industrial, digitalização e cadeias de valor, bem como a transversalidade da pauta ambiental.
@@ -54,17 +55,19 @@ O ordenamento por proporção sugere centralidade de agendas de competitividade 
 \centering
 \includegraphics[width=0.75\textwidth]{figures/themes_per_lobbyist_hist.png}
 \caption{Número de temas por lobista}
+\label{fig:themes_per_lobbyist_hist}
 \end{figure}
 
-A distribuição do número de temas por entidade indica a coexistência de atores multi-temáticos e especializados. Esse traço é relevante para a modelagem, pois sugere que a intensidade de esforço (extensivo vs. intensivo) varia com o perfil organizacional e o ambiente regulatório dos domínios.
+A distribuição do número de temas por entidade (Figura \ref{fig:themes_per_lobbyist_hist}) indica a coexistência de atores multi-temáticos e especializados. Esse traço é relevante para a modelagem, pois sugere que a intensidade de esforço (extensivo vs. intensivo) varia com o perfil organizacional e o ambiente regulatório dos domínios.
 
 
-As estatísticas de orçamento máximo declarado (em escala logarítmica) indicam mediana em torno de 11,5 e quartis aproximadamente entre 10,1 e 12,9. A presença de valores inválidos/extremos na base administrativa (por exemplo, ocorrências infinitas) distorce a média e o desvio-padrão, recomendando foco em medidas robustas (mediana, intervalos interquartílicos) e rotinas de limpeza nos exercícios inferenciais.
+As estatísticas de orçamento máximo declarado em escala logarítmica-natural (Figura \ref{fig:budget_ln_hist}) indicam mediana em torno de 11,5 e quartis aproximadamente entre 10,1 e 12,9. A presença de valores inválidos/extremos na base administrativa (por exemplo, ocorrências infinitas) distorce a média e o desvio-padrão, recomendando foco em medidas robustas (mediana, intervalos interquartílicos) e rotinas de limpeza nos exercícios inferenciais.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.75\textwidth]{figures/budget_ln_hist.png}
 \caption{Distribuição de orçamento máximo declarado ($ln(budget)$)}
+\label{fig:budget_ln_hist}
 \end{figure}
 
 A distribuição apresenta assimetria e cauda à direita compatíveis com heterogeneidade de porte organizacional, sugerindo coexistência de grandes associações/empresas e organizações menores.
