@@ -13,7 +13,7 @@ A \autoref{fig:time_series} apresenta a evolução temporal das variáveis princ
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig1_time_series_meetings_questions.pdf}
+\includegraphics[width=\textwidth]{figures/descriptive_plots/fig1_time_series_meetings_questions.pdf}
 \caption{Evolução temporal da atividade parlamentar e de lobbying}
 \label{fig:time_series}
 % \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
@@ -34,21 +34,10 @@ Complementando a análise temporal, é fundamental examinar os padrões de parti
 
 As \autoref{fig:proportion_meetings}, \autoref{fig:correlation_meetings_questions} e \autoref{fig:meetings_hist} apresentam uma análise dos padrões de participação agregados por deputado, revelando aspectos da distribuição da atividade de lobbying no Parlamento Europeu que impactam a identificação causal.
 
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=\textwidth]{figures/fig6_mep_aggregated_analysis.pdf}
-% \caption{Análise agregada por MEP: distribuição e intensidade do tratamento}
-% \label{fig:mep_aggregated}
-% \note{O painel superior esquerdo mostra a proporção de deputados que receberam pelo menos uma reunião de lobbying durante todo o período. O painel superior direito apresenta a distribuição da intensidade total de reuniões entre deputados tratados. O painel inferior esquerdo examina a relação agregada entre reuniões e perguntas totais por deputado. O painel inferior direito identifica os deputados mais ativos em termos de recepção de lobbying.}
-% \end{figure}
-
-
-
-% \subsubsection{Distribuição do tratamento entre deputados}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\textwidth]{figures/fig2_proportion_meetings.pdf}
+    \includegraphics[width=\textwidth]{figures/descriptive_plots/fig2_proportion_meetings.pdf}
     \caption{Evolução temporal da proporção de \acrshort{mpe}s que participaram de reuniões de lobbying}
     \label{fig:proportion_meetings}
     % \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
@@ -56,7 +45,7 @@ As \autoref{fig:proportion_meetings}, \autoref{fig:correlation_meetings_question
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\textwidth]{figures/fig3_correlation_meetings_questions.pdf}
+    \includegraphics[width=\textwidth]{figures/descriptive_plots/fig3_correlation_meetings_questions.pdf}
     \caption{Evolução temporal da correlação entre reuniões e perguntas}
     \label{fig:correlation_meetings_questions}
     % \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
@@ -64,7 +53,7 @@ As \autoref{fig:proportion_meetings}, \autoref{fig:correlation_meetings_question
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\textwidth]{figures/fig3.1_meetings_hist.pdf}
+    \includegraphics[width=\textwidth]{figures/descriptive_plots/fig3.1_meetings_hist.pdf}
     \caption{Distribuição de reuniões por \acrshort{mpe}}
     \label{fig:meetings_hist}
     % \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
@@ -153,19 +142,6 @@ Contudo, emergem padrões teoricamente consistentes. Domínios relacionados à \
 
 A heterogeneidade observada entre domínios tem duas implicações metodológicas importantes. Primeiro, a variação sistemática sugere que estimativas de efeito médio podem mascarar diferenças substantivas entre setores, justificando análises de heterogeneidade de efeitos por domínio. Segundo, a ordenação consistente dos domínios por múltiplas métricas (penetração, volume, intensidade) sugere que esta heterogeneidade reflete características estruturais dos setores ao invés de variação aleatória, aumentando a credibilidade de interpretações causais diferenciadas.
 
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=.9\textwidth]{figures/fig3_domain_heterogeneity.pdf}
-% \caption{Heterogeneidade por domínio: atividade média e distribuições}
-% \label{fig:domain_heterogeneity}
-% \note{O painel superior esquerdo mostra a atividade média mensal por domínio para ambas as variáveis. O painel superior direito apresenta as taxas de tratamento mensais. Os painéis inferiores mostram box plots das distribuições completas por domínio, evidenciando tanto diferenças de localização quanto de dispersão entre áreas de política pública.}
-% \end{figure}
-
-% \subsection{Análise detalhada: observações MEP-domínio-período}
-
-% Após estabelecer os padrões agregados gerais, temporais e setoriais, esta seção examina as características específicas dos dados no nível mais desagregado: observações MEP-domínio-mês. Esta análise é crucial porque a unidade de observação constitui a base para as estimações econométricas e suas características distribucionais determinam as escolhas metodológicas apropriadas.
-
-% \paragraph{Especialização temática e o problema da inflação artificial de zeros}
 
 A análise da inflação de zeros requer cuidado metodológico particular, pois a unidade de observação MEP-domínio-mês pode gerar inflação \textbf{artificial} de zeros. Como documentado na literatura sobre comportamento parlamentar \cite{example}, deputados tendem a especializar-se tematicamente, concentrando atividade em subconjuntos específicos de domínios. Consequentemente, grupos de interesse, cientes desta especialização, direcionam esforços de lobbying apenas para deputados ativos em suas áreas de interesse.
 
@@ -201,18 +177,6 @@ Os resultados revelam que a inflação de zeros é \textbf{sensível ao nível d
     \item \textbf{Nível domínio-mês} (agregando todos os MEPs ativos): A inflação torna-se negligível (3,2\% para perguntas, 0\% para reuniões), indicando que há atividade consistente em todos os domínios quando consideramos o conjunto de deputados relevantes.
 \end{enumerate}
 
-% A \autoref{fig:corrected_zero_inflation} apresenta uma comparação visual sistemática entre os diferentes níveis de agregação, evidenciando como a especialização temática afeta a interpretação da inflação de zeros.
-
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=\textwidth]{figures/fig_corrected_zero_inflation_analysis.pdf}
-% \caption{Análise corrigida da inflação de zeros considerando especialização temática}
-% \label{fig:corrected_zero_inflation}
-% \note{O painel superior esquerdo mostra a inflação aparente no nível MEP-domínio-mês original. O painel superior direito apresenta a inflação corrigida no nível MEP-mês considerando apenas domínios ativos. O painel inferior esquerdo mostra a distribuição de especialização temática dos MEPs. O painel inferior direito compara a evolução temporal dos totais mensais entre os métodos original e corrigido.}
-% \end{figure}
-
-% \paragraph{Implicações metodológicas revisadas}
-
 Esta análise corrigida tem implicações fundamentais para a estratégia econométrica:
 
 \begin{enumerate}
@@ -226,38 +190,6 @@ Esta análise corrigida tem implicações fundamentais para a estratégia econom
     
     \item \textbf{Interpretação de resultados}: Efeitos estimados devem ser interpretados condicionalmente à especialização temática, com atenção particular às margens extensiva (entrada em novos domínios) versus intensiva (aumento de atividade em domínios existentes).
 \end{enumerate}
-
-% \paragraph{Decomposição em margens extensiva e intensiva}
-
-% A extrema inflação de zeros torna analiticamente vantajoso decompor o fenômeno em duas margens conceituais distintas: a \textbf{margem extensiva} (decisão de participar) e a \textbf{margem intensiva} (nível de atividade condicional à participação). Esta decomposição é teoricamente relevante porque diferentes mecanismos causais podem operar em cada margem.
-
-% A \autoref{fig:extensive_intensive} apresenta uma análise detalhada desta decomposição, incluindo a sobreposição entre atividades parlamentares e de lobbying.
-
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=\textwidth]{figures/fig5_extensive_intensive_margins.pdf}
-% \caption{Análise das margens extensiva e intensiva}
-% \label{fig:extensive_intensive}
-% \note{O painel superior esquerdo apresenta a tabulação cruzada entre atividade parlamentar e de lobbying, revelando padrões de sobreposição. O painel superior direito decompõe as margens extensiva (participação) e intensiva (intensidade condicional). Os painéis inferiores mostram as distribuições condicionais completas para ambas as variáveis na margem intensiva.}
-% \end{figure}
-
-% A tabulação cruzada revela um padrão notável: apenas \textbf{0,4\%} das observações apresentam simultaneamente perguntas parlamentares e reuniões de lobbying. Esta baixa sobreposição indica que atividade parlamentar e lobbying são largamente \textbf{independentes} no nível temporal mensal, sugerindo que potenciais efeitos causais podem operar através de canais indiretos ou com defasagens temporais que não são captadas na correlação contemporânea.
-
-% Na margem extensiva, 7,8\% das observações apresentam atividade parlamentar e 7,5\% apresentam atividade de lobbying. Na margem intensiva, condicionalmente à participação, as médias são 1,54 perguntas e 3,15 reuniões por observação, com distribuições altamente assimétricas evidenciando concentração mesmo dentro do subconjunto de observações ativas.
-
-% \paragraph{Correlações e relações entre variáveis}
-
-% Para completar a caracterização dos dados, a \autoref{fig:correlation_analysis} examina as relações diretas entre as variáveis principais através de múltiplas perspectivas analíticas.
-
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=\textwidth]{figures/fig4_correlation_analysis.pdf}
-% \caption{Análise de correlações e relações entre variáveis}
-% \label{fig:correlation_analysis}
-% \note{O painel superior esquerdo mostra a relação geral entre perguntas e reuniões no nível MEP-domínio-mês. O painel superior direito apresenta a mesma relação em escala logarítmica. O painel inferior esquerdo mostra as correlações por domínio. O painel inferior direito apresenta a matriz de correlação entre as variáveis principais.}
-% \end{figure}
-
-% A análise de correlações revela padrões consistentes com a baixa sobreposição contemporânea observada anteriormente. No nível agregado MEP-domínio-mês, a correlação é positiva mas modesta. Interessantemente, existe heterogeneidade sistemática nas correlações entre domínios, sugerindo que a força da relação varia com características setoriais específicas.
 
 \subsection{Síntese e implicações metodológicas}
 
