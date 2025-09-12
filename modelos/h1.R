@@ -117,11 +117,11 @@ controls_str <- paste(controls, collapse = " + ")
 
 
 # 4) Build the formulas
-full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
+full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 full_formula <- as.formula(full_formula_str)
 
 # ---- Quadratic PPML model (meetings + meetings^2)
-formula_quadratic_str <- paste0("questions ~ meetings + I(meetings^2) + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
+formula_quadratic_str <- paste0("questions ~ meetings + I(meetings^2) + ", controls_str, " | fe_ct + fe_pt + fe_dt")
 formula_quadratic <- as.formula(formula_quadratic_str)
 
 # =========================
