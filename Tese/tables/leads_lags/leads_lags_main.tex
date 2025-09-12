@@ -10,8 +10,8 @@ column{2-4}={}{halign=c,},
 column{1}={}{halign=l,},
 hline{16}={1-4}{solid, black, 0.05em},
 }                     %% tabularray inner close
-\toprule
-& Leads Only & Lags Only & Full Model \\ \midrule %% TinyTableHeader
+\hline
+& Leads Only & Lags Only & Full Model \\ \hline %% TinyTableHeader
 meetings\_lead3 & \num{0.017}*** &  & \num{0.013}*** \\
 & (\num{0.002}) &  & (\num{0.002}) \\
 meetings\_lead2 & \num{0.015}*** &  & \num{0.009}*** \\
@@ -33,6 +33,6 @@ Std.Errors & by: cl\_dt & by: cl\_dt & by: cl\_dt \\
 FE: fe\_ct & X & X & X \\
 FE: fe\_pt & X & X & X \\
 FE: fe\_dt & X & X & X \\
-\bottomrule
+\hline
 \end{talltblr}
 \end{table}

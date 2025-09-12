@@ -51,6 +51,28 @@ library(MatchIt)
 library(cobalt)
 library(ggplot2)
 
+# Roles to include as matching covariates
+role_cols <- c(
+  "meps_COMMITTEE_PARLIAMENTARY_SPECIAL___CHAIR",
+  "meps_COMMITTEE_PARLIAMENTARY_SPECIAL___MEMBER",
+  "meps_COMMITTEE_PARLIAMENTARY_STANDING___CHAIR",
+  "meps_COMMITTEE_PARLIAMENTARY_STANDING___MEMBER",
+  "meps_COMMITTEE_PARLIAMENTARY_SUB___CHAIR",
+  "meps_COMMITTEE_PARLIAMENTARY_SUB___MEMBER",
+  "meps_DELEGATION_PARLIAMENTARY___CHAIR",
+  "meps_DELEGATION_PARLIAMENTARY___MEMBER",
+  "meps_EU_INSTITUTION___PRESIDENT",
+  "meps_EU_INSTITUTION___QUAESTOR",
+  "meps_EU_POLITICAL_GROUP___CHAIR",
+  "meps_EU_POLITICAL_GROUP___MEMBER_BUREAU",
+  "meps_EU_POLITICAL_GROUP___TREASURER",
+  "meps_EU_POLITICAL_GROUP___TREASURER_CO",
+  "meps_NATIONAL_CHAMBER___PRESIDENT_VICE",
+  "meps_WORKING_GROUP___CHAIR",
+  "meps_WORKING_GROUP___MEMBER",
+  "meps_WORKING_GROUP___MEMBER_BUREAU"
+)
+
 # -------------------------------------------------------------
 # Directories
 # -------------------------------------------------------------
@@ -69,7 +91,7 @@ message("Loading data ...")
 df <- read.csv("./data/gold/df_long_v2.csv", stringsAsFactors = FALSE)
 
 # Ensure expected columns exist
-required_cols <- c("member_id", "domain", "Y.m", "questions", "meetings","meps_country", "meps_party")
+required_cols <- c("member_id", "domain", "Y.m", "questions", "meetings","meps_country", "meps_party", role_cols)
 missing_cols <- setdiff(required_cols, names(df))
 if (length(missing_cols) > 0) {
   stop("Missing required columns: ", paste(missing_cols, collapse = ", "))
@@ -83,6 +105,7 @@ df <- df %>%
     meps_country = as.factor(meps_country),
     meps_party = as.factor(meps_party)
   ) %>%
+  mutate(across(all_of(role_cols), ~ as.integer(.x))) %>%
   arrange(member_id, domain, Y.m)
 
 # First treatment month per unit (member × domain)
@@ -169,7 +192,7 @@ treated_covs <- df %>%
   mutate(anchor = Y.m) %>%
   inner_join(treated_units %>% transmute(member_id, domain, t0), by = c("member_id", "domain")) %>%
   filter(Y.m == add_months(t0, -1)) %>%
-  select(member_id, domain, meps_country, meps_party)
+  select(member_id, domain, meps_country, meps_party, dplyr::all_of(role_cols))
 
 treated_pre <- treated_units %>%
   tidyr::unnest_longer(pre_months) %>%
@@ -266,7 +289,7 @@ control_covs <- df %>%
   semi_join(control_anchors, by = c("member_id", "domain")) %>%
   inner_join(control_anchors, by = c("member_id", "domain")) %>%
   filter(Y.m == add_months(anchor, -1)) %>%
-  select(member_id, domain, meps_country, meps_party)
+  select(member_id, domain, meps_country, meps_party, dplyr::all_of(role_cols))
 
 control_pre <- control_pre %>%
   left_join(control_covs, by = c("member_id", "domain")) %>%
@@ -283,8 +306,8 @@ control_pre <- control_pre %>% filter(domain %in% common_domains)
 # Assemble cross-section for matching
 # -------------------------------------------------------------
 match_df <- bind_rows(
-  treated_pre %>% transmute(member_id, domain, treated, y_mean_pre, y_sd_pre, y_last_pre, y_slope_pre, meps_country, meps_party),
-  control_pre %>% transmute(member_id, domain, treated, y_mean_pre, y_sd_pre, y_last_pre, y_slope_pre, meps_country, meps_party)
+  treated_pre %>% select(member_id, domain, treated, y_mean_pre, y_sd_pre, y_last_pre, y_slope_pre, meps_country, meps_party, dplyr::all_of(role_cols)),
+  control_pre %>% select(member_id, domain, treated, y_mean_pre, y_sd_pre, y_last_pre, y_slope_pre, meps_country, meps_party, dplyr::all_of(role_cols))
 ) %>%
   mutate(across(c(meps_country, meps_party, domain), as.factor))
 
@@ -297,7 +320,8 @@ set.seed(123)
 match_df <- match_df %>%
   mutate(y_mean_pre_bin = round(y_mean_pre, 1))
 
-form <- treated ~ y_mean_pre + y_sd_pre + y_last_pre + y_slope_pre + meps_country + meps_party
+form_covs <- c("y_mean_pre", "y_sd_pre", "y_last_pre", "y_slope_pre", "meps_country", "meps_party", role_cols)
+form <- stats::as.formula(paste("treated ~", paste(form_covs, collapse = " + ")))
 # Use Mahalanobis distance with numeric pre-trend features to avoid GLM separation
 form_mah <- treated ~ y_mean_pre + y_sd_pre + y_last_pre + y_slope_pre
 
@@ -386,6 +410,8 @@ g <- ggplot(avg_both, aes(x = t_rel, y = y, color = group)) +
   theme(legend.title = element_blank())
 
 ggsave(filename = file.path(figures_dir, "pretrend_avg_trajectories.png"), plot = g,
+       width = 9, height = 5, dpi = 300)
+ggsave(filename = file.path(figures_dir, "pretrend_avg_trajectories.pdf	"), plot = g,
        width = 9, height = 5, dpi = 300)
 
 # -------------------------------------------------------------

@@ -117,37 +117,36 @@ controls_str <- paste(controls, collapse = " + ")
 
 
 # 4) Build the formulas
-full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_ct + fe_pt + fe_dt")
+full_formula_str <- paste0("questions ~ meetings + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
 full_formula <- as.formula(full_formula_str)
 
 # ---- Quadratic PPML model (meetings + meetings^2)
-formula_quadratic_str <- paste0("questions ~ meetings + I(meetings^2) + ", controls_str, " | fe_ct + fe_pt + fe_dt")
+formula_quadratic_str <- paste0("questions ~ meetings + I(meetings^2) + ", controls_str, " | fe_i + fe_ct + fe_pt + fe_dt")
 formula_quadratic <- as.formula(formula_quadratic_str)
 
 # =========================
-# A) DDD with OLS (feols)
+# A) OLS (feols)
 # =========================
 
 m_ols <- feols(
     full_formula,
     data    = df,
-    cluster = ~cl_dt # two-way clustering: by member and by domain×time
-)
+    cluster = ~cl_dt + fe_i )
 
 # =============================
-# B) DDD with PPML (fepois) - all domains
+# B) PPML (fepois) - all domains
 # =============================
 m_ppml <- fepois(
     full_formula,
     data    = df,
-    cluster = ~cl_dt
+    cluster = ~cl_dt + fe_i
 )
 
 # Squared model
 m_ppml_squared <- fepois(
     formula_quadratic,
     data    = df,
-    cluster = ~cl_dt
+    cluster = ~cl_dt + fe_i
 )
 
 # Nice side-by-side table
@@ -179,7 +178,7 @@ run_domain_loop <- function(df, full_formula) {
         m_ppml_domain <- fepois(
             full_formula,
             data    = df_domain,
-            cluster = ~cl_dt
+            cluster = ~cl_dt + fe_i
         )
         results_domains[[domain]] <- m_ppml_domain
     }
@@ -188,7 +187,6 @@ run_domain_loop <- function(df, full_formula) {
 
 results_domains <- run_domain_loop(df, full_formula)
 
-results_domains <- append(list("Geral" = m_ppml), results_domains)
 modelsummary::msummary(results_domains, gof_omit = "IC|Log|Adj|Pseudo|Within", coef_omit = "meps_", stars = TRUE)
 
 
@@ -330,58 +328,6 @@ if (nrow(df_domains_plot) > 0) {
     ggsave(file.path(figures_dir, "fig_coeff_domains.png"), p_domains, width = 10, height = 7, dpi = 300)
     ggsave(file.path(figures_dir, "fig_coeff_domains.pdf"), p_domains, width = 10, height = 7)
 }
-
-
-# # ------------------------------
-# # F3) Across treatments per domain (faceted)
-# # ------------------------------
-
-# df_treat_by_domain <- data.frame(domain = character(), treatment = character(), estimate = numeric(), se = numeric(), stringsAsFactors = FALSE)
-
-# for (tr in alt_treatments) {
-#     for (dm in domains) {
-#         key <- paste(tr, dm)
-#         if (!(key %in% names(results_alt_treatments_domains))) next
-#         fit <- results_alt_treatments_domains[[key]]
-#         x <- extract_meetings(fit)
-#         if (is.na(x$b)) next
-#         df_treat_by_domain <- rbind(df_treat_by_domain, data.frame(domain = dm, treatment = tr, estimate = x$b, se = x$se))
-#     }
-# }
-
-# if (nrow(df_treat_by_domain) > 0) {
-#     df_treat_by_domain$ci_lo <- df_treat_by_domain$estimate - 1.96 * df_treat_by_domain$se
-#     df_treat_by_domain$ci_hi <- df_treat_by_domain$estimate + 1.96 * df_treat_by_domain$se
-#     df_treat_by_domain$treatment_label <- pretty_treatment_label(df_treat_by_domain$treatment)
-#     df_treat_by_domain$domain_label <- pretty_domain_label(df_treat_by_domain$domain)
-
-#     p_treat_by_domain <- ggplot(df_treat_by_domain, aes(x = estimate, y = treatment_label)) +
-#         geom_vline(xintercept = 0, color = "gray70") +
-#         {
-#             if (!is.na(baseline_est) && !is.na(baseline_est_se)) {
-#                 b_lo <- baseline_est - 1.96 * baseline_est_se
-#                 b_hi <- baseline_est + 1.96 * baseline_est_se
-#                 list(
-#                     annotate("rect", xmin = b_lo, xmax = b_hi, ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "#B45C1F"),
-#                     geom_vline(xintercept = baseline_est, linetype = "dashed", color = "#B45C1F")
-#                 )
-#             } else {
-#                 NULL
-#             }
-#         } +
-#         geom_point(color = "#1f77b4", size = 2.6) +
-#         geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.18, color = "#1f77b4") +
-#         labs(
-#             # title = "Meetings effect: treatments by domain (PPML)",
-#             # subtitle = "Points are estimates; bars are 95% CIs.",
-#             x = "Efeito (meetings)", y = "Tratamento"
-#         ) +
-#         facet_wrap(~domain_label, ncol = 3, scales = "free_y") +
-#         theme_minimal()
-
-#     ggsave(file.path(figures_dir, "fig_coeff_treatments_by_domain.png"), p_treat_by_domain, width = 12, height = 8, dpi = 300)
-#     ggsave(file.path(figures_dir, "fig_coeff_treatments_by_domain.pdf"), p_treat_by_domain, width = 12, height = 8)
-# }
 
 # ============================
 # G) Quadratic PPML model (meetings + meetings^2)
