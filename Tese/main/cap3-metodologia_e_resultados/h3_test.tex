@@ -2,10 +2,10 @@
 Para testar a terceira hipótese (H3) — de que, em temas mais salientes, o lobby não empresarial (\acrshort{ong}s) é relativamente mais eficaz do que o lobby empresarial — estendemos a especificação \acrshort{ppml} com efeitos fixos (Seção \ref{section:identificacao}) para incorporar uma medida de saliência do tema e suas interações com o tipo de ator.
 
 % \paragraph{Medida de saliência do tema.}
-A saliência é operacionalizada como o volume total de reuniões de lobby observadas em cada combinação domínio-tempo, transformado por \(\log(1+x)\) para lidar com zeros e reduzir assimetria, e posteriormente padronizado para média zero e desvio-padrão um (\(\text{salience\_std}\)). Esta escolha alinha-se à literatura que utiliza intensidade de atividade como proxy de saliência agregada do tema e permite interpretar os coeficientes de interação como variações no efeito marginal ao longo do gradiente de saliência.
+A saliência é operacionalizada como o volume total de reuniões de lobby observadas em cada combinação domínio-tempo, transformado por \(\log(1+x)\) para lidar com zeros e reduzir assimetria, e posteriormente padronizado para média zero e desvio-padrão unitário (\(\text{salience\_std}\)). Esta escolha alinha-se à literatura que utiliza intensidade de atividade como proxy de saliência agregada do tema e permite interpretar os coeficientes de interação como variações no efeito marginal ao longo do gradiente de saliência.
 
 % \paragraph{Especificação com interações (PPML).}
-Mantemos os mesmos efeitos fixos de alta dimensão e o vetor de controlos individuais utilizados em H1 e H2 (país-tempo, partido-tempo e domínio-tempo; ver \ref{section:identificacao}). A novidade é a inclusão de termos de interação entre o número de reuniões atribuíveis a cada categoria de ator e a saliência padronizada. A forma geral estimada é:
+Mantemos os mesmos efeitos fixos de alta dimensão e o vetor de controles individuais utilizados em H1 e H2 (país-tempo, partido-tempo e domínio-tempo; ver \ref{section:identificacao}). A novidade é a inclusão de termos de interação entre o número de reuniões atribuíveis a cada categoria de ator e a saliência padronizada. A forma geral estimada é:
 
 \begin{equation}
     \label{eq:modelo_h3}
