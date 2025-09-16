@@ -146,6 +146,15 @@ order_countries <- country_counts$country[order(-country_counts$freq)]
 # Filter to top 20 countries
 df_country_counts_top20 <- df_country_counts[df_country_counts$country %in% order_countries[1:20], ]
 
+# order countries by descending frequency
+df_country_counts_top20 <- df_country_counts_top20[order(-df_country_counts_top20$freq), ]
+# Ensure the plot uses the correct order by setting domain as a factor
+df_country_counts_top20$country <- factor(
+  df_country_counts_top20$country,
+  levels = df_country_counts_top20$country
+)
+
+
 
 total_organizations <- sum(df_country_counts$freq)
 total_organizations_top20 <- sum(df_country_counts_top20$freq)
