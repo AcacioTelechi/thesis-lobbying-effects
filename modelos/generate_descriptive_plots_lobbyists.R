@@ -180,3 +180,107 @@ ggsave(
   plot = p2_country_distribution,
   width = 7, height = 5, dpi = 300
 )
+
+
+# ===========================================
+# 3) Domain
+# ===========================================
+
+domain_cols <- c(
+  "l_agriculture",
+  "l_economics_and_trade",
+  "l_education",
+  "l_environment_and_climate",
+  "l_foreign_and_security_affairs",
+  "l_health",
+  "l_human_rights",
+  "l_infrastructure_and_industry",
+  "l_technology"
+)
+
+# Count how many lobbyists are in each domain
+domain_lobbyist_counts <- sapply(domain_cols, function(col) {
+  length(unique(df$lobbyist_id[df[[col]] == 1]))
+})
+
+
+rename_domains <- c(
+  "l_agriculture" = "Agricultura",
+  "l_economics_and_trade" = "Economia e Comércio",
+  "l_education" = "Educação",
+  "l_environment_and_climate" = "Meio Ambiente e Clima",
+  "l_foreign_and_security_affairs" = "Política Externa e Segurança",
+  "l_health" = "Saúde",
+  "l_human_rights" = "Direitos Humanos",
+  "l_infrastructure_and_industry" = "Infraestrutura e Indústria",
+  "l_technology" = "Tecnologia"
+)
+
+domain_lobbyist_counts <- data.frame(
+  domain = names(rename_domains)[domain_cols],
+  lobbyist_count = domain_lobbyist_counts[domain_cols]
+)
+
+domain_lobbyist_counts$domain <- rename_domains[rownames(domain_lobbyist_counts)]
+
+domain_lobbyist_counts$percentage <- domain_lobbyist_counts$lobbyist_count / sum(domain_lobbyist_counts$lobbyist_count)
+
+# Order descending by lobbyist_count
+domain_lobbyist_counts <- domain_lobbyist_counts[order(-domain_lobbyist_counts$lobbyist_count), ]
+
+# Ensure the plot uses the correct order by setting domain as a factor
+domain_lobbyist_counts$domain <- factor(
+  domain_lobbyist_counts$domain,
+  levels = domain_lobbyist_counts$domain
+)
+
+# Plot the domain distribution
+p3_domain_distribution <- ggplot(domain_lobbyist_counts, aes(x = domain, y = lobbyist_count)) +
+  geom_bar(stat = "identity", fill = "#1f77b4", color = "black") +
+  labs(x = "Domínio", y = "Frequência") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_text(aes(label = paste0(round(percentage * 100, 1), "%")), vjust = -0.5)
+
+# Save the plot to the thesis figures directory
+ggsave(
+  filename = file.path(figures_dir, "barplot_domain_distribution.png"),
+  plot = p3_domain_distribution,
+  width = 7, height = 5, dpi = 300
+)
+
+
+# ===========================================
+# 4) Number of themes per lobbyist
+# ===========================================
+
+df_themes_per_lobbyist <- df
+
+df_themes_per_lobbyist$number_of_themes <- rowSums(df_themes_per_lobbyist[, domain_cols])
+
+df_themes_per_lobbyist <- aggregate(number_of_themes ~ lobbyist_id, data = df_themes_per_lobbyist, max)
+
+mean_themes <- mean(df_themes_per_lobbyist$number_of_themes)
+
+# Plot the number of themes per lobbyist
+p4_themes_per_lobbyist <- ggplot(df_themes_per_lobbyist, aes(x = number_of_themes)) +
+  geom_histogram(binwidth = 1, fill = "#1f77b4", color = "black") +
+  geom_vline(xintercept = mean_themes, color = "#B45C1F", linetype = "dashed") +
+  annotate(
+    "text",
+    x = mean_themes,
+    y = 800,
+    label = paste0("Média: ", round(mean_themes, 1)),
+    vjust = 1, hjust = -0.1,
+    color = "#B45C1F",
+    fontface = "bold"
+  ) +
+  labs(x = "Número de temas", y = "Frequência") +
+  theme_minimal()
+
+# Save the plot to the thesis figures directory
+ggsave(
+  filename = file.path(figures_dir, "histogram_themes_per_lobbyist.png"),
+  plot = p4_themes_per_lobbyist,
+  width = 7, height = 5, dpi = 300
+)
