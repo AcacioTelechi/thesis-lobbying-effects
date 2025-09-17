@@ -3,7 +3,7 @@
 
 Este apêndice apresenta uma bateria abrangente de testes de robustez para validar os resultados principais obtidos através do modelo PPML (Poisson Pseudo-Maximum Likelihood) apresentado no Capítulo~\ref{chapter:metodologia}. Os testes seguem as melhores práticas da literatura de inferência causal e econometria aplicada, visando assegurar que os resultados não são espúrios ou sensíveis a decisões metodológicas específicas.
 
-\section{Estratégia de Testes}
+% \section{Estratégia de Testes}
 
 A estratégia de robustez adotada segue múltiplas dimensões complementares:
 
@@ -19,19 +19,37 @@ A estratégia de robustez adotada segue múltiplas dimensões complementares:
 
 \textbf{(6) Análise jackknife:} Sensibilidade dos resultados à exclusão de grupos específicos.
 
-\section{Especificações Alternativas}
+% \section{Especificações Alternativas}
 
-\subsection{Métodos de Estimação}
+% \subsection{Métodos de Estimação}
 
-O modelo baseline utiliza PPML com estrutura completa de efeitos fixos (país×tempo, partido×tempo, domínio×tempo). A Tabela~\ref{tab:robustness_specifications} apresenta os resultados para diferentes métodos de estimação.
+O modelo baseline utiliza \acrshort{ppml} com estrutura completa de efeitos fixos (país×tempo, partido×tempo, domínio×tempo). A Tabela~\ref{tab:robustness_specifications} apresenta os resultados para diferentes métodos de estimação.
 
-O modelo OLS produz estimativa similar (coeficiente = 0.0243) mas com maior magnitude, consistente com a literatura que documenta viés para cima em modelos lineares quando a variável dependente apresenta sobredispersão \cite{silva2006log}. A manutenção da significância estatística através de diferentes métodos reforça a robustez do resultado principal.
+O modelo \acrshort{mqo} produz estimativa com mesmo sinal (coeficiente = 0.0073) mas com maior magnitude, consistente com a literatura que documenta viés para cima em modelos lineares quando a variável dependente apresenta sobredispersão \cite{silva2006log}. A manutenção da significância estatística através de diferentes métodos reforça a robustez do resultado principal.
 
 \input{tables/robustness/robustness_key}
 
-\subsection{Estruturas de Efeitos Fixos}
+A análise da Tabela \ref{tab:robustness_key} demonstra a robustez do efeito positivo do lobby sobre a atividade legislativa em uma série de especificações alternativas.
+
+Primeiramente, a estimação do modelo por \textbf{\acrshort{mqo}} resulta em um coeficiente positivo e estatisticamente significativo. Embora a magnitude não seja diretamente comparável à do PPML devido à forma funcional linear, a consistência no sinal e na significância sugere que o resultado não é um artefato do estimador Poisson.
+
+A exclusão de \textbf{outliers} — deputados com um número extremo de reuniões — mais do que duplica a magnitude do coeficiente estimado (0.0522 vs. 0.0249). Este resultado indica que o efeito médio no modelo base é conservador e atenuado por alguns poucos parlamentares com altíssima atividade de lobby, sugerindo que o impacto é ainda mais forte para o deputado mediano.
+
+A especificação com \textbf{tratamento binário} (pelo menos uma reunião vs. nenhuma) revela um coeficiente grande e significativo. Isso sugere que o efeito do lobby é particularmente forte na margem extensiva: o simples fato de um deputado entrar no radar dos lobistas e passar a ter reuniões já está associado a um aumento substancial em sua atividade parlamentar.
+
+A robustez da inferência é confirmada pela especificação com \textbf{clusterização bidirecional} (em deputado e domínio-tempo). Como esperado, os erros padrão aumentam em relação ao modelo base, mas o coeficiente permanece com alta significância estatística, indicando que os resultados não são sensíveis à estrutura de correlação dos resíduos.
+
+Finalmente, o \textbf{teste placebo}, que substitui o tratamento real por uma variável de lobby atribuída aleatoriamente, resulta em um coeficiente próximo de zero e estatisticamente não significativo. Este é um resultado crucial, pois demonstra que o efeito encontrado não é um produto de correlações espúrias ou de alguma outra característica não observada dos dados, fortalecendo a interpretação causal do achado principal. Em conjunto, estes testes fornecem um forte suporte para a validade da H1.
+
+% \subsection{Estruturas de Efeitos Fixos}
 
 A remoção sequencial de cada conjunto de efeitos fixos permite avaliar sua importância:
+
+\begin{landscape}
+    \centering
+    \label{tab:robustness_main}
+    \input{tables/robustness/robustness_main.tex}
+\end{landscape}
 
 \textbf{Sem efeitos fixos domínio×tempo:} O coeficiente permanece estatisticamente significativo, indicando que choques temporais específicos por domínio não são determinantes centrais da identificação.
 
