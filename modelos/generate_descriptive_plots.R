@@ -158,8 +158,8 @@ p2_proportion_meetings <- ggplot(df_meeting_proportion, aes(x = Y.m_date)) +
     labs(
         x = "Tempo (mensal)",
         y = "Proporção de indivíduos com reuniões",
-        title = "Proporção de indivíduos com reuniões ao longo do tempo",
-        subtitle = "Proporção mensal vs. proporção acumulada de MEPs únicos com reuniões",
+        # title = "Proporção de indivíduos com reuniões ao longo do tempo",
+        # subtitle = "Proporção mensal vs. proporção acumulada de MEPs únicos com reuniões",
         color = "Tipo de Proporção"
     ) +
     theme_minimal(base_size = 12) +
@@ -214,7 +214,7 @@ p3_histogram_meetings <- ggplot(df_histogram_meetings, aes(x = total_meetings)) 
     labs(
         x = "Número Total de Reuniões",
         y = "Número de MEPs",
-        title = "Distribuição de Reuniões Totais\npor MEP (apenas MEPs tratados)"
+        # title = "Distribuição de Reuniões Totais\npor MEP (apenas MEPs tratados)"
     ) +
     geom_vline(
         xintercept = mean_meetings,
@@ -225,7 +225,7 @@ p3_histogram_meetings <- ggplot(df_histogram_meetings, aes(x = total_meetings)) 
     ) +
     geom_vline(
         xintercept = median_meetings,
-        color = "orange",
+        color = "black",
         linetype = "dashed",
         linewidth = 1,
         show.legend = TRUE
@@ -233,22 +233,22 @@ p3_histogram_meetings <- ggplot(df_histogram_meetings, aes(x = total_meetings)) 
     annotate(
         "text", 
         x = mean_meetings, 
-        y = Inf, 
+        y = 260, 
         label = paste0("Média: ", round(mean_meetings, 1)), 
         vjust = -0.5, 
         hjust = -0.1, 
         color = "blue", 
-        fontface = "bold"
+        angle = 90
     ) +
     annotate(
         "text", 
         x = median_meetings, 
-        y = Inf, 
+        y = 260, 
         label = paste0("Mediana: ", round(median_meetings, 1)), 
         vjust = -1.5, 
         hjust = -0.1, 
-        color = "orange", 
-        fontface = "bold"
+        color = "black", 
+        angle = 90
     ) +
     theme_minimal(base_size = 12) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -276,10 +276,10 @@ p3_correlation <- ggplot(df_correlation, aes(x = Y.m_date, y = correlation)) +
     geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
     scale_y_continuous(limits = c(-1, 1)) +
     labs(
-        x = "Time",
-        y = "Correlation Coefficient",
-        title = "Correlation Between Meetings and Questions Over Time",
-        subtitle = "Monthly correlation between individual-level meetings and questions"
+        x = "Tempo (mensal)",
+        y = "Coeficiente de Correlação",
+        # title = "Correlation Between Meetings and Questions Over Time",
+        # subtitle = "Monthly correlation between individual-level meetings and questions"
     ) +
     theme_minimal(base_size = 12) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))

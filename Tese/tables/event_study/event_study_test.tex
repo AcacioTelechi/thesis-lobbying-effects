@@ -1,0 +1,27 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Teste},
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]},
+column{2-4}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{4}={1-4}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& (1) & (2) & (3) \\ \midrule %% TinyTableHeader
+meetings & \num{0.019}*** & \num{0.019}*** & \num{0.019}*** \\
+& (\num{0.003}) & (\num{0.004}) & (\num{0.004}) \\
+Num.Obs. & \num{464832} & \num{464832} & \num{464832} \\
+R2 & \num{0.315} & \num{0.315} & \num{0.315} \\
+RMSE & \num{0.58} & \num{0.58} & \num{0.58} \\
+Std.Errors & by: cl\_dt & by: cl\_dt \& fe\_i & by: fe\_i \& fe\_i \& fe\_ct \& fe\_pt \\
+FE: fe\_i & X & X & X \\
+FE: fe\_dt & X & X & X \\
+FE: fe\_ct & X & X & X \\
+FE: fe\_pt & X & X & X \\
+\bottomrule
+\end{talltblr}
+\end{table}

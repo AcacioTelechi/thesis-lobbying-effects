@@ -49,7 +49,7 @@ df <- df %>%
 
 # --- Construir e Rodar o Modelo de Interação ---
 
-# 1) Controlos (consistente com H1 e H2)
+# 1) Controles (consistente com H1 e H2)
 controls <- c(
     "meps_POLITICAL_GROUP_5148.0", "meps_POLITICAL_GROUP_5151.0", "meps_POLITICAL_GROUP_5152.0",
     "meps_POLITICAL_GROUP_5153.0", "meps_POLITICAL_GROUP_5154.0", "meps_POLITICAL_GROUP_5155.0",

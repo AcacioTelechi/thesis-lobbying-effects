@@ -3,11 +3,36 @@
 
 Esta seção apresenta uma análise descritiva sistemática dos dados utilizados para investigar os efeitos do lobbying na atividade parlamentar dos deputados do Parlamento Europeu. A abordagem adotada segue uma estratégia analítica multinível, iniciando com padrões agregados gerais e progredindo para análises desagregadas mais específicas. Esta progressão metodológica permite compreender tanto as tendências globais quanto os mecanismos específicos que operam no nível individual e temporal.
 
-O conjunto de dados constitui um painel balanceado que combina informações sobre atividade parlamentar (perguntas) e intensidade de lobbying (reuniões) para 1.353 deputados ao longo de 63 meses, de julho de 2019 a novembro de 2024 em 9 domínios de política pública. Esta estrutura temporal permite capturar variações tanto na dimensão \textit{cross-sectional} (entre deputados e domínios) quanto longitudinal (evolução temporal), fornecendo a base empírica necessária para estratégias de identificação causal robustas.
+O conjunto de dados constitui um painel balanceado que combina informações sobre atividade parlamentar (perguntas) e intensidade de lobbying (reuniões) para 1.727 deputados ao longo de 63 meses, de agosto de 2019 a outubro de 2024 em 9 domínios de política pública. Esta estrutura temporal permite capturar variações tanto na dimensão \textit{cross-sectional} (entre deputados e domínios) quanto longitudinal (evolução temporal), fornecendo a base empírica necessária para estratégias de identificação causal robustas. A tabela \ref{tab:mep_treatment_stats} apresenta as estatísticas agregadas do painel de dados.
 
-Considerando a unidade de análise a tríade MEP-domínio-mês, temos 767.151 observações com taxa de completude de 100\%. Esta estrutura balanceada é metodologicamente vantajosa, pois elimina preocupações com viés de seleção decorrente de atrito amostral e garante que as estimativas não sejam distorcidas por padrões de observações ausentes.
+\begin{table}[htbp]
+    \centering
+    \caption{Estatísticas agregadas de tratamento por deputado}
+    \label{tab:mep_treatment_stats}
+    \begin{tabular}{lr}
+    \toprule
+    \textbf{Estatística} & \textbf{Valor} \\
+    \midrule
+    Total de reuniões & 235.638 \\
+    Total de perguntas & 118.238 \\
+    Total de deputados únicos & 1{,}727 \\
+    Deputados que receberam tratamento & 804 \\
+    Taxa de tratamento por deputado (\%) & 46{,}5\% \\
+    \midrule
+    \textbf{Entre deputados tratados:} & \\
+    Reuniões médias por deputado & 293{,}1 \\
+    Reuniões medianas por deputado & 109{,}0 \\
+    Desvio padrão & 468{,}9 \\
+    \midrule
+    \textbf{Correlação agregada:} & \\
+    Correlação reuniões-perguntas & 0{,}05 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
 
-A cobertura temporal de julho de 2019 a novembro de 2024 é particularmente relevante por abranger períodos de intensa atividade legislativa europeia, incluindo a transição entre legislaturas e eventos político-econômicos significativos. Destaca-se, nesse intervalo, o impacto da pandemia de COVID-19, que afetou profundamente tanto a dinâmica da atividade parlamentar quanto as estratégias de lobbying. A pandemia resultou em mudanças substanciais nos modos de trabalho do Parlamento Europeu, com a adoção de sessões remotas e restrições a reuniões presenciais, o que pode ter alterado padrões de interação entre deputados e grupos de interesse. Assim, a análise cobre não apenas períodos de normalidade institucional, mas também um contexto de crise sanitária global, permitindo investigar como choques exógenos desse tipo influenciam o comportamento político e o lobbying.
+Considerando a unidade de análise a tríade MEP-domínio-mês, temos 979.209 observações com taxa de completude de 100\%. Esta estrutura balanceada é metodologicamente vantajosa, pois elimina preocupações com viés de seleção decorrente de atrito amostral e garante que as estimativas não sejam distorcidas por padrões de observações ausentes.
+
+A cobertura temporal de agosto de 2019 a outubro de 2024 é particularmente relevante por abranger períodos de intensa atividade legislativa europeia, incluindo a transição entre legislaturas e eventos político-econômicos significativos. Destaca-se, nesse intervalo, o impacto da pandemia de COVID-19, que afetou profundamente tanto a dinâmica da atividade parlamentar quanto as estratégias de lobbying. A pandemia resultou em mudanças substanciais nos modos de trabalho do Parlamento Europeu, com a adoção de sessões remotas e restrições a reuniões presenciais, o que pode ter alterado padrões de interação entre deputados e grupos de interesse. Assim, a análise cobre não apenas períodos de normalidade institucional, mas também um contexto de crise sanitária global, permitindo investigar como choques exógenos desse tipo influenciam o comportamento político e o lobbying.
 
 A \autoref{fig:time_series} apresenta a evolução temporal das variáveis principais no nível mais agregado, revelando padrões que são fundamentais para compreender a dinâmica do sistema político europeu ao longo do período estudado.
 
@@ -19,12 +44,12 @@ A \autoref{fig:time_series} apresenta a evolução temporal das variáveis princ
 % \note{O painel superior esquerdo mostra os totais mensais agregados de perguntas e reuniões. O painel superior direito apresenta as médias mensais por observação MEP-domínio. O painel inferior esquerdo mostra a evolução da proporção de observações com atividade de lobbying. O painel inferior direito apresenta a estabilidade da correlação contemporânea entre as variáveis ao longo do tempo.}
 \end{figure}
 
-A análise temporal revela quatro padrões empiricamente relevantes. Primeiro, observa-se uma \textbf{tendência crescente} em ambas as variáveis ao longo do período, sugerindo intensificação tanto da atividade parlamentar quanto do lobbying. Segundo, existe clara \textbf{sazonalidade} relacionada ao calendário parlamentar, com reduções sistemáticas durante períodos de recesso. Terceiro, identificam-se \textbf{picos de atividade} que coincidem com discussões de legislação relevante em domínios específicos, indicando resposta coordenada do sistema político. Quarto, a \textbf{correlação contemporânea} entre perguntas e reuniões permanece relativamente estável ao longo do tempo, sugerindo estabilidade estrutural na relação entre as variáveis.
+A análise da evolução temporal (Figura \ref{fig:time_series}) revela uma dinâmica complexa na interação entre a atividade de lobbying (reuniões) e a atividade parlamentar (perguntas). O padrão mais saliente é a \textbf{divergência de tendências} a partir do início de 2022. Enquanto o volume de perguntas parlamentares (linha laranja) permanece relativamente estável ao longo de todo o período, oscilando dentro de uma faixa consistente - com leve tendência de queda -, o número de reuniões de lobby (linha azul) apresenta um crescimento acentuado e um aumento expressivo da volatilidade a partir de 2022.
 
-% não há exatamente essa tendência cerescente...
+A estabilidade no número de perguntas parlamentares sugere que este instrumento funciona mais como uma ferramenta de rotina da fiscalização e posicionamento político, menos elástica às flutuações de curto prazo da agenda legislativa mais contenciosa. Além disso, ambas as séries exibem uma clara \textbf{sazonalidade}, com quedas de atividade que correspondem aos períodos de recesso do calendário parlamentar, um fator institucional que molda o ritmo do trabalho político.
 
+Do ponto de vista metodológico, estes padrões são cruciais. A tendência de crescimento no lobby e a sazonalidade em ambas as séries justificam a inclusão de efeitos fixos de tempo (ex: mês-ano) nos modelos econométricos, para controlar choques temporais comuns e variações sazonais que poderiam confundir a estimação dos efeitos. A divergência entre as séries a partir de 2022 também sugere a importância de se testar a estabilidade dos parâmetros do modelo ao longo do tempo.
 
-Estes padrões temporais têm implicações metodológicas importantes. A presença de tendências temporais justifica a inclusão de efeitos fixos de tempo nas especificações econométricas para controlar choques temporais comuns. A sazonalidade observada valida a escolha da frequência mensal como unidade temporal, capturando variações de curto prazo sem introduzir ruído excessivo. A estabilidade da correlação fornece evidência preliminar contra quebras estruturais que poderiam comprometer a validade das estimativas.
 
 % \subsection{Padrões de participação: análise agregada por deputado}
 
@@ -60,41 +85,17 @@ As \autoref{fig:proportion_meetings}, \autoref{fig:correlation_meetings_question
 \end{figure}
 
 
-A análise revela três características fundamentais da distribuição de tratamento. Primeiro, existe \textbf{participação substancial mas não universal}: 46,3\% dos deputados (637 de 1.353) receberam pelo menos uma reunião de lobbying durante o período estudado. Esta proporção indica que o lobbying é um fenômeno disseminado mas não ubíquo no sistema parlamentar europeu.
+A análise revela três características fundamentais da distribuição de tratamento. Primeiro, existe \textbf{participação substancial mas não universal}: 46,5\% dos deputados (804 de 1.727) receberam pelo menos uma reunião de lobbying durante o período estudado. Esta proporção indica que o lobbying é um fenômeno disseminado mas não ubíquo no sistema parlamentar europeu.
 
-Segundo, observa-se \textbf{concentração extrema} na intensidade de tratamento. Entre os deputados que receberam lobbying, a distribuição é altamente assimétrica: enquanto a mediana é de 105 reuniões por deputado, a média é de 288,2 reuniões, indicando que uma minoria de parlamentares concentra uma proporção desproporcional da atividade lobista. O caso extremo de um deputado com 4.274 reuniões ilustra esta concentração.
+Segundo, observa-se \textbf{concentração extrema} na intensidade de tratamento. Entre os deputados que receberam lobbying, a distribuição é altamente assimétrica: enquanto a mediana é de 109 reuniões por deputado, a média é de 293,1 reuniões, indicando que uma minoria de parlamentares concentra uma quantidade desproporcional da atividade lobista. O caso extremo de um deputado com 4.274 reuniões ilustra esta concentração.
 
-Terceiro, a \textbf{correlação agregada} entre reuniões e perguntas totais por deputado é surpreendentemente baixa (0,056), contrastando com correlações mais elevadas observadas no nível temporal. Este padrão sugere que os efeitos do lobbying podem ser mais evidentes em frequências temporais específicas do que em padrões de atividade agregados de longo prazo.
+Terceiro, a \textbf{correlação agregada} entre reuniões e perguntas totais por deputado é surpreendentemente baixa (0,05), contrastando com correlações mais elevadas observadas no nível temporal. Este padrão sugere que os efeitos do lobbying podem ser mais evidentes em frequências temporais específicas do que em padrões de atividade agregados de longo prazo.
 
-% \paragraph{Implicações para a estratégia empírica}
 
-Estes padrões agregados têm implicações importantes para a identificação causal. A concentração do tratamento em uma minoria de deputados sugere que estratégias de identificação baseadas em variação cross-sectional podem sofrer de poder estatístico limitado. Simultaneamente, a variação substancial na intensidade de tratamento entre deputados tratados fornece fonte valiosa de identificação para estimativas de dose-resposta.
+Estes padrões agregados têm implicações importantes para a identificação causal. A concentração do tratamento em uma minoria de deputados sugere que estratégias de identificação baseadas em variação \textit{cross-sectional} podem sofrer de poder estatístico limitado. Simultaneamente, a variação substancial na intensidade de tratamento entre deputados tratados fornece fonte valiosa de identificação para estimativas de dose-resposta.
 
-A baixa correlação agregada, combinada com correlações temporais mais elevadas, indica que a identificação causal pode beneficiar-se de estratégias que explorem variação temporal within-individual rather than cross-sectional between-individual. Esta evidência preliminar orienta a especificação de modelos com efeitos fixos de deputado para controlar heterogeneidade não observada time-invariant.
+A baixa correlação agregada, combinada com correlações temporais mais elevadas, indica que a identificação causal pode beneficiar-se de estratégias que explorem variação temporal \textit{within-individual} ao invés de \textit{cross-sectional between-individual}. Esta evidência preliminar orienta a especificação de modelos com efeitos fixos de deputado para controlar heterogeneidade não observada invariante no tempo.
 
-\begin{table}[htbp]
-\centering
-\caption{Estatísticas agregadas de tratamento por deputado}
-\label{tab:mep_treatment_stats}
-\begin{tabular}{lr}
-\toprule
-\textbf{Estatística} & \textbf{Valor} \\
-\midrule
-Total de deputados únicos & 1{,}353 \\
-Deputados que receberam tratamento & 627 \\
-Taxa de tratamento por deputado (\%) & 46{,}3\% \\
-\midrule
-\textbf{Entre deputados tratados:} & \\
-Reuniões médias por deputado & 288{,}2 \\
-Reuniões medianas por deputado & 105{,}0 \\
-Desvio padrão & 468{,}9 \\
-Deputado mais ativo (reuniões) & 4{,}274 \\
-\midrule
-\textbf{Correlação agregada:} & \\
-Correlação reuniões-perguntas & 0{,}056 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \subsection{Heterogeneidade entre domínios de política pública}
 
@@ -102,129 +103,54 @@ A terceira dimensão da análise agregada examina a variação entre domínios d
 
 % \paragraph{Padrões de tratamento por domínio}
 
-A \autoref{fig:domain_treatment} apresenta uma análise sistemática da variação inter-domínios em múltiplas dimensões: penetração, volume e intensidade do tratamento, bem como padrões temporais de iniciação.
-
+A análise da Tabela \ref{tab:domain_treatment_rates} revela uma heterogeneidade sistemática entre os domínios de política pública, que se manifesta de forma distinta na penetração e na intensidade do lobby.
 
 \begin{table}[htbp]
     \centering
     \caption{Taxa de tratamento por domínio: deputados únicos que receberam lobbying}
     \label{tab:domain_treatment_rates}
-    \begin{tabular}{lrrr}
-    \toprule
-    \textbf{Domínio} & \textbf{Deputados Tratados} & \textbf{Total Deputados} & \textbf{Taxa (\%)} \\
-    \midrule
-    Economia e Comércio & 615 & 1{,}353 & 45{,}5 \\
-    Tecnologia & 615 & 1{,}353 & 45{,}5 \\
-    Política Externa e Segurança & 611 & 1{,}353 & 45{,}2 \\
-    Infraestrutura e Indústria & 610 & 1{,}353 & 45{,}1 \\
-    Meio Ambiente e Clima & 607 & 1{,}353 & 44{,}9 \\
-    Saúde & 599 & 1{,}353 & 44{,}3 \\
-    Educação & 578 & 1{,}353 & 42{,}7 \\
-    Direitos Humanos & 564 & 1{,}353 & 41{,}7 \\
-    Agricultura & 554 & 1{,}353 & 40{,}9 \\
-    \bottomrule
-    \end{tabular}
-    \end{table}
-
-A análise revela heterogeneidade sistemática mas moderada entre domínios. Em termos de \textbf{penetração}, as taxas variam de 40,9\% (agricultura) a 45,5\% (economia e tecnologia), uma amplitude de apenas 4,6 pontos percentuais. Esta variação relativamente pequena sugere que o lobbying possui caráter transversal, não concentrando-se drasticamente em setores específicos.
-
-Contudo, emergem padrões teoricamente consistentes. Domínios relacionados à \textbf{regulação econômica} (economia e comércio, tecnologia, infraestrutura) apresentam sistematicamente maiores taxas de penetração, refletindo os elevados interesses econômicos e a complexidade regulatória que incentivam investimento em atividades de lobbying. Este padrão é especialmente relevante considerando que a promoção da integração econômica é o foco principal de um bloco como a União Europeia, o que naturalmente direciona maior atenção e mobilização de grupos de interesse para essas áreas. Inversamente, domínios com características de bem público (agricultura, direitos humanos) apresentam menores taxas, consistente com problemas de ação coletiva e menor capacidade organizacional de grupos difusos.
-
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\textwidth]{figures/fig7_domain_treatment_analysis.pdf}
-    \caption{Análise detalhada de tratamento por domínio de política pública}
-    \label{fig:domain_treatment}
-    \note{O painel superior esquerdo mostra a taxa de penetração (percentual de deputados únicos que receberam pelo menos uma reunião em cada domínio). O painel superior direito apresenta o volume absoluto de deputados tratados. O painel inferior esquerdo mostra a intensidade média condicional de tratamento. O painel inferior direito apresenta a evolução temporal dos primeiros tratamentos para os três domínios mais ativos.}
-\end{figure}
-
-
-A heterogeneidade observada entre domínios tem duas implicações metodológicas importantes. Primeiro, a variação sistemática sugere que estimativas de efeito médio podem mascarar diferenças substantivas entre setores, justificando análises de heterogeneidade de efeitos por domínio. Segundo, a ordenação consistente dos domínios por múltiplas métricas (penetração, volume, intensidade) sugere que esta heterogeneidade reflete características estruturais dos setores ao invés de variação aleatória, aumentando a credibilidade de interpretações causais diferenciadas.
-
-
-A análise da inflação de zeros requer cuidado metodológico particular, pois a unidade de observação MEP-domínio-mês pode gerar inflação \textbf{artificial} de zeros. Como documentado na literatura sobre comportamento parlamentar \cite{example}, deputados tendem a especializar-se tematicamente, concentrando atividade em subconjuntos específicos de domínios. Consequentemente, grupos de interesse, cientes desta especialização, direcionam esforços de lobbying apenas para deputados ativos em suas áreas de interesse.
-
-\textbf{Evidência de especialização temática:} A análise da atividade parlamentar agregada por deputado revela que 97,6\% dos MEPs são \textbf{generalistas} (Índice Herfindahl < 0,4), atuando em média em 7,47 dos 9 domínios disponíveis. Contudo, identificam-se 22 MEPs altamente especializados (HHI > 0,8) que concentram perguntas em domínios únicos, e 26 moderadamente especializados (HHI 0,4-0,8), demonstrando que a especialização, embora limitada, é empiricamente relevante.
-
-\paragraph{Análise corrigida da inflação de zeros}
-
-Para evitar viés na interpretação, a análise da inflação de zeros deve considerar níveis de agregação teoricamente apropriados. A \autoref{tab:zero_inflation_comparison} apresenta uma comparação sistemática entre diferentes níveis de agregação.
-
-\begin{table}[htbp]
-\centering
-\caption{Inflação de zeros por nível de agregação}
-\label{tab:zero_inflation_comparison}
-% Usar tabularx para permitir quebra de linha na primeira coluna e evitar overfull hbox
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X r r r}
-\toprule
-\textbf{Nível de Agregação} & \textbf{Observações} & \textbf{Zeros Perguntas} & \textbf{Zeros Reuniões} \\
-\midrule
-MEP-Domínio-Mês (original) & 767{.}151 & 92{,}2\% & 92{,}5\% \\
-MEP-Mês (domínios ativos) & 54{.}117 & 70{,}9\% & 85{,}2\% \\
-Domínio-Mês (agregado) & 567 & 3{,}2\% & 0{,}0\% \\
-\bottomrule
-\end{tabularx}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X c c c c c c}
+        
+        \hline
+        \tiny{\textbf{Domínio}} & \tiny{\textbf{MEPs}} & \tiny{\textbf{MEPs}} & \tiny{\textbf{Reuniões}} & \tiny{\textbf{Perguntas}} & \tiny{\textbf{Penetração}} & \tiny{\textbf{Intensidade}} \\
+        & \tiny{\textbf{(A)}} & \tiny{\textbf{Tratados (B)}} & \tiny{\textbf{(C)}} & \tiny{\textbf{}} & \tiny{\textbf{(B/A \%)}} & \tiny{\textbf{Média (C/B)}} \\
+        \hline 
+        \tiny{Tecnologia} & \tiny{1727} & \tiny{789} & \tiny{32.067} & \tiny{9.918} & \tiny{45,69} & \tiny{40,64} \\
+        \tiny{Economia e Comércio} & \tiny{1727} & \tiny{788} & \tiny{34.762} & \tiny{13.884} & \tiny{45,63} & \tiny{44,11} \\
+        \tiny{Assuntos Externos e Segurança} & \tiny{1727} & \tiny{783} & \tiny{28.041} & \tiny{13.462} & \tiny{45,34} & \tiny{35,81} \\
+        \tiny{Infraestrutura e Indústria} & \tiny{1727} & \tiny{782} & \tiny{32.795} & \tiny{10.544} & \tiny{45,28} & \tiny{41,94} \\
+        \tiny{Meio Ambiente e Clima} & \tiny{1727} & \tiny{777} & \tiny{32.038} & \tiny{14.665} & \tiny{44,99} & \tiny{41,23} \\
+        \tiny{Saúde} & \tiny{1727} & \tiny{769} & \tiny{23.868} & \tiny{20.602} & \tiny{44,53} & \tiny{31,04} \\
+        \tiny{Educação} & \tiny{1727} & \tiny{738} & \tiny{18.670} & \tiny{2.949} & \tiny{42,73} & \tiny{25,30} \\
+        \tiny{Direitos Humanos} & \tiny{1727} & \tiny{727} & \tiny{17.194} & \tiny{26.482} & \tiny{42,10} & \tiny{23,65} \\
+        \tiny{Agricultura} & \tiny{1727} & \tiny{711} & \tiny{16.203} & \tiny{5.732} & \tiny{41,17} & \tiny{22,79} \\
+        \hline
+        
+    \end{tabularx}
 \end{table}
 
-Os resultados revelam que a inflação de zeros é \textbf{sensível ao nível de agregação} e parcialmente \textbf{artificial} quando consideramos especializações temáticas:
 
-\begin{enumerate}
-    \item \textbf{Nível MEP-domínio-mês}: A inflação aparentemente extrema (>92\%) reflete em grande parte combinações MEP-domínio onde não se espera atividade sistemática devido à especialização.
-    
-    \item \textbf{Nível MEP-mês} (agregando apenas domínios onde o MEP demonstra atividade parlamentar): A inflação reduz substancialmente para 70,9\% (perguntas) e 85,2\% (reuniões), revelando que a atividade é \textit{episódica} mas não \textit{ausente}.
-    
-    \item \textbf{Nível domínio-mês} (agregando todos os MEPs ativos): A inflação torna-se negligível (3,2\% para perguntas, 0\% para reuniões), indicando que há atividade consistente em todos os domínios quando consideramos o conjunto de deputados relevantes.
-\end{enumerate}
 
-Esta análise corrigida tem implicações fundamentais para a estratégia econométrica:
+Em termos de \textbf{penetração} (a proporção de deputados que recebem ao menos uma reunião), a variação entre os domínios é moderada, oscilando entre 41,2\% (Agricultura) e 45,7\% (Tecnologia). Essa pequena amplitude sugere que o lobby, como prática, é uma atividade transversal e disseminada por todo o Parlamento Europeu, não se restringindo a nichos específicos. Ainda assim, o padrão é teoricamente consistente: domínios ligados à regulação econômica e de alta complexidade (Tecnologia, Economia e Comércio, Infraestrutura) apresentam as maiores taxas, refletindo os elevados interesses em jogo \cite{mahoney_lobbying_2007}.
 
-\begin{enumerate}
-    \item \textbf{Falso problema de inflação de zeros}: A aparente inflação extrema (>92\%) é em grande parte \textbf{artificial}, resultante da inclusão de combinações MEP-domínio teoricamente implausíveis. A inflação \textbf{real} no nível MEP-mês é substancialmente menor (70,9\%-85,2\%).
-    
-    \item \textbf{Justificativa para efeitos fixos}: A especialização temática documentada justifica ainda mais fortemente o uso de efeitos fixos MEP×domínio, pois captura heterogeneidade não observada na propensão à atividade em áreas específicas.
-    
-    \item \textbf{Modelos econométricos apropriados}: Enquanto a inflação moderada (70,9\%) ainda sugere benefícios de modelos de contagem (PPML), a inflação não é tão extrema a ponto de requerer modelos zero-inflated especializados.
-    
-    \item \textbf{Unidade de análise}: A evidência sustenta a escolha da unidade MEP-domínio-mês para análise causal, pois captura a granularidade necessária para identificação, desde que acompanhada de controles apropriados para especialização.
-    
-    \item \textbf{Interpretação de resultados}: Efeitos estimados devem ser interpretados condicionalmente à especialização temática, com atenção particular às margens extensiva (entrada em novos domínios) versus intensiva (aumento de atividade em domínios existentes).
-\end{enumerate}
+A heterogeneidade torna-se muito mais acentuada quando se analisa a \textbf{intensidade média do tratamento} (o número médio de reuniões por deputado "tratado"). Aqui, a variação é extrema: um deputado ativo em "Economia e Comércio" recebe, em média, 44 reuniões, quase o dobro das 23 reuniões de um deputado ativo em "Agricultura". Esta é a dimensão onde a alocação estratégica de recursos se torna mais evidente. Domínios com altas consequências econômicas e complexidade técnica atraem não apenas um pouco mais de lobistas, mas um esforço de influência massivamente mais concentrado, validando a tese de que os recursos de lobby fluem para as arenas de maior saliência e complexidade regulatória \cite{kluver_informational_2012}.
 
-\subsection{Síntese e implicações metodológicas}
+É notável também o contraste entre a intensidade do lobby e o volume de atividade parlamentar. O domínio de "Direitos Humanos", por exemplo, apresenta o maior número de perguntas parlamentares (26.482), mas uma das menores taxas de penetração e a segunda menor intensidade de lobby. Este padrão sugere que a dinâmica política varia conforme o tema. Enquanto domínios econômicos são caracterizados por um lobby intenso e técnico, temas de grande apelo público como "Direitos Humanos" podem ser mais influenciados por estratégias de \textit{advocacy} e pela sinalização política dos parlamentares através de instrumentos como as perguntas, em vez do lobby direto medido por reuniões.
 
-A análise descritiva multinível revela um conjunto coerente de \textit{stylized facts} que informam tanto a compreensão teórica quanto as escolhas metodológicas para a análise causal subsequente.
+% Inflação de zeros
+A unidade de análise adotada — deputado-domínio-mês — revela uma alta proporção de observações com valor zero (>92\%) tanto para reuniões quanto para perguntas. Contudo, esta "inflação de zeros" não representa um problema estatístico, mas sim uma característica substantiva do comportamento parlamentar: a \textbf{especialização temática}. Como documentado na literatura \cite{schiller1995senators, burden2015personal}, parlamentares concentram sua atividade em um subconjunto de domínios, resultando em zero atividade na maioria das combinações deputado-domínio. A atividade de lobby, por sua vez, segue essa especialização, direcionando-se aos parlamentares já ativos em cada tema.
 
-% \paragraph{Características empíricas principais}
+A natureza "artificial" dessa inflação de zeros é confirmada quando os dados são agregados. Ao considerar apenas os domínios em que um deputado demonstra alguma atividade, a proporção de zeros cai para 47,1\% para perguntas e 55,8\% para reuniões. Em um nível agregado por domínio-mês, a inflação de zeros torna-se negligível (3,2\% e 0\%, respectivamente), indicando que há atividade constante em todos os domínios quando se considera o conjunto de parlamentares relevantes. Portanto, a escolha do modelo econométrico \acrshort{ppml} justifica-se pela natureza da variável dependente (dados de contagem com excesso de zeros), evitando os vieses de modelos lineares com transformações logarítmicas.
 
-Primeiro, o \textbf{lobbying é um fenômeno disseminado mas episódico}. Enquanto 46,3\% dos deputados recebem lobbying durante o período estudado, a atividade temporal é concentrada: considerando apenas domínios onde MEPs demonstram atividade parlamentar, 70,9\% das observações MEP-mês não apresentam perguntas e 85,2\% não apresentam reuniões, indicando que a influência opera através de interações concentradas temporalmente.
+A análise descritiva delineia um ecossistema de lobbying no \acrshort{pe} caracterizado por \textit{(i)} dinamismo temporal acentuado, \textit{(ii)} concentração da atividade em um subconjunto de deputados e \textit{(iii)} heterogeneidade entre os domínios de política pública. Longe de serem meramente contextuais, esses padrões empíricos são a principal justificativa para a estratégia econométrica adotada nesta tese, detalhada no Capítulo \ref{chapter:metodologia}.
 
-Segundo, existe \textbf{concentração extrema} em múltiplas dimensões. No nível individual, a distribuição de reuniões é altamente assimétrica (mediana 105, média 288, máximo 4.274). Crucialmente, a aparente inflação extrema de zeros (>92\%) no nível MEP-domínio-mês é em grande parte artificial, refletindo combinações onde não se espera atividade devido à especialização temática.
+Primeiramente, a combinação de uma correlação agregada próxima de zero entre reuniões e perguntas com uma alta concentração da atividade de lobby em poucos deputados demonstra a inadequação de abordagens puramente \textit{cross-sectional}. A fonte de identificação mais promissora reside na variação \textit{within-individual}, ou seja, em como a atividade de um mesmo deputado muda ao longo do tempo em resposta a variações no lobby que recebe.
 
-Terceiro, observa-se \textbf{heterogeneidade sistemática entre domínios} em todas as métricas analisadas. Domínios de regulação econômica apresentam consistentemente maior atividade de lobbying, refletindo diferenças estruturais em stakes econômicos e capacidade organizacional. Esta heterogeneidade é consistente com a especialização temática documentada.
+Em segundo lugar, a presença de tendências temporais claras, sazonalidade e choques de atividade específicos por domínio (como o aumento expressivo do lobby a partir de 2022) torna imperativo o uso de uma estrutura robusta de efeitos fixos. A escolha por efeitos fixos de alta dimensão — \textbf{país×tempo}, \textbf{partido×tempo} e \textbf{domínio×tempo} — é uma resposta direta a esses padrões, permitindo controlar uma vasta gama de fatores de confusão não observados e isolar de forma mais crível o efeito causal de interesse.
 
-Quarto, a \textbf{especialização temática é limitada mas empiricamente relevante}: enquanto 97,6\% dos MEPs atuam como generalistas (HHI < 0,4), existem 22 deputados altamente especializados e 26 moderadamente especializados, com padrões claros de concentração que informam estratégias de lobbying e justificam controles econométricos específicos.
+Terceiro, a heterogeneidade da intensidade do lobby entre os domínios valida a decisão de não se limitar a um único efeito médio, motivando as análises de heterogeneidade que exploram como o impacto do lobby pode variar conforme o contexto temático.
 
-Quinto, a \textbf{correlação contemporânea entre lobbying e atividade parlamentar é baixa} no nível temporal mensal, mas padrões agregados sugerem relações mais complexas que podem envolver defasagens temporais ou mecanismos indiretos.
+Finalmente, a natureza da variável dependente — um dado de contagem com uma alta proporção de zeros explicada pela especialização temática — fundamenta a escolha do estimador \acrshort{ppml}. Esta abordagem modela adequadamente a estrutura dos dados, evitando os vieses de modelos lineares e reconhecendo a especialização como um comportamento substantivo, e não como um mero problema estatístico.
 
-% \paragraph{Implicações para estratégia econométrica}
+Em suma, a análise descritiva não apenas caracteriza o fenômeno em estudo, mas também estabelece as bases empíricas que guiam e validam a estratégia de identificação causal empregada nos capítulos seguintes para testar as hipóteses centrais desta pesquisa.
 
-Estas características empíricas têm implicações diretas para a escolha da estratégia econométrica:
-
-\begin{enumerate}
-    \item \textbf{Especificação funcional}: A inflação moderada de zeros (70,9\%-85,2\% após correção) e natureza de contagem das variáveis justificam o uso de estimadores Poisson Pseudo-Maximum Likelihood (PPML), mas não requerem modelos zero-inflated especializados.
-    
-    \item \textbf{Estrutura de efeitos fixos}: A evidência de especialização temática justifica fortemente efeitos fixos MEP×domínio para controlar heterogeneidade não observada na propensão à atividade em áreas específicas, complementados por efeitos fixos temporais.
-    
-    \item \textbf{Correção de viés de seleção}: A especialização temática implica que observações MEP-domínio-mês com probabilidade zero de atividade podem distorcer estimativas. Controles ou exclusões baseadas em atividade histórica podem ser apropriados.
-    
-    \item \textbf{Estrutura de erros}: A concentração temporal da atividade e especialização justificam erros-padrão agrupados no nível MEP×domínio para capturar correlação serial específica por área de atuação.
-    
-    \item \textbf{Análise de heterogeneidade}: A variação sistemática entre domínios, combinada com especialização, justifica análises diferenciadas por setor e investigação de efeitos nas margens extensiva (entrada em novos domínios) versus intensiva.
-    
-    \item \textbf{Interpretação causal}: Efeitos estimados devem ser interpretados condicionalmente à especialização temática existente, distinguindo entre expansão de atividade em domínios familiares versus diversificação para novas áreas.
-\end{enumerate}
-
-Finalmente, a \textbf{estrutura balanceada do painel} e a \textbf{cobertura temporal substancial} fornecem condições ideais para estratégias de identificação baseadas em variação temporal within-individual, maximizando o poder estatístico while minimizando preocupações com confounding não observado time-invariant.
-
-Esta análise descritiva abrangente estabelece as bases empíricas sólidas para a estratégia de identificação causal apresentada na seção seguinte, demonstrando que os dados possuem as características necessárias para investigar rigorosamente os efeitos do lobbying na atividade parlamentar dos deputados europeus.
