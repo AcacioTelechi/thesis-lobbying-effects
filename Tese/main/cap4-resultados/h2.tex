@@ -7,7 +7,7 @@ A avaliação da Hipótese 2, que postula uma maior influência das empresas sob
     \includegraphics[width=\textwidth]{figures/h2_test/fig_coeff_treatments_overall.pdf}
     \caption{Efeito marginal por tipo de ator: especificação \acrshort{ppml}}
     \label{fig:effect_linear_ppml_treatments}
-    \note{Cada ponto representa a estimativa do coeficiente para \textit{meetings}, associado a um tipo de ator (tratamento), refletindo o efeito marginal esperado de uma única reunião sobre o número de perguntas parlamentares, mantendo os efeitos fixos constantes. As linhas horizontais indicam os intervalos de confiança de 95\%. A faixa vertical sombreada representa o intervalo de confiança do efeito médio geral, servindo como referência.}
+    \note{Cada ponto representa a estimativa do coeficiente para \textit{reuniões}, associado a um tipo de ator (tratamento), refletindo o efeito marginal esperado de uma única reunião sobre o número de perguntas parlamentares, mantendo os efeitos fixos constantes. As linhas horizontais indicam os intervalos de confiança de 95\%. A faixa vertical sombreada representa o intervalo de confiança do efeito médio geral, servindo como referência.}
 \end{figure}
 
 O efeito marginal isolado, contudo, é insuficiente para um teste robusto da hipótese. A influência total de um grupo de interesse não depende apenas da \textit{eficácia} de cada reunião, mas também da sua capacidade de assegurar \textit{acesso} -- isto é, o volume de reuniões que consegue realizar. Argumentamos que o impacto total é uma função dessas duas componentes: a frequência do acesso e a eficácia da persuasão em cada encontro.
@@ -20,7 +20,7 @@ Para capturar essa dualidade, adotamos uma estratégia de modelagem em duas etap
 
 Esta abordagem permite-nos decompor e compreender os mecanismos através dos quais diferentes atores exercem influência.
 
-Para estimar o volume de reuniões (Acesso) - Etapa 1 -, utilizamos um modelo de regressão Binomial Negativo, apropriado para dados de contagem com sobredispersão. A variável dependente é o número de reuniões que um lobista realiza, e as variáveis explicativas incluem o orçamento de lobby, a categoria do ator (\acrshort{ong}, Empresa, Outros) e um termo de interação entre orçamento e categoria, além de controles setoriais e geográficos. Os resultados completos são apresentados na Tabela \ref{tab:meetings_nb_centered}.
+Para estimar o volume de reuniões (Acesso) - Etapa 1 -, utilizamos um modelo de regressão Binomial Negativo, apropriado para dados de contagem com sobredispersão. A variável dependente é o número de reuniões que um lobista realiza, e as variáveis explicativas incluem o orçamento de lobby, a categoria do ator (\acrshort{ong}, Empresa, Outros) e um termo de interação entre orçamento e categoria, além de controles setoriais e geográficos.
 
 O coeficiente de interação entre ser uma empresa e o orçamento de lobby é particularmente revelador. Um resultado positivo e estatisticamente significativo para este termo indica que as empresas não só tendem a realizar mais reuniões em média, mas também demonstram uma "eficiência alocativa" superior: cada aumento percentual no seu orçamento se traduz num aumento maior no número de reuniões em comparação com as \acrshort{ong}s. A Figura \ref{fig:h2_pred_meetings} ilustra essa dinâmica, mostrando o número esperado de reuniões em função do orçamento.
 
