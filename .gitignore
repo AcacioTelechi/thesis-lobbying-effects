@@ -17,6 +17,9 @@ Tese/*.ist
 Tese/*.synctex.gz
 Tese/*.snm
 Tese/*.nav
+Tese/*.acn
+Tese/*.lof
+Tese/*.lot
 
 # Byte-compiled / optimized / DLL file
 __pycache__/
