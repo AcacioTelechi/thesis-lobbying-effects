@@ -84,11 +84,11 @@ Adicionalmente, foram criadas variáveis de classificação orçamentária (baix
 
 A construção do painel de dados envolveu decisões importantes sobre a agregação temporal. Testaram-se três níveis: diário, semanal e mensal. A agregação mensal foi selecionada como padrão por (\textit{i}) reduzir esparsidade excessiva dos dados diários, (\textit{ii}) manter granularidade suficiente para capturar variações temporais, e (\textit{iii}) facilitar a identificação econométrica com maior variabilidade.
 
-O painel final possui estrutura tridimensional (parlamentar × tempo × domínio temático), permitindo análises dos efeitos heterogêneos por área temática. A construção envolveu (\textit{scripts} \texttt{2.4\_panel\_data.ipynb} e \allowbreak\texttt{2.7\_panel\_data\_w\_topics.ipynb}):
+O painel final possui estrutura tridimensional (parlamentar × tempo × domínio temático), permitindo análises dos efeitos heterogêneos por área temática. A construção envolveu\footnote{\textit{scripts} \texttt{2.4\_panel\_data.ipynb} e \texttt{2.7\_panel\_data\_w\_topics.ipynb}}:
 
 \textbf{Passo 1 - Agregação Temporal:} Contagem de perguntas e reuniões por parlamentar-mês-domínio, considerando múltiplas classificações temáticas quando aplicável.
 
-\textbf{Passo 2 - Junção com Dados Institucionais:} Para cada observação parlamentar-tempo, incorporação das características institucionais vigentes (partido, país, comissões).
+\textbf{Passo 2 - Junção com Dados Institucionais:} Para cada observação \allowbreak parlamentar-tempo, incorporação das características institucionais vigentes (partido, país, comissões).
 
 \textbf{Passo 3 - Preenchimento de Missings:} Criação de observações com valor zero para todas as combinações parlamentar-tempo-domínio não observadas, assegurando painel balanceado.
 
