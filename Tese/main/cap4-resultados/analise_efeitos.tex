@@ -11,6 +11,7 @@ Em termos de interpretação, mantidos constantes os efeitos fixos, um increment
 \caption{Resumo dos modelos \acrshort{ppml} para a Hipótese 1}
 \label{tab:ppml_h1_both}
 \input{tables/tab_main_ppml_both_core_.tex}
+\caption*{Fonte: o autor (2025)}
 \note{A coluna ``PPML'' reporta o modelo principal com efeito linear em \textit{Reuniões}. A coluna ``PPML (Quad.)'' adiciona \(\textit{Reuniões}^2\) para capturar retornos marginais decrescentes. Efeitos fixos: membro; país$\times$tempo; partido$\times$tempo. Erros-padrão agrupados em domínio$\times$tempo e membro.}
 \end{table}
 
@@ -19,6 +20,7 @@ Em termos de interpretação, mantidos constantes os efeitos fixos, um increment
 \includegraphics[width=\textwidth]{figures/h1_test/fig_effect_linear_ppml.pdf}
 \caption{Efeito esperado ceteris paribus: especificação linear (\acrshort{ppml})}
 \label{fig:effect_linear_ppml}
+\caption*{Fonte: o autor (2025)}
 \note{A curva apresenta o fator multiplicativo esperado em perguntas como função do número de reuniões no mês, \textit{ceteris paribus} (\(\exp(\hat{\beta}_1\cdot \textit{meetings})\)). A faixa sombreada corresponde ao intervalo de 95\% obtido via método delta com erros-padrão agrupados em domínio×tempo.}
 \end{figure}
 
@@ -27,6 +29,7 @@ Em termos de interpretação, mantidos constantes os efeitos fixos, um increment
 \includegraphics[width=\textwidth]{figures/h1_test/fig_effect_quadratic_ppml.pdf}
 \caption{Efeito esperado ceteris paribus: especificação quadrática (\acrshort{ppml})}
 \label{fig:effect_quadratic_ppml}
+\caption*{Fonte: o autor (2025)}
 \note{A curva apresenta o fator multiplicativo esperado em perguntas como função do número de reuniões, permitindo retornos marginais decrescentes (\(\exp(\hat{\beta}_1\cdot \textit{meetings} + \hat{\beta}_2\cdot \textit{meetings}^2)\)). A faixa sombreada representa o IC de 95\% via método delta com a matriz de variância-covariância agrupada.}
 \end{figure}
 
@@ -51,6 +54,7 @@ A análise desagregada por domínios de políticas públicas revela que o efeito
 \includegraphics[width=\textwidth]{figures/h1_test/fig_coeff_domains.pdf}
 \caption{Efeito esperado \textit{ceteris paribus}: especificação linear (\acrshort{ppml}) para cada domínio}
 \label{fig:effect_linear_ppml_domains}
+\caption*{Fonte: o autor (2025)}
 \note{Cada ponto azul representa a estimativa do coeficiente associado a \textit{meetings} para um domínio específico de políticas públicas, refletindo o efeito marginal esperado de reuniões sobre o número de perguntas parlamentares naquele domínio \textit{ceteris paribus}. As linhas horizontais correspondem aos intervalos de confiança de 95\% para cada estimativa, indicando a incerteza estatística. A linha tracejada laranja indica o efeito médio estimado para todos os domínios, servindo como referência para comparação entre áreas temáticas.}
 \end{figure}
 
