@@ -209,6 +209,53 @@
 \end{frame}
 
 % ---------------------------------------------------------------------------
+\begin{frame}{Efeitos por domínio temático}
+  \begin{columns}
+    \begin{column}{0.58\textwidth}
+      \IfFileExists{../figures/h1_test/fig_coeff_domains.pdf}{%
+        \includegraphics[width=\textwidth]{../figures/h1_test/fig_coeff_domains.pdf}%
+      }{%
+        \fbox{\parbox{\textwidth}{\centering\small \texttt{fig\_coeff\_domains.pdf}\\[0.5em]Coeficiente de reuniões por domínio de política (IC 95\%).}}
+      }
+      \vspace{0.2em}
+      \scriptsize Fonte: autor (2025).
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \textbf{Efeito marginal de reuniões sobre perguntas, por domínio (H1).}
+      \begin{itemize}
+        \item Coeficiente $\beta$ (reuniões) estimado separadamente em cada domínio; mesma especificação PPML + EF.
+        \item Efeito \textbf{positivo} em (quase) todos os domínios; magnitude varia (ex.: Agricultura, Educação mais altos).
+        \item Linha de referência: efeito médio em todos os domínios.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Efeitos por tipo de ator}
+  \begin{columns}
+    \begin{column}{0.58\textwidth}
+      \IfFileExists{../figures/h2_test/fig_coeff_treatments_overall.pdf}{%
+        \includegraphics[width=\textwidth]{../figures/h2_test/fig_coeff_treatments_overall.pdf}%
+      }{%
+        \fbox{\parbox{\textwidth}{\centering\small \texttt{fig\_coeff\_treatments\_overall.pdf}\\[0.5em]Efeito marginal por reunião por categoria de ator (IC 95\%).}}
+      }
+      \vspace{0.2em}
+      \scriptsize Fonte: autor (2025).
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \textbf{Persuasão por reunião por categoria (H2).}
+      \begin{itemize}
+        \item Coeficiente $\beta^{(k)}$: efeito de uma reunião com tipo $k$ (Empresas, ONGs, Outros) sobre o número de perguntas.
+        \item \textbf{ONGs} com maior efeito marginal por reunião; Empresas e Outros abaixo.
+        \item Paradoxo: eficácia por encontro maior para ONGs; efeito total das empresas domina com orçamentos elevados (acesso).
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+% ---------------------------------------------------------------------------
 \begin{frame}{Modelo e justificativa -- H2}
   \textbf{Etapa 1 -- Persuasão (PPML):}
   \begin{equation*}
@@ -222,6 +269,7 @@
   \vspace{0.3em}
   \small Justificativa: decomposição acesso/persuasão; BN para sobredispersão; interação permite efeito do orçamento por categoria; premissa de separabilidade.
 \end{frame}
+
 
 % ---------------------------------------------------------------------------
 \begin{frame}{Resultados -- Hipótese 2}
