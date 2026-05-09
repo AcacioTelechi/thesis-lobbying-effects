@@ -1,383 +1,383 @@
-% Apresentação da Tese - Efeitos do Lobby no PE
-% Beamer, pt-BR, ~15 min
-% Compilar de Tese/tese_apresentacao/: pdflatex apresentacao.tex
-% Figuras: ../imgs/ e ../figures/ (relativos a tese_apresentacao)
+% % Apresentação da Tese - Efeitos do Lobby no PE
+% % Beamer, pt-BR, ~15 min
+% % Compilar de Tese/tese_apresentacao/: pdflatex apresentacao.tex
+% % Figuras: ../imgs/ e ../figures/ (relativos a tese_apresentacao)
 
-\documentclass[11pt,aspectratio=169]{beamer}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[brazilian,provide=*]{babel}
-\usepackage{amsmath,amssymb}
-\usepackage{graphicx}
-\usepackage{url}
-\usepackage{natbib}
-\setcitestyle{authoryear,round,citesep={;}}
+% \documentclass[11pt,aspectratio=169]{beamer}
+% \usepackage[utf8]{inputenc}
+% \usepackage[T1]{fontenc}
+% \usepackage[brazilian,provide=*]{babel}
+% \usepackage{amsmath,amssymb}
+% \usepackage{graphicx}
+% \usepackage{url}
+% \usepackage{natbib}
+% \setcitestyle{authoryear,round,citesep={;}}
 
 
-\usetheme{Madrid}
-\usecolortheme{default}
-\setbeamertemplate{navigation symbols}{}
+% \usetheme{Madrid}
+% \usecolortheme{default}
+% \setbeamertemplate{navigation symbols}{}
 
-\title{Mensurando os Efeitos do Lobby no Comportamento Parlamentar}
-\subtitle{Painel com efeitos fixos no Parlamento Europeu}
-\author{Acácio Vasconcelos Telechi}
-\institute{Orientador: Prof.\ Dr.\ Alexsandro Eugênio Pereira \\[0.5em]
-  UFPR -- Departamento de Ciência Política \\ PPG em Ciência Política}
-\date{12 de março de 2026}
+% \title{Mensurando os Efeitos do Lobby no Comportamento Parlamentar}
+% \subtitle{Painel com efeitos fixos no Parlamento Europeu}
+% \author{Acácio Vasconcelos Telechi}
+% \institute{Orientador: Prof.\ Dr.\ Alexsandro Eugênio Pereira \\[0.5em]
+%   UFPR -- Departamento de Ciência Política \\ PPG em Ciência Política}
+% \date{12 de março de 2026}
 
-\begin{document}
-
-% ---------------------------------------------------------------------------
-\frame{\titlepage}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Objetivo e hipóteses}
-  \textbf{Objetivo:} medir o efeito do lobby sobre o \textbf{comportamento parlamentar} no PE, operacionalizado como \textbf{Atividade Legislativa (AL)} = número de perguntas parlamentares 
-
-  \vspace{0.8em}
-  \textbf{Hipóteses:}
-  \begin{itemize}
-    \item \textbf{H1:} Maior pressão de lobby $\Rightarrow$ maior AL no domínio.
-    \item \textbf{H2:} Lobby de organizações empresariais tende a aumentar mais a AL (em comparação com outros atores).
-    \item \textbf{H3:} Em temas mais salientes, lobby não empresarial tende a aumentar mais a AL (em comparação com lobby empresarial).
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Definições}
-  \textbf{Lobby:}\\[0.3em]
-  \textit{O exercício de influência sobre a atividade legislativa realizado por atores interessados em um ambiente marcado por diferenças de recursos.}
-
-  \vspace{0.8em}
-  \textbf{Comportamento parlamentar / Atividade Legislativa (AL):}\\[0.3em]
-  \textit{O nível de envolvimento exibido por um parlamentar em um domínio político específico.}
-  \vspace{0.5em}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Revisão da literatura (brevíssima)}
-  \begin{itemize}
-    \item Literatura sobre \textbf{efeitos do lobby}: fragmentada, resultados mistos \citep{de_figueiredo_advancing_2014, baumgartner2009lobbying, mahoney_lobbying_2007}.
-    \item \textbf{Desafios de identificação:} viés de seleção, variáveis omitidas, múltiplos canais, persistência temporal.
-  \end{itemize}
-  \vspace{0.6em}
-  \textbf{Contribuição desta tese:}
-  \begin{itemize}
-    \item Cadeia causal \textbf{curta}: lobby $\to$ comportamento parlamentar (não resultado de política).
-    \item Dados \textbf{públicos}: reuniões registradas (Registo de Transparência do PE).
-    \item Modelo com \textbf{efeitos fixos de alta dimensão} para identificação causal.
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{DAG: comportamento parlamentar e efeitos do lobby}
-  \begin{center}
-    \IfFileExists{../imgs/DAG_v2.png}{%
-      \includegraphics[width=0.6\textwidth]{../imgs/DAG_v2.png}%
-    }{%
-      \fbox{\parbox{0.7\textwidth}{\centering\vspace{2cm}Inserir figura \texttt{imgs/DAG\_v2.png}\\[0.5em](DAG: Lobby $\to$ Comportamento parlamentar; confundidores: Contexto, Parlamento, País, Partido, Aspectos individuais)\vspace{2cm}}}
-    }
-  \end{center}
-  \vspace{0.3em}
-  \small Fonte: autor (2026). Relações causais entre lobby, comportamento parlamentar e confundidores.
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Fundamentação teórica do DAG -- três dimensões do comportamento}
-  \scriptsize
-  \begin{tabular}{p{0.11\textwidth}p{0.45\textwidth}p{0.38\textwidth}}
-    \hline
-    \textbf{Dimensão} & \textbf{Fundamentação teórica} & \textbf{Referências} \\
-    \hline
-    \textbf{Contexto} & Ambiente político, econômico e social: crises, opinião pública, eventos midiáticos e ciclos eleitorais intensificam mobilização de interesses e alteram a agenda legislativa, gerando correlação espúria entre lobby e comportamento. & \citep{mahoney_lobbying_2007, mahoney2008brussels, baumgartner2010agendas, jones2005politics} \\
-    \hline
-    \textbf{Parlamento} & Regras, agenda da liderança, prazos de tramitação e estrutura das comissões afetam quem é alvo de lobby e o comportamento (ex.: relatório em tramitação atrai lobistas ao relator e aumenta sua atividade). & \citep{marshall2010lobby, kluver2015legislative, coen2019legislative} \\
-    \hline
-    \textbf{País} & Sistema eleitoral e eleitorado criam incentivos (voto pessoal $\to$ visibilidade; lista fechada $\to$ disciplina). Tamanho e diversidade do eleitorado moldam \textit{vote-seeking}. & \citep{mayhew2004congress, samuels1997determinantes, carey2007competing, willumsen_electoral_2019} \\
-    \hline
-    \textbf{Partido} & Ideologia como regras informais; disciplina via sanções e recompensas (seleção, cargos, recursos). Variáveis latentes. & \citep{hix2004electoral, helmke2012informal, carey2007competing, bressanelli2016impact} \\
-    \hline
-    \textbf{Aspectos individuais} & Expertise (ocupação prévia) e experiência (mandato, cargos) influenciam atuação e \textit{career-seeking}; comitês e trajetória partidária. & \citep{burden2015personal, damgaard1980dilemma, daniel2015career, chiru2020loyal} \\
-    \hline
-  \end{tabular}
-  \vspace{0.3em}
-  \scriptsize Mecanismo causal subjacente: troca \citep{de_figueiredo_advancing_2014}
-\end{frame}
+% \begin{document}
 
 % % ---------------------------------------------------------------------------
-% \begin{frame}{Leitura do DAG e estratégia de identificação}
-%   \textbf{Relação de interesse:} seta \textbf{Lobby $\to$ Comportamento parlamentar} (efeito causal $\beta$).
+% \frame{\titlepage}
 
-%   \vspace{0.5em}
-%   \textbf{Confundidores (backdoor paths):}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Objetivo e hipóteses}
+%   \textbf{Objetivo:} medir o efeito do lobby sobre o \textbf{comportamento parlamentar} no PE, operacionalizado como \textbf{Atividade Legislativa (AL)} = número de perguntas parlamentares 
+
+%   \vspace{0.8em}
+%   \textbf{Hipóteses:}
 %   \begin{itemize}
-%     \item \textbf{Contexto:} crises, opinião pública, ciclos eleitorais.
-%     \item \textbf{Parlamento:} agenda, comissões, relatórios.
-%     \item \textbf{Três dimensões do comportamento:} País (sistema eleitoral, eleitorado), Partido (ideologia, disciplina), Aspectos individuais (expertise, cargos).
+%     \item \textbf{H1:} Maior pressão de lobby $\Rightarrow$ maior AL no domínio.
+%     \item \textbf{H2:} Lobby de organizações empresariais tende a aumentar mais a AL (em comparação com outros atores).
+%     \item \textbf{H3:} Em temas mais salientes, lobby não empresarial tende a aumentar mais a AL (em comparação com lobby empresarial).
 %   \end{itemize}
-%   \vspace{0.5em}
-%   \textbf{Estratégia:} bloquear esses caminhos com \textbf{efeitos fixos} país$\times$tempo, partido$\times$tempo, domínio$\times$tempo e efeito fixo de membro; identificação por variação \textit{within} MEP ao longo do tempo.
 % \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Metodologia -- modelo}
-  \textbf{Variáveis:}
-  \begin{itemize}
-    \item VD: $AL_{idt}$ = contagem de perguntas (MEP $i$, domínio $d$, mês $t$).
-    \item Tratamento: $L_{idt}$ = contagem de reuniões de lobby.
-  \end{itemize}
-  \vspace{0.5em}
-  \textbf{Modelo PPML (equação principal):}
-  \begin{equation*}
-    AL_{idt} = \beta L_{idt} + \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it}\delta + \epsilon_{idt}
-  \end{equation*}
-  \small
-  \begin{itemize}
-    \item $\gamma_{ct}$: efeito fixo país$\times$tempo \quad $\lambda_{pt}$: efeito fixo partido$\times$tempo \quad $\theta_{dt}$: efeito fixo domínio$\times$tempo
-    \item $X'_{it}$: controles (ex.: cargos de liderança)
-  \end{itemize}
-  \normalsize
-  Inferência: erros clusterizados em domínio$\times$tempo e membro.
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Definições}
+%   \textbf{Lobby:}\\[0.3em]
+%   \textit{O exercício de influência sobre a atividade legislativa realizado por atores interessados em um ambiente marcado por diferenças de recursos.}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Estatísticas descritivas}
-  \textbf{Painel MEP--domínio--mês} (ago/2019--out/2024; 63 meses; 9 domínios):
-  \begin{itemize}
-    \item 979.209 observações; 1.727 deputados únicos.
-    \item Total de reuniões: 235.638 \quad Total de perguntas: 118.238.
-    \item 804 deputados receberam ao menos uma reunião (46,5\%); entre tratados: média 293 reuniões/deputado (mediana 109).
-  \end{itemize}
-  \vspace{0.4em}
-  \textbf{Lobistas (Registo de Transparência):} 4.722 organizações; 40.343 reuniões no recorte por categoria.
-  \small
-  \begin{center}
-    \begin{tabular}{lccc}
-      \hline
-      Categoria & Organizações & Reuniões & Reuniões/org \\
-      \hline
-      Empresarial & 2.409 & 22.427 & 9,31 \\
-      ONGs & 1.271 & 10.966 & 8,63 \\
-      Outros & 1.042 & 6.950 & 6,67 \\
-      \hline
-    \end{tabular}
-  \end{center}
-  \normalsize
-  \scriptsize Domínios mais cobertos: Economia e Comércio, Tecnologia, Infraestrutura, Meio Ambiente. Sede: Bélgica (24\%), Alemanha (15\%), França (10\%). \textit{Fonte:} autor (2026).
-\end{frame}
+%   \vspace{0.8em}
+%   \textbf{Comportamento parlamentar / Atividade Legislativa (AL):}\\[0.3em]
+%   \textit{O nível de envolvimento exibido por um parlamentar em um domínio político específico.}
+%   \vspace{0.5em}
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Modelo e justificativa -- H1}
-  \textbf{Modelo:} PPML com efeitos fixos de alta dimensão.
-  \begin{equation*}
-    AL_{idt} = \beta_1 L_{idt} + \beta_2 L_{idt}^2 + \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it}\delta + \epsilon_{idt}
-  \end{equation*}
-  \small Termo quadrático $L_{idt}^2$ para testar retornos marginais decrescentes. Erros clusterizados em domínio$\times$tempo.
-  \vspace{0.5em}
-  \textbf{Justificativa empírica:}
-  \begin{itemize}
-    \item PPML adequado para dados de contagem (muitos zeros); evita viés de log em MQO.
-    \item Efeitos fixos país$\times$t, partido$\times$t, domínio$\times$t absorvem confundidores; identificação na variação \textit{within} MEP ao longo do tempo.
-    \item $\beta_2 < 0$ significativo $\Rightarrow$ efeito marginal decrescente com o número de reuniões.
-  \end{itemize}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Revisão da literatura (brevíssima)}
+%   \begin{itemize}
+%     \item Literatura sobre \textbf{efeitos do lobby}: fragmentada, resultados mistos \citep{de_figueiredo_advancing_2014, baumgartner2009lobbying, mahoney_lobbying_2007}.
+%     \item \textbf{Desafios de identificação:} viés de seleção, variáveis omitidas, múltiplos canais, persistência temporal.
+%   \end{itemize}
+%   \vspace{0.6em}
+%   \textbf{Contribuição desta tese:}
+%   \begin{itemize}
+%     \item Cadeia causal \textbf{curta}: lobby $\to$ comportamento parlamentar (não resultado de política).
+%     \item Dados \textbf{públicos}: reuniões registradas (Registo de Transparência do PE).
+%     \item Modelo com \textbf{efeitos fixos de alta dimensão} para identificação causal.
+%   \end{itemize}
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Resultados -- Hipótese 1}
-  \begin{columns}
-    \begin{column}{0.55\textwidth}
-      \IfFileExists{../figures/h1_test/fig_effect_quadratic_ppml.pdf}{%
-        \includegraphics[width=\textwidth]{../figures/h1_test/fig_effect_quadratic_ppml.pdf}%
-      }{%
-        \fbox{\parbox{\textwidth}{\centering\small Figura: \texttt{fig\_effect\_quadratic\_ppml.pdf}\\[0.5em]Efeito esperado (linear + quadrático) em perguntas por reuniões.}}
-      }
-      \vspace{0.2em}
-      \scriptsize Fonte: autor (2026).
-    \end{column}
-    \begin{column}{0.42\textwidth}
-      \textbf{Maior lobby $\Rightarrow$ maior AL.}
-      \begin{itemize}
-        \item Coef. \textbf{positivo} e significativo: $\approx$ 2,5\% por reunião (linear).
-        \item \textbf{Retornos marginais decrescentes}; inflexão em $\approx$ 12 reuniões.
-        \item Efeito positivo em (quase) todos os domínios.
-      \end{itemize}
-      \vspace{0.3em}
-      \small H1 corroborada.
-    \end{column}
-  \end{columns}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{DAG: comportamento parlamentar e efeitos do lobby}
+%   \begin{center}
+%     \IfFileExists{../imgs/DAG_v2.png}{%
+%       \includegraphics[width=0.6\textwidth]{../imgs/DAG_v2.png}%
+%     }{%
+%       \fbox{\parbox{0.7\textwidth}{\centering\vspace{2cm}Inserir figura \texttt{imgs/DAG\_v2.png}\\[0.5em](DAG: Lobby $\to$ Comportamento parlamentar; confundidores: Contexto, Parlamento, País, Partido, Aspectos individuais)\vspace{2cm}}}
+%     }
+%   \end{center}
+%   \vspace{0.3em}
+%   \small Fonte: autor (2026). Relações causais entre lobby, comportamento parlamentar e confundidores.
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Efeitos por domínio temático}
-  \begin{columns}
-    \begin{column}{0.58\textwidth}
-      \IfFileExists{../figures/h1_test/fig_coeff_domains.pdf}{%
-        \includegraphics[width=\textwidth]{../figures/h1_test/fig_coeff_domains.pdf}%
-      }{%
-        \fbox{\parbox{\textwidth}{\centering\small \texttt{fig\_coeff\_domains.pdf}\\[0.5em]Coeficiente de reuniões por domínio de política (IC 95\%).}}
-      }
-      \vspace{0.2em}
-      \scriptsize Fonte: autor (2026).
-    \end{column}
-    \begin{column}{0.4\textwidth}
-      \textbf{Efeito marginal de reuniões sobre perguntas, por domínio (H1).}
-      \begin{itemize}
-        \item Coeficiente $\beta$ (reuniões) estimado separadamente em cada domínio; mesma especificação PPML + EF.
-        \item Efeito \textbf{positivo} em (quase) todos os domínios; magnitude varia (ex.: Agricultura, Educação mais altos).
-        \item Linha de referência: efeito médio em todos os domínios.
-      \end{itemize}
-    \end{column}
-  \end{columns}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Fundamentação teórica do DAG -- três dimensões do comportamento}
+%   \scriptsize
+%   \begin{tabular}{p{0.11\textwidth}p{0.45\textwidth}p{0.38\textwidth}}
+%     \hline
+%     \textbf{Dimensão} & \textbf{Fundamentação teórica} & \textbf{Referências} \\
+%     \hline
+%     \textbf{Contexto} & Ambiente político, econômico e social: crises, opinião pública, eventos midiáticos e ciclos eleitorais intensificam mobilização de interesses e alteram a agenda legislativa, gerando correlação espúria entre lobby e comportamento. & \citep{mahoney_lobbying_2007, mahoney2008brussels, baumgartner2010agendas, jones2005politics} \\
+%     \hline
+%     \textbf{Parlamento} & Regras, agenda da liderança, prazos de tramitação e estrutura das comissões afetam quem é alvo de lobby e o comportamento (ex.: relatório em tramitação atrai lobistas ao relator e aumenta sua atividade). & \citep{marshall2010lobby, kluver2015legislative, coen2019legislative} \\
+%     \hline
+%     \textbf{País} & Sistema eleitoral e eleitorado criam incentivos (voto pessoal $\to$ visibilidade; lista fechada $\to$ disciplina). Tamanho e diversidade do eleitorado moldam \textit{vote-seeking}. & \citep{mayhew2004congress, samuels1997determinantes, carey2007competing, willumsen_electoral_2019} \\
+%     \hline
+%     \textbf{Partido} & Ideologia como regras informais; disciplina via sanções e recompensas (seleção, cargos, recursos). Variáveis latentes. & \citep{hix2004electoral, helmke2012informal, carey2007competing, bressanelli2016impact} \\
+%     \hline
+%     \textbf{Aspectos individuais} & Expertise (ocupação prévia) e experiência (mandato, cargos) influenciam atuação e \textit{career-seeking}; comitês e trajetória partidária. & \citep{burden2015personal, damgaard1980dilemma, daniel2015career, chiru2020loyal} \\
+%     \hline
+%   \end{tabular}
+%   \vspace{0.3em}
+%   \scriptsize Mecanismo causal subjacente: troca \citep{de_figueiredo_advancing_2014}
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Efeitos por tipo de ator}
-  \begin{columns}
-    \begin{column}{0.58\textwidth}
-      \IfFileExists{../figures/h2_test/fig_coeff_treatments_overall.pdf}{%
-        \includegraphics[width=\textwidth]{../figures/h2_test/fig_coeff_treatments_overall.pdf}%
-      }{%
-        \fbox{\parbox{\textwidth}{\centering\small \texttt{fig\_coeff\_treatments\_overall.pdf}\\[0.5em]Efeito marginal por reunião por categoria de ator (IC 95\%).}}
-      }
-      \vspace{0.2em}
-      \scriptsize Fonte: autor (6).
-    \end{column}
-    \begin{column}{0.4\textwidth}
-      \textbf{Persuasão por reunião por categoria (H2).}
-      \begin{itemize}
-        \item Coeficiente $\beta^{(k)}$: efeito de uma reunião com tipo $k$ (Empresas, ONGs, Outros) sobre o número de perguntas.
-        \item \textbf{ONGs} com maior efeito marginal por reunião; Empresas e Outros abaixo.
-        \item Paradoxo: eficácia por encontro maior para ONGs; efeito total das empresas domina com orçamentos elevados (acesso).
-      \end{itemize}
-    \end{column}
-  \end{columns}
-\end{frame}
+% % % ---------------------------------------------------------------------------
+% % \begin{frame}{Leitura do DAG e estratégia de identificação}
+% %   \textbf{Relação de interesse:} seta \textbf{Lobby $\to$ Comportamento parlamentar} (efeito causal $\beta$).
+
+% %   \vspace{0.5em}
+% %   \textbf{Confundidores (backdoor paths):}
+% %   \begin{itemize}
+% %     \item \textbf{Contexto:} crises, opinião pública, ciclos eleitorais.
+% %     \item \textbf{Parlamento:} agenda, comissões, relatórios.
+% %     \item \textbf{Três dimensões do comportamento:} País (sistema eleitoral, eleitorado), Partido (ideologia, disciplina), Aspectos individuais (expertise, cargos).
+% %   \end{itemize}
+% %   \vspace{0.5em}
+% %   \textbf{Estratégia:} bloquear esses caminhos com \textbf{efeitos fixos} país$\times$tempo, partido$\times$tempo, domínio$\times$tempo e efeito fixo de membro; identificação por variação \textit{within} MEP ao longo do tempo.
+% % \end{frame}
+
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Metodologia -- modelo}
+%   \textbf{Variáveis:}
+%   \begin{itemize}
+%     \item VD: $AL_{idt}$ = contagem de perguntas (MEP $i$, domínio $d$, mês $t$).
+%     \item Tratamento: $L_{idt}$ = contagem de reuniões de lobby.
+%   \end{itemize}
+%   \vspace{0.5em}
+%   \textbf{Modelo PPML (equação principal):}
+%   \begin{equation*}
+%     AL_{idt} = \beta L_{idt} + \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it}\delta + \epsilon_{idt}
+%   \end{equation*}
+%   \small
+%   \begin{itemize}
+%     \item $\gamma_{ct}$: efeito fixo país$\times$tempo \quad $\lambda_{pt}$: efeito fixo partido$\times$tempo \quad $\theta_{dt}$: efeito fixo domínio$\times$tempo
+%     \item $X'_{it}$: controles (ex.: cargos de liderança)
+%   \end{itemize}
+%   \normalsize
+%   Inferência: erros clusterizados em domínio$\times$tempo e membro.
+% \end{frame}
+
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Estatísticas descritivas}
+%   \textbf{Painel MEP--domínio--mês} (ago/2019--out/2024; 63 meses; 9 domínios):
+%   \begin{itemize}
+%     \item 979.209 observações; 1.727 deputados únicos.
+%     \item Total de reuniões: 235.638 \quad Total de perguntas: 118.238.
+%     \item 804 deputados receberam ao menos uma reunião (46,5\%); entre tratados: média 293 reuniões/deputado (mediana 109).
+%   \end{itemize}
+%   \vspace{0.4em}
+%   \textbf{Lobistas (Registo de Transparência):} 4.722 organizações; 40.343 reuniões no recorte por categoria.
+%   \small
+%   \begin{center}
+%     \begin{tabular}{lccc}
+%       \hline
+%       Categoria & Organizações & Reuniões & Reuniões/org \\
+%       \hline
+%       Empresarial & 2.409 & 22.427 & 9,31 \\
+%       ONGs & 1.271 & 10.966 & 8,63 \\
+%       Outros & 1.042 & 6.950 & 6,67 \\
+%       \hline
+%     \end{tabular}
+%   \end{center}
+%   \normalsize
+%   \scriptsize Domínios mais cobertos: Economia e Comércio, Tecnologia, Infraestrutura, Meio Ambiente. Sede: Bélgica (24\%), Alemanha (15\%), França (10\%). \textit{Fonte:} autor (2026).
+% \end{frame}
+
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Modelo e justificativa -- H1}
+%   \textbf{Modelo:} PPML com efeitos fixos de alta dimensão.
+%   \begin{equation*}
+%     AL_{idt} = \beta_1 L_{idt} + \beta_2 L_{idt}^2 + \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it}\delta + \epsilon_{idt}
+%   \end{equation*}
+%   \small Termo quadrático $L_{idt}^2$ para testar retornos marginais decrescentes. Erros clusterizados em domínio$\times$tempo.
+%   \vspace{0.5em}
+%   \textbf{Justificativa empírica:}
+%   \begin{itemize}
+%     \item PPML adequado para dados de contagem (muitos zeros); evita viés de log em MQO.
+%     \item Efeitos fixos país$\times$t, partido$\times$t, domínio$\times$t absorvem confundidores; identificação na variação \textit{within} MEP ao longo do tempo.
+%     \item $\beta_2 < 0$ significativo $\Rightarrow$ efeito marginal decrescente com o número de reuniões.
+%   \end{itemize}
+% \end{frame}
+
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Resultados -- Hipótese 1}
+%   \begin{columns}
+%     \begin{column}{0.55\textwidth}
+%       \IfFileExists{../figures/h1_test/fig_effect_quadratic_ppml.pdf}{%
+%         \includegraphics[width=\textwidth]{../figures/h1_test/fig_effect_quadratic_ppml.pdf}%
+%       }{%
+%         \fbox{\parbox{\textwidth}{\centering\small Figura: \texttt{fig\_effect\_quadratic\_ppml.pdf}\\[0.5em]Efeito esperado (linear + quadrático) em perguntas por reuniões.}}
+%       }
+%       \vspace{0.2em}
+%       \scriptsize Fonte: autor (2026).
+%     \end{column}
+%     \begin{column}{0.42\textwidth}
+%       \textbf{Maior lobby $\Rightarrow$ maior AL.}
+%       \begin{itemize}
+%         \item Coef. \textbf{positivo} e significativo: $\approx$ 2,5\% por reunião (linear).
+%         \item \textbf{Retornos marginais decrescentes}; inflexão em $\approx$ 12 reuniões.
+%         \item Efeito positivo em (quase) todos os domínios.
+%       \end{itemize}
+%       \vspace{0.3em}
+%       \small H1 corroborada.
+%     \end{column}
+%   \end{columns}
+% \end{frame}
+
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Efeitos por domínio temático}
+%   \begin{columns}
+%     \begin{column}{0.58\textwidth}
+%       \IfFileExists{../figures/h1_test/fig_coeff_domains.pdf}{%
+%         \includegraphics[width=\textwidth]{../figures/h1_test/fig_coeff_domains.pdf}%
+%       }{%
+%         \fbox{\parbox{\textwidth}{\centering\small \texttt{fig\_coeff\_domains.pdf}\\[0.5em]Coeficiente de reuniões por domínio de política (IC 95\%).}}
+%       }
+%       \vspace{0.2em}
+%       \scriptsize Fonte: autor (2026).
+%     \end{column}
+%     \begin{column}{0.4\textwidth}
+%       \textbf{Efeito marginal de reuniões sobre perguntas, por domínio (H1).}
+%       \begin{itemize}
+%         \item Coeficiente $\beta$ (reuniões) estimado separadamente em cada domínio; mesma especificação PPML + EF.
+%         \item Efeito \textbf{positivo} em (quase) todos os domínios; magnitude varia (ex.: Agricultura, Educação mais altos).
+%         \item Linha de referência: efeito médio em todos os domínios.
+%       \end{itemize}
+%     \end{column}
+%   \end{columns}
+% \end{frame}
+
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Efeitos por tipo de ator}
+%   \begin{columns}
+%     \begin{column}{0.58\textwidth}
+%       \IfFileExists{../figures/h2_test/fig_coeff_treatments_overall.pdf}{%
+%         \includegraphics[width=\textwidth]{../figures/h2_test/fig_coeff_treatments_overall.pdf}%
+%       }{%
+%         \fbox{\parbox{\textwidth}{\centering\small \texttt{fig\_coeff\_treatments\_overall.pdf}\\[0.5em]Efeito marginal por reunião por categoria de ator (IC 95\%).}}
+%       }
+%       \vspace{0.2em}
+%       \scriptsize Fonte: autor (6).
+%     \end{column}
+%     \begin{column}{0.4\textwidth}
+%       \textbf{Persuasão por reunião por categoria (H2).}
+%       \begin{itemize}
+%         \item Coeficiente $\beta^{(k)}$: efeito de uma reunião com tipo $k$ (Empresas, ONGs, Outros) sobre o número de perguntas.
+%         \item \textbf{ONGs} com maior efeito marginal por reunião; Empresas e Outros abaixo.
+%         \item Paradoxo: eficácia por encontro maior para ONGs; efeito total das empresas domina com orçamentos elevados (acesso).
+%       \end{itemize}
+%     \end{column}
+%   \end{columns}
+% \end{frame}
 
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Modelo e justificativa -- H2}
-  \textbf{Etapa 1 -- Persuasão (PPML):}
-  \begin{equation*}
-    AL_{idt} = \beta^{(k)} L_{idt}^{(k)} + \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it}\delta + \epsilon_{idt}, \quad k \in \{\text{Emp., ONGs, Outros}\}
-  \end{equation*}
-  \textbf{Etapa 2 -- Acesso (Binomial Negativa):} $\ell$ = lobista; $B_\ell$ = orçamento; $C_\ell$ = categoria; $W_\ell$ = controles.
-  \begin{equation*}
-    \mathbb{E}[\text{reuniões}_\ell\,|\,Z_\ell] = \exp\big(\alpha_0 + \alpha_1 C_\ell + \alpha_2 \ln B_\ell + \alpha_3\, C_\ell\cdot\ln B_\ell + W_\ell'\eta\big)
-  \end{equation*}
-  \textbf{Efeito total:} $\;\text{Efeito total}_{(k,B)} \approx \underbrace{\mathbb{E}[\text{reuniões}\,|\,k,B]}_{\text{Acesso}} \times \underbrace{\beta^{(k)}}_{\text{Persuasão}}$.
-  \vspace{0.3em}
-  % \small Justificativa: decomposição acesso/persuasão; BN para sobredispersão; interação permite efeito do orçamento por categoria; premissa de separabilidade.
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Modelo e justificativa -- H2}
+%   \textbf{Etapa 1 -- Persuasão (PPML):}
+%   \begin{equation*}
+%     AL_{idt} = \beta^{(k)} L_{idt}^{(k)} + \gamma_{ct} + \lambda_{pt} + \theta_{dt} + X'_{it}\delta + \epsilon_{idt}, \quad k \in \{\text{Emp., ONGs, Outros}\}
+%   \end{equation*}
+%   \textbf{Etapa 2 -- Acesso (Binomial Negativa):} $\ell$ = lobista; $B_\ell$ = orçamento; $C_\ell$ = categoria; $W_\ell$ = controles.
+%   \begin{equation*}
+%     \mathbb{E}[\text{reuniões}_\ell\,|\,Z_\ell] = \exp\big(\alpha_0 + \alpha_1 C_\ell + \alpha_2 \ln B_\ell + \alpha_3\, C_\ell\cdot\ln B_\ell + W_\ell'\eta\big)
+%   \end{equation*}
+%   \textbf{Efeito total:} $\;\text{Efeito total}_{(k,B)} \approx \underbrace{\mathbb{E}[\text{reuniões}\,|\,k,B]}_{\text{Acesso}} \times \underbrace{\beta^{(k)}}_{\text{Persuasão}}$.
+%   \vspace{0.3em}
+%   % \small Justificativa: decomposição acesso/persuasão; BN para sobredispersão; interação permite efeito do orçamento por categoria; premissa de separabilidade.
+% \end{frame}
 
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Resultados -- Hipótese 2}
-  \begin{columns}
-    \begin{column}{0.55\textwidth}
-      \IfFileExists{../figures/h2_test/fig_total_effect_vs_budget_by_category.pdf}{%
-        \includegraphics[width=\textwidth]{../figures/h2_test/fig_total_effect_vs_budget_by_category.pdf}%
-      }{%
-        \IfFileExists{../figures/h2_test/fig_coeff_treatments_overall.pdf}{%
-          \includegraphics[width=\textwidth]{../figures/h2_test/fig_coeff_treatments_overall.pdf}%
-        }{%
-          \fbox{\parbox{\textwidth}{\centering\small Figura: efeito total por categoria e orçamento (ou efeito marginal por tipo de ator).}}
-        }%
-      }
-      \vspace{0.2em}
-      \scriptsize Fonte: autor (2026).
-    \end{column}
-    \begin{column}{0.42\textwidth}
-      \textbf{Persuasão/reunião:} ONGs $>$ empresas.
-      \vspace{0.2em}
-      \textbf{Efeito total = Acesso $\times$ Persuasão:}
-      \begin{itemize}
-        \item Orçamento $<$ $\approx$\$8,8 M: ONGs com efeito total maior.
-        \item Orçamento $>$ $\approx$\$40 M: empresas com efeito agregado maior.
-      \end{itemize}
-      \vspace{0.2em}
-      \small Recursos $\to$ acesso; ONGs com maior eficácia por reunião. H2 corroborada.
-    \end{column}
-  \end{columns}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Resultados -- Hipótese 2}
+%   \begin{columns}
+%     \begin{column}{0.55\textwidth}
+%       \IfFileExists{../figures/h2_test/fig_total_effect_vs_budget_by_category.pdf}{%
+%         \includegraphics[width=\textwidth]{../figures/h2_test/fig_total_effect_vs_budget_by_category.pdf}%
+%       }{%
+%         \IfFileExists{../figures/h2_test/fig_coeff_treatments_overall.pdf}{%
+%           \includegraphics[width=\textwidth]{../figures/h2_test/fig_coeff_treatments_overall.pdf}%
+%         }{%
+%           \fbox{\parbox{\textwidth}{\centering\small Figura: efeito total por categoria e orçamento (ou efeito marginal por tipo de ator).}}
+%         }%
+%       }
+%       \vspace{0.2em}
+%       \scriptsize Fonte: autor (2026).
+%     \end{column}
+%     \begin{column}{0.42\textwidth}
+%       \textbf{Persuasão/reunião:} ONGs $>$ empresas.
+%       \vspace{0.2em}
+%       \textbf{Efeito total = Acesso $\times$ Persuasão:}
+%       \begin{itemize}
+%         \item Orçamento $<$ $\approx$\$8,8 M: ONGs com efeito total maior.
+%         \item Orçamento $>$ $\approx$\$40 M: empresas com efeito agregado maior.
+%       \end{itemize}
+%       \vspace{0.2em}
+%       \small Recursos $\to$ acesso; ONGs com maior eficácia por reunião. H2 corroborada.
+%     \end{column}
+%   \end{columns}
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Modelo e justificativa -- H3}
-  \textbf{Modelo:} PPML com interações entre reuniões por categoria ($L_{idt}^{(k)}$) e saliência do tema ($\text{Sal}_{dt}$, padronizada):
-  \begin{equation*}
-    AL_{idt} = \sum_{k} \big[ \beta_k L_{idt}^{(k)} + \phi_k L_{idt}^{(k)} \cdot \text{Sal}_{dt} \big] + \text{EF} + X'_{it}\delta + \epsilon_{idt}
-  \end{equation*}
-  \small $\beta_k$: efeito marginal quando saliência = média; $\phi_k$: como o efeito varia com a saliência. Erros clusterizados em domínio$\times$tempo.
-  \vspace{0.4em}
-  \textbf{Justificativa empírica:}
-  \begin{itemize}
-    \item Saliência = volume total de reuniões no domínio-tempo (log, padronizado); proxy de atenção agregada ao tema \citep{baumgartner2010agendas}.
-    \item $\phi_{\text{NGOs}}$ menos negativo que $\phi_{\text{Empresas}}$ $\Rightarrow$ ONGs mais resilientes ao aumento de saliência (vantagem relativa sob escrutínio).
-    \item Mesma estrutura de EF que H1/H2; identificação na variação \textit{within} MEP.
-  \end{itemize}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Modelo e justificativa -- H3}
+%   \textbf{Modelo:} PPML com interações entre reuniões por categoria ($L_{idt}^{(k)}$) e saliência do tema ($\text{Sal}_{dt}$, padronizada):
+%   \begin{equation*}
+%     AL_{idt} = \sum_{k} \big[ \beta_k L_{idt}^{(k)} + \phi_k L_{idt}^{(k)} \cdot \text{Sal}_{dt} \big] + \text{EF} + X'_{it}\delta + \epsilon_{idt}
+%   \end{equation*}
+%   \small $\beta_k$: efeito marginal quando saliência = média; $\phi_k$: como o efeito varia com a saliência. Erros clusterizados em domínio$\times$tempo.
+%   \vspace{0.4em}
+%   \textbf{Justificativa empírica:}
+%   \begin{itemize}
+%     \item Saliência = volume total de reuniões no domínio-tempo (log, padronizado); proxy de atenção agregada ao tema \citep{baumgartner2010agendas}.
+%     \item $\phi_{\text{NGOs}}$ menos negativo que $\phi_{\text{Empresas}}$ $\Rightarrow$ ONGs mais resilientes ao aumento de saliência (vantagem relativa sob escrutínio).
+%     \item Mesma estrutura de EF que H1/H2; identificação na variação \textit{within} MEP.
+%   \end{itemize}
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Resultados -- Hipótese 3}
-  \begin{columns}
-    \begin{column}{0.55\textwidth}
-      \IfFileExists{../figures/h3_test/fig_h3_marginal_effects_manual.png}{%
-        \includegraphics[width=\textwidth]{../figures/h3_test/fig_h3_marginal_effects_manual.png}%
-      }{%
-        \fbox{\parbox{\textwidth}{\centering\small Figura: \texttt{fig\_h3\_marginal\_effects\_manual.png}\\[0.5em]Efeito marginal por tipo de ator condicional à saliência do tema.}}
-      }
-      \vspace{0.2em}
-      \scriptsize Fonte: autor (2026).
-    \end{column}
-    \begin{column}{0.42\textwidth}
-      \textbf{Saliência:} efeito do lobby \textbf{diminui para todos} em temas mais salientes.
-      \vspace{0.2em}
-      \textbf{Heterogeneidade:}
-      \begin{itemize}
-        \item Efeito das ONGs \textbf{mais resiliente}; empresas/outros $\approx 0$ em alta saliência.
-        \item ONGs permanecem positivas e significativas sob escrutínio.
-      \end{itemize}
-      \vspace{0.2em}
-      \small Lobby não empresarial \textbf{relativamente} mais eficaz em temas salientes. H3 corroborada.
-    \end{column}
-  \end{columns}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Resultados -- Hipótese 3}
+%   \begin{columns}
+%     \begin{column}{0.55\textwidth}
+%       \IfFileExists{../figures/h3_test/fig_h3_marginal_effects_manual.png}{%
+%         \includegraphics[width=\textwidth]{../figures/h3_test/fig_h3_marginal_effects_manual.png}%
+%       }{%
+%         \fbox{\parbox{\textwidth}{\centering\small Figura: \texttt{fig\_h3\_marginal\_effects\_manual.png}\\[0.5em]Efeito marginal por tipo de ator condicional à saliência do tema.}}
+%       }
+%       \vspace{0.2em}
+%       \scriptsize Fonte: autor (2026).
+%     \end{column}
+%     \begin{column}{0.42\textwidth}
+%       \textbf{Saliência:} efeito do lobby \textbf{diminui para todos} em temas mais salientes.
+%       \vspace{0.2em}
+%       \textbf{Heterogeneidade:}
+%       \begin{itemize}
+%         \item Efeito das ONGs \textbf{mais resiliente}; empresas/outros $\approx 0$ em alta saliência.
+%         \item ONGs permanecem positivas e significativas sob escrutínio.
+%       \end{itemize}
+%       \vspace{0.2em}
+%       \small Lobby não empresarial \textbf{relativamente} mais eficaz em temas salientes. H3 corroborada.
+%     \end{column}
+%   \end{columns}
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Conclusão}
-  \textbf{Síntese dos resultados:}
-  \begin{itemize}
-    \item \textbf{H1:} Lobby aumenta a AL ($\approx$ 2,5\% por reunião; retornos decrescentes; inflexão $\approx$ 12 reuniões). Atores com mais recursos sustentam níveis mais altos de lobby.
-    \item \textbf{H2:} Influência total = acesso $\times$ persuasão. Abaixo de $\approx$\$8,8 M: ONGs com efeito total maior; acima de $\approx$\$40 M: empresas dominam. ONGs com maior \textit{persuasão por reunião}.
-    \item \textbf{H3:} Em temas mais salientes o efeito diminui para todos; ONGs mais resilientes ao escrutínio $\Rightarrow$ relativamente mais influentes sob atenção pública.
-  \end{itemize}
-  \vspace{0.3em}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{Conclusão}
+%   \textbf{Síntese dos resultados:}
+%   \begin{itemize}
+%     \item \textbf{H1:} Lobby aumenta a AL ($\approx$ 2,5\% por reunião; retornos decrescentes; inflexão $\approx$ 12 reuniões). Atores com mais recursos sustentam níveis mais altos de lobby.
+%     \item \textbf{H2:} Influência total = acesso $\times$ persuasão. Abaixo de $\approx$\$8,8 M: ONGs com efeito total maior; acima de $\approx$\$40 M: empresas dominam. ONGs com maior \textit{persuasão por reunião}.
+%     \item \textbf{H3:} Em temas mais salientes o efeito diminui para todos; ONGs mais resilientes ao escrutínio $\Rightarrow$ relativamente mais influentes sob atenção pública.
+%   \end{itemize}
+%   \vspace{0.3em}
+% \end{frame}
 
-\begin{frame}{Implicações}
-  \textbf{Implicações:} Influência no PE é um ecossistema (recursos, tipo de ator, saliência). Resultados desafiam visão monolítica; escrutínio público funciona como contrapeso democrático. 
+% \begin{frame}{Implicações}
+%   \textbf{Implicações:} Influência no PE é um ecossistema (recursos, tipo de ator, saliência). Resultados desafiam visão monolítica; escrutínio público funciona como contrapeso democrático. 
   
-  \vspace{0.3em}
-  \textbf{Limitações:} Mede-se influência (mudança de comportamento), não poder (agir contra preferências); AL não esgota o comportamento parlamentar; dados do Registo de Transparência.
+%   \vspace{0.3em}
+%   \textbf{Limitações:} Mede-se influência (mudança de comportamento), não poder (agir contra preferências); AL não esgota o comportamento parlamentar; dados do Registo de Transparência.
 
-  \vspace{0.3em}
+%   \vspace{0.3em}
 
-  \vspace{0.3em}
-  \small \textit{Em suma:} Recursos financeiros são um fator inegável, mas não o único; credibilidade da informação e escrutínio público moldam o comportamento dos representantes e a qualidade da democracia supranacional.
-\end{frame}
+%   \vspace{0.3em}
+%   \small \textit{Em suma:} Recursos financeiros são um fator inegável, mas não o único; credibilidade da informação e escrutínio público moldam o comportamento dos representantes e a qualidade da democracia supranacional.
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}[allowframebreaks]{Referências}
-  \bibliographystyle{apalike}
-  \bibliography{../refs}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}[allowframebreaks]{Referências}
+%   \bibliographystyle{apalike}
+%   \bibliography{../refs}
+% \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{}
-  \begin{center}
-    \Large Obrigado!
-    \vspace{1em}
-    \url{https://github.com/AcacioTelechi/thesis-lobbying-effects}
-  \end{center}
-\end{frame}
+% % ---------------------------------------------------------------------------
+% \begin{frame}{}
+%   \begin{center}
+%     \Large Obrigado!
+%     \vspace{1em}
+%     \url{https://github.com/AcacioTelechi/thesis-lobbying-effects}
+%   \end{center}
+% \end{frame}
 
-\end{document}
+% \end{document}
