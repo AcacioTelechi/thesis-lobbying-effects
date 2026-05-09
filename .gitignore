@@ -20,6 +20,15 @@ Tese/*.nav
 Tese/*.acn
 Tese/*.lof
 Tese/*.lot
+*.aux
+*.bbl
+*.blg
+*.nav
+*.snm
+*.synctex.gz
+*.toc
+*.out
+*.lof
 
 # Byte-compiled / optimized / DLL file
 __pycache__/
