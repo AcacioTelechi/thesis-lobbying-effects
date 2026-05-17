@@ -10,6 +10,44 @@
 \usepackage{tabularray}
 \usepackage{csvsimple}
 \usepackage{csvsimple}
+\usepackage{pdfpages}
+
+% Insere o termo de aprovação (ATA da defesa) como página(s) de PDF
+\newcommand{\inserirtermo}[1]{%
+    \includepdf[pages=-,pagecommand={\thispagestyle{empty}}]{#1}%
+}
+
+% Folha de rosto no padrão UFPR/PPGCP: sem bloco de instituição e com o
+% orientador dentro do bloco do preâmbulo (à direita, mesma fonte).
+\makeatletter
+\renewcommand{\folhaderostocontent}{%
+  \noindent\parbox[t][\textheight][s]{\textwidth}{%
+    \centering
+    {\ABNTEXchapterfont\large\imprimirautor}
+
+    \vspace*{\fill}\vspace*{\fill}
+    {\ABNTEXchapterfont\bfseries\Large\MakeUppercase{\imprimirtitulo}\par}
+    \vspace*{\fill}
+
+    \abntex@ifnotempty{\imprimirpreambulo}{%
+      \hspace*{.45\textwidth}%
+      \begin{minipage}{.5\textwidth}
+        \SingleSpacing
+        \imprimirpreambulo
+        \par\vspace{\onelineskip}
+        \imprimirorientadorRotulo~\imprimirorientador\par
+        \abntex@ifnotempty{\imprimircoorientador}{%
+          \imprimircoorientadorRotulo~\imprimircoorientador\par
+        }%
+      \end{minipage}\par
+    }%
+
+    \vspace*{\fill}\vspace*{\fill}
+    {\large\imprimirlocal\par}
+    {\large\imprimirdata}
+  }%
+}
+\makeatother
 
 % envs
 \providecommand{\varitem}{} % to keep LaTeX quiet
@@ -24,20 +62,20 @@
 \newenvironment{hypotheses}{\statements{H}}{\endstatements}
 \newenvironment{objectives}{\statements{O}}{\endstatements}
  
-\titulo{Mensurando os Efeitos do Lobby no Comportamento Parlamentar: uma abordagem utilizando painel de dados com efeitos fixos no Parlamento Europeu}
-\tituloestrangeiro{--texto do título estrangeiro--}
-\autor{Acácio Vasconcelos Telechi}
+\titulo{\uppercase{Mensurando os Efeitos do Lobby no Comportamento Parlamentar: uma abordagem utilizando painel de dados com efeitos fixos no Parlamento Europeu}}
+\tituloestrangeiro{Measuring the Effects of Lobbying on Parliamentary Behavior: an approach using fixed-effects panel data in the European Parliament}
+\autor{ACÁCIO VASCONCELOS TELECHI}
 \orientador{Prof. Dr. Alexsandro Eugênio Pereira}
 % \coorientador{--Monitor--}
-\data{2025}
+\data{2026}
 \instituicao{
     Universidade Federal do Paraná (UFPR) \par
     Departamento de Ciência Política \par
     Programa de Pós-Graduação em Ciência Política
 }
 \tipotrabalho{Tese}
-\local{Curitiba, PR}
-\preambulo{Texto de tese de doutoramento em Ciência Política}
+\local{CURITIBA}
+\preambulo{Tese apresentada ao Curso de Pós-Graduação em Ciência Política, Setor de Humanas, da Universidade Federal do Paraná, como requisito parcial à obtenção do título de Doutor em Ciência Política.}
 
 \setlength{\absparsep}{18pt} % ajusta o espaçamento dos parágrafos do resumo
 
@@ -50,6 +88,9 @@
     \imprimircapa
     \imprimirfolhaderosto[]* % talvez dê merda na numeração das páginas
     \makeatother\cleardoublepage
+
+    % Inserir termo de aprovação (PDF)
+    \inserirtermo{ATA DEFESA - Termo de Aprovação.pdf}
     
     
     \begin{resumo}[Resumo]
