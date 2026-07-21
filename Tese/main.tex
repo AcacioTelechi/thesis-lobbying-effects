@@ -79,17 +79,28 @@
 
 \setlength{\absparsep}{18pt} % ajusta o espaçamento dos parágrafos do resumo
 
+% ---------------------------------------------------------------------------
+% Formatação dos títulos conforme UFPR/ABNT: TODOS os títulos (capítulos,
+% seções, subseções e pré-textuais — Resumo, Abstract, Sumário, listas) em
+% tamanho 12 (\normalsize), NEGRITO e CAIXA ALTA, iniciando na parte superior
+% da folha. A capa e a folha de rosto não são afetadas, pois usam
+% \ABNTEXchapterfont diretamente (mantido sem negrito, conforme o parecer).
+% ---------------------------------------------------------------------------
+\renewcommand{\ABNTEXchapterfontsize}{\normalsize}
+\renewcommand{\ABNTEXsectionfontsize}{\normalsize}
+\renewcommand{\ABNTEXsubsectionfontsize}{\normalsize}
+\renewcommand{\ABNTEXsubsubsectionfontsize}{\normalsize}
+\renewcommand{\ABNTEXsubsubsubsectionfontsize}{\normalsize}
+% Negrito nos títulos de capítulo e pré-textuais (Resumo, Abstract, Sumário, listas)
+\renewcommand{\chaptitlefont}{\ABNTEXchapterfont\ABNTEXchapterfontsize\bfseries}
+% Negrito nas seções e subseções (propaga por alias a partir de sectionfont)
+\renewcommand{\ABNTEXsectionfont}{\sffamily\bfseries}
 
 \input{acr}
 \makeglossaries
 
 \begin{document}
     \pretextual
-
-    % Títulos dos elementos pré-textuais (Resumo, Abstract, listas e Sumário)
-    % centralizados, em maiúsculas e em NEGRITO, conforme normas da UFPR.
-    % A fonte padrão é restaurada antes de \textual (títulos do corpo do texto).
-    \renewcommand{\chaptitlefont}{\ABNTEXchapterfont\ABNTEXchapterfontsize\bfseries}
 
     \imprimircapa
     \imprimirfolhaderosto[]*
@@ -134,9 +145,6 @@
     \cleardoublepage
     \pdfbookmark[0]{\contentsname}{toc}
     \tableofcontents*
-
-    % Restaura a fonte padrão dos títulos de capítulo para os elementos textuais
-    \renewcommand{\chaptitlefont}{\ABNTEXchapterfont\ABNTEXchapterfontsize}
 
     \textual % a partir daqui são os elementos textuais.
     \setlength{\parskip}{6pt}
