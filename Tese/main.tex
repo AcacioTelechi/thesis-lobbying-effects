@@ -1,4 +1,4 @@
-\documentclass[12pt, a4paper, twoside, chapter=TITLE, subsection=TITLE, section=TITLE, subsubsection=TITLE, subsubsubsection=TITLE, english, german, brazil, hidelinks]{abntex2}
+\documentclass[12pt, a4paper, oneside, chapter=TITLE, subsection=TITLE, section=TITLE, subsubsection=TITLE, subsubsubsection=TITLE, english, german, brazil, hidelinks]{abntex2}
 \usepackage{glossaries}
 \usepackage[utf8]{inputenc}
 \usepackage[brazilian,hyperpageref]{backref}
@@ -26,7 +26,7 @@
     {\ABNTEXchapterfont\large\imprimirautor}
 
     \vspace*{\fill}\vspace*{\fill}
-    {\ABNTEXchapterfont\bfseries\Large\MakeUppercase{\imprimirtitulo}\par}
+    {\ABNTEXchapterfont\Large\MakeUppercase{\imprimirtitulo}\par}
     \vspace*{\fill}
 
     \abntex@ifnotempty{\imprimirpreambulo}{%
@@ -85,14 +85,30 @@
 
 \begin{document}
     \pretextual
-    \imprimircapa
-    \imprimirfolhaderosto[]* % talvez dê merda na numeração das páginas
-    \makeatother\cleardoublepage
 
-    % Inserir termo de aprovação (PDF)
+    % Títulos dos elementos pré-textuais (Resumo, Abstract, listas e Sumário)
+    % centralizados, em maiúsculas e em NEGRITO, conforme normas da UFPR.
+    % A fonte padrão é restaurada antes de \textual (títulos do corpo do texto).
+    \renewcommand{\chaptitlefont}{\ABNTEXchapterfont\ABNTEXchapterfontsize\bfseries}
+
+    \imprimircapa
+    \imprimirfolhaderosto[]*
+    \cleardoublepage
+
+    % Ficha catalográfica (deve ser elaborada por bibliotecário da UFPR).
+    % Salve o PDF fornecido pela biblioteca como "ficha-catalografica.pdf"
+    % na pasta Tese/ para que seja inserido automaticamente aqui.
+    \IfFileExists{ficha-catalografica.pdf}{%
+        \includepdf[pages=-,pagecommand={\thispagestyle{empty}}]{ficha-catalografica.pdf}%
+    }{}
+
+    % Termo de aprovação (ATA da defesa)
     \inserirtermo{ATA DEFESA - Termo de Aprovação.pdf}
-    
-    
+
+    % Agradecimentos (elemento pré-textual, antes do resumo)
+    \input{main/agradecimentos}
+    \cleardoublepage
+
     \begin{resumo}[Resumo]
         Esta tese investiga os efeitos do lobby sobre o comportamento parlamentar no \acrfull{pe}. Em um contexto de crescente complexidade e relevância do processo decisório da \acrfull{ue}, compreender como os grupos de interesse influenciam a atenção dos legisladores é fundamental para avaliar a qualidade da democracia supranacional. Para superar os desafios de identificação causal, esta pesquisa emprega um modelo de dados em painel com efeitos fixos de alta dimensão para medir o impacto das reuniões de lobby no \acrfull{al} dos eurodeputados. Os resultados indicam que o lobby aumenta significativamente a atividade parlamentar, embora com retornos marginais decrescentes. A análise revela uma heterogeneidade crucial: o efeito total - a combinação de acesso a parlamentares e a persuasão dos lobistas - das empresas é superior à de outros atores, mas essa vantagem é largamente dependente de vastos recursos financeiros. Em contrapartida, as \acrshort{ong}s demonstram um maior efeito de persuasão por reunião, sugerindo que a informação credível é uma moeda de troca valiosa. Adicionalmente, o estudo mostra que a influência de todos os lobistas diminui em temas de alta saliência pública, mas a das \acrshort{ong}s se mostra mais resiliente ao escrutínio, tornando-as relativamente mais eficazes nesses contextos. A tese conclui que a influência no \acrshort{pe} é um ecossistema complexo onde o poder financeiro é um fator preponderante, mas não o único, sendo moderado pela credibilidade da informação e pela atenção pública. \\
         \noindent
@@ -107,20 +123,21 @@
         \end{otherlanguage*}
     \end{resumo}
     
-    \pdfbookmark[0]{\contentsname}{toc}
-
-    
-    \input{main/agradecimentos}
-
-    \cleardoublepage
-
-    \tableofcontents*
-    \cleardoublepage
+    % Listas (elementos pré-textuais, antes do Sumário). As versões com
+    % asterisco evitam que as próprias listas sejam inseridas no Sumário
+    % (elementos pré-textuais não constam no sumário — ABNT NBR 6027).
+    \listoffigures*
+    \listoftables*
     \printglossary[type=\acronymtype, title={Lista de Abreviaturas e Siglas}]
-    \listoffigures
-    \listoftables
-    \input{main/siglas}
-    
+
+    % Sumário (último elemento pré-textual, em página própria)
+    \cleardoublepage
+    \pdfbookmark[0]{\contentsname}{toc}
+    \tableofcontents*
+
+    % Restaura a fonte padrão dos títulos de capítulo para os elementos textuais
+    \renewcommand{\chaptitlefont}{\ABNTEXchapterfont\ABNTEXchapterfontsize}
+
     \textual % a partir daqui são os elementos textuais.
     \setlength{\parskip}{6pt}
         \input{main/intro/index}

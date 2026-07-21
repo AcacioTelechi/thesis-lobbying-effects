@@ -29,6 +29,9 @@ Tese/*.lot
 *.toc
 *.out
 *.lof
+*.gls
+*.glg
+
 
 # Byte-compiled / optimized / DLL file
 __pycache__/

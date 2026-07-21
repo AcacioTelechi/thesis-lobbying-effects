@@ -15,6 +15,9 @@
 \RequirePackage[brazil]{babel} % Hifenização, correções, coisas relacionadas a português e outras línguas. 
 %% https://ctan.org/pkg/babel
 
+\RequirePackage{lmodern} % Latin Modern: mesmas métricas do Computer Modern, mas com negrito (inclusive sans-serif) bem mais nítido — necessário para os títulos em negrito exigidos pela UFPR
+%% https://ctan.org/pkg/lm
+
 \RequirePackage[T1]{fontenc} % alguma coisa voltada a fontes, permite a hifenização com caractéreis especiais. Não sei a diferença entre esse e a hifenização do Babel
 %% https://ctan.org/pkg/fontenc
 
@@ -124,7 +127,7 @@
         {\ABNTEXchapterfont\large\imprimirautor}
         \vfill
         \begin{center}
-            \ABNTEXchapterfont\bfseries\LARGE\imprimirtitulo
+            \ABNTEXchapterfont\LARGE\imprimirtitulo
         \end{center}
         \vfill
         \large\imprimirlocal \\
